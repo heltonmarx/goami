@@ -91,7 +91,7 @@ func GetUUID() (string, error) {
 }
 
 func Ping(socket *Socket, actionID string) (bool, error) {
-	pingCmd := []string {
+	pingCmd := []string{
 		"Action: Ping",
 		"\r\nActionID: ",
 		actionID,
