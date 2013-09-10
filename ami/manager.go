@@ -28,14 +28,14 @@ func Connect(socket *Socket) (bool, error) {
 	return true, nil
 }
 
-func Login(socket *Socket, user, secret, events, actionID string) (string, error) {
+func Login(socket *Socket, user, secret, events, actionID string) (bool, error) {
 
 	if (len(user) == 0) || (len(secret) == 0) {
-		return "", errors.New("Invalid user")
+		return false, errors.New("Invalid user")
 	}
 
 	if !socket.Connected() {
-		return "", errors.New("Invalid socket")
+		return false, errors.New("Invalid socket")
 	}
 
 	authCmd := []string{
@@ -52,19 +52,23 @@ func Login(socket *Socket, user, secret, events, actionID string) (string, error
 	}
 	err := sendCmd(socket, authCmd)
 	if err != nil {
-		return "", err
+		return false, err
 	}
 	answers, err := parseAnswer(socket)
 	if (err != nil) || (cmpActionID(answers, actionID) == false) {
-		return "", err
+		return false, err
 	}
 	response := getResponse(answers, "Response")
-	return response, nil
+	if response != "Success" {
+		response = getResponse(answers, "Message")
+		return false, errors.New(response)
+	}
+	return true, nil
 }
 
-func Logoff(socket *Socket, actionID string) (string, error) {
+func Logoff(socket *Socket, actionID string) (bool, error) {
 	if !socket.Connected() {
-		return "", errors.New("Invalid socket")
+		return false, errors.New("Invalid socket")
 	}
 
 	logoffCmd := []string{
@@ -75,14 +79,18 @@ func Logoff(socket *Socket, actionID string) (string, error) {
 	}
 	err := sendCmd(socket, logoffCmd)
 	if err != nil {
-		return "", err
+		return false, err
 	}
 	answers, err := parseAnswer(socket)
 	if (err != nil) || (cmpActionID(answers, actionID) == false) {
-		return "", err
+		return false, err
 	}
 	response := getResponse(answers, "Response")
-	return response, nil
+	if response != "Goodbye" {
+		response = getResponse(answers, "Message")
+		return false, errors.New(response)
+	}
+	return true, nil
 }
 
 func GetUUID() (string, error) {

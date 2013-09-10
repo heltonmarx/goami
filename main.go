@@ -14,49 +14,48 @@ func main() {
 	if _, err := ami.Connect(socket); err != nil {
 		return
 	}
-	var answer string
 	var ret bool
+	var num int
 
 	/**
 	 *  Login
 	 */
-	fmt.Printf("login\n")
 	uuid, _ := ami.GetUUID()
-	answer, err = ami.Login(socket, "admin", "admin", "Off", uuid)
-	if err != nil {
-		fmt.Printf("login error\n")
-	} else {
-		fmt.Printf("answer[%s]\n", answer)
+	ret, err = ami.Login(socket, "admin", "admin", "Off", uuid)
+	if err != nil || ret == false {
+		fmt.Printf("login error (%v)\n", err)
+		return
 	}
+	fmt.Printf("login ok!\n")
 
 	/**
 	 *  Ping
 	 */
 	ret, err = ami.Ping(socket, uuid)
-	if err != nil {
-		fmt.Printf("ping error\n")
-	} else {
-		fmt.Printf("ping [ok](%v)\n", ret)
+	if err != nil || ret == false {
+		fmt.Printf("ping error (%v)\n", err)
+		return
 	}
 
 	/**
 	 *  SIPPeers
 	 */
-	answer, err = ami.SIPPeers(socket, uuid)
+	num, err = ami.SIPPeers(socket, uuid)
 	if err != nil {
-		fmt.Printf("SIPPeers error: %v\n", err)
+		fmt.Printf("SIPPeers error: (%v)\n", err)
 	} else {
-		fmt.Printf("SIPPeers[ok] - [%s]\n", answer)
+		fmt.Printf("SIPPeers[ok] - [%d]\n", num)
 	}
 
 	/**
 	 *  Logoff
 	 */
 	fmt.Printf("logoff\n")
-	answer, err = ami.Logoff(socket, uuid)
-	if err != nil {
-		fmt.Printf("logoff error\n")
-	} else {
-		fmt.Printf("answer[%s]\n", answer)
+	ret, err = ami.Logoff(socket, uuid)
+	if err != nil || ret == false {
+		fmt.Printf("logoff error: (%v)\n", err)
+		return
 	}
+	fmt.Printf("goodbye !\n")
+
 }

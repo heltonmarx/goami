@@ -3,72 +3,9 @@ package ami
 import (
 	"errors"
 	"fmt"
-	"strings"
+	"strconv"
 )
 
-/**
-  first type of message:
-  Test #1:
-      Response: Success
-      EventList: start
-      Message: Peer status list will follow
-
-      Event: PeerlistComplete
-      EventList: Complete
-      ListItems: 0
-
-  Test #2:
-      Response: Success
-      EventList: start
-      Message: Peer status list will follow
-
-      Event: PeerEntry
-      Channeltype: SIP
-      ObjectName: 1000
-      ChanObjectType: peer
-      IPaddress: -none-
-      IPport: 0
-      Dynamic: yes
-      Forcerport: yes
-      VideoSupport: no
-      TextSupport: no
-      ACL: yes
-      Status: Unmonitored
-      RealtimeDevice: no
-
-      Event: PeerEntry
-      Channeltype: SIP
-      ObjectName: 1001
-      ChanObjectType: peer
-      IPaddress: -none-
-      IPport: 0
-      Dynamic: yes
-      Forcerport: yes
-      VideoSupport: no
-      TextSupport: no
-      ACL: yes
-      Status: Unmonitored
-      RealtimeDevice: no
-
-      Event: PeerEntry
-      Channeltype: SIP
-      ObjectName: fooprovider
-      ChanObjectType: peer
-      IPaddress: -none-
-      IPport: 0
-      Dynamic: no
-      Forcerport: yes
-      VideoSupport: no
-      TextSupport: no
-      ACL: no
-      Status: Unmonitored
-      RealtimeDevice: no
-
-      Event: PeerlistComplete
-      EventList: Complete
-      ListItems: 3
-
-*/
 type SIPPeer struct {
 	Channeltype    string
 	ObjectName     string
@@ -84,12 +21,20 @@ type SIPPeer struct {
 	Status         string
 }
 
-func SIPPeers(socket *Socket, actionID string) (string, error) {
+type opCode int
+
+const (
+	peerGetResponse opCode = iota
+	peerGetList
+)
+
+func SIPPeers(socket *Socket, actionID string) (int, error) {
 	if !socket.Connected() {
-		return "", errors.New("Invalid socket")
+		return 0, errors.New("Invalid socket")
 	}
-	var answer string
 	var err error
+	var response string
+	var state opCode
 
 	peerCmd := []string{
 		"Action: SIPpeers",
@@ -99,16 +44,34 @@ func SIPPeers(socket *Socket, actionID string) (string, error) {
 	}
 	err = sendCmd(socket, peerCmd)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
-	answer, err = socket.Recv()
-	fmt.Printf("answer: %v\n", answer)
-	if err != nil || !strings.Contains(answer, "Success") {
-		return "", errors.New("SIPPeers failed")
+
+	/* set state to initial state */
+	state = peerGetResponse
+	for {
+		answers, err := parseAnswer(socket)
+		if (err != nil) || (cmpActionID(answers, actionID) == false) {
+			return 0, err
+		}
+		fmt.Printf("answers: %q\n", answers)
+		switch state {
+		case peerGetResponse:
+			response = getResponse(answers, "Response")
+			if response != "Success" {
+				response = getResponse(answers, "Message")
+				return 0, errors.New(response)
+			} else {
+				state = peerGetList
+			}
+		case peerGetList :
+			response = getResponse(answers, "Event")
+			if response == "PeerlistComplete" {
+				n := getResponse(answers,"ListItems")
+				return strconv.Atoi(n) 
+
+			}
+		}
 	}
-	answer, err = socket.Recv()
-	if err != nil || !strings.Contains(answer, "PeerlistComplete") {
-		return "", errors.New("SIPPeers failed")
-	}
-	return answer, err
+	return 0, nil
 }
