@@ -35,8 +35,8 @@ func parseAnswer(socket *Socket) ([]Answer, error) {
 	return answers, nil
 }
 
-func getResponse(answers[]Answer, action string) (string) {
-	for i:= 0; i < len(answers); i++ {
+func getResponse(answers []Answer, action string) string {
+	for i := 0; i < len(answers); i++ {
 		if answers[i].action == action {
 			return answers[i].response
 		}
@@ -44,8 +44,8 @@ func getResponse(answers[]Answer, action string) (string) {
 	return ""
 }
 
-func cmpActionID(answers[]Answer, actionID string) (bool) {
-	for i:= 0; i < len(answers); i++ {
+func cmpActionID(answers []Answer, actionID string) bool {
+	for i := 0; i < len(answers); i++ {
 		if (answers[i].action == "ActionID") && (answers[i].response == actionID) {
 			return true
 		}

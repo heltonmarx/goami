@@ -15,7 +15,6 @@ func main() {
 		return
 	}
 	var ret bool
-	var num int
 
 	/**
 	 *  Login
@@ -40,12 +39,8 @@ func main() {
 	/**
 	 *  SIPPeers
 	 */
-	num, err = ami.SIPPeers(socket, uuid)
-	if err != nil {
-		fmt.Printf("SIPPeers error: (%v)\n", err)
-	} else {
-		fmt.Printf("SIPPeers[ok] - [%d]\n", num)
-	}
+	sippeer, _ := ami.SIPPeers(socket, uuid)
+	fmt.Printf("sippeer: %d\n", len(sippeer))
 
 	/**
 	 *  Logoff

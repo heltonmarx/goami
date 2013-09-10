@@ -124,7 +124,7 @@ func Ping(socket *Socket, actionID string) (bool, error) {
 		return false, err
 	}
 	response := getResponse(answers, "Response")
-	if (response != "Success") {
+	if response != "Success" {
 		return false, errors.New("AMI command ping failed")
 	}
 	return true, nil
