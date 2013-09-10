@@ -40,7 +40,10 @@ func main() {
 	 *  SIPPeers
 	 */
 	sippeer, _ := ami.SIPPeers(socket, uuid)
-	fmt.Printf("sippeer: %d\n", len(sippeer))
+	fmt.Printf("sippeer qtd: %d\n", len(sippeer))
+	for i := 0; i < len(sippeer); i++ {
+		fmt.Printf("peer[%d]:[%s]\n", i, sippeer[i].ObjectName)
+	}
 
 	/**
 	 *  Logoff

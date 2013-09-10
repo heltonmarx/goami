@@ -27,14 +27,6 @@ const (
 	peerGetList
 )
 
-/*
-	{"Event" "PeerEntry"} {"ActionID" "7f0a3ad2-6bd2-3a2f-b209-f3acb01b024e"} 
-	{"Channeltype" "SIP"} {"ObjectName" "fooprovider"} {"ChanObjectType" "peer"} 
-	{"IPaddress" "-none-"} {"IPport" "0"} {"Dynamic" "no"} {"Forcerport" "yes"} 
-	{"VideoSupport" "no"} {"TextSupport" "no"} {"ACL" "no"} 
-	{"Status" "Unmonitored"} {"RealtimeDevice" "no"}
-
-*/
 func parseBool(s string) bool {
 	if s == "no" {
 		return false
@@ -44,21 +36,36 @@ func parseBool(s string) bool {
 
 func parseSIPPeers(answers []Answer) SIPPeer {
 	var p SIPPeer
-
-	p.Channeltype = getResponse(answers, "Channeltype")
-	p.ObjectName = getResponse(answers, "ObjectName")
-	p.ChanObjectType = getResponse(answers, "ChanObjectType")
-	p.IPaddress = getResponse(answers, "IPaddress")
-	p.IPport, _ = strconv.Atoi(getResponse(answers, "IPport"))
-	p.Status = getResponse(answers, "Status")
-	// boolean values 
-	p.Dynamic = parseBool(getResponse(answers, "Dynamic"))
-	p.Forceport = parseBool(getResponse(answers, "Forceport"))
-	p.VideoSupport = parseBool(getResponse(answers, "VideoSupport"))
-	p.TextSupport = parseBool(getResponse(answers, "TextSupport"))
-	p.ACL = parseBool(getResponse(answers, "ACL"))
-	p.RealtimeDevice = parseBool(getResponse(answers, "RealtimeDevice"))
-
+	for i := 0; i < len(answers); i++ {
+		switch answers[i].action {
+		case "Channeltype":
+			p.Channeltype = answers[i].response
+		case "ObjectName":
+			p.ObjectName = answers[i].response
+		case "ChanObjectType":
+			p.ChanObjectType = answers[i].response
+		case "IPaddress":
+			p.IPaddress = answers[i].response
+		case "Status":
+			p.Status = answers[i].response
+		// integer value
+		case "IPport":
+			p.IPport, _ = strconv.Atoi(answers[i].response)
+		//boolean values
+		case "Dynamic":
+			p.Dynamic = parseBool(answers[i].response)
+		case "Forceport":
+			p.Forceport = parseBool(answers[i].response)
+		case "VideoSupport":
+			p.VideoSupport = parseBool(answers[i].response)
+		case "TextSupport":
+			p.TextSupport = parseBool(answers[i].response)
+		case "ACL":
+			p.ACL = parseBool(answers[i].response)
+		case "RealtimeDevice":
+			p.RealtimeDevice = parseBool(answers[i].response)
+		}
+	}
 	return p
 }
 
