@@ -29,6 +29,7 @@ func Connect(socket *Socket) (bool, error) {
 }
 
 func Login(socket *Socket, user, secret, events, actionID string) (string, error) {
+
 	if (len(user) == 0) || (len(secret) == 0) {
 		return "", errors.New("Invalid user")
 	}
@@ -53,8 +54,12 @@ func Login(socket *Socket, user, secret, events, actionID string) (string, error
 	if err != nil {
 		return "", err
 	}
-	answer, err := socket.Recv()
-	return answer, err
+	answers, err := parseAnswer(socket)
+	if (err != nil) || (cmpActionID(answers, actionID) == false) {
+		return "", err
+	}
+	response := getResponse(answers, "Response")
+	return response, nil
 }
 
 func Logoff(socket *Socket, actionID string) (string, error) {
@@ -72,8 +77,12 @@ func Logoff(socket *Socket, actionID string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	answer, err := socket.Recv()
-	return answer, err
+	answers, err := parseAnswer(socket)
+	if (err != nil) || (cmpActionID(answers, actionID) == false) {
+		return "", err
+	}
+	response := getResponse(answers, "Response")
+	return response, nil
 }
 
 func GetUUID() (string, error) {
@@ -102,7 +111,12 @@ func Ping(socket *Socket, actionID string) (bool, error) {
 		return false, err
 	}
 
-	if answer, err := socket.Recv(); err != nil || !strings.Contains(answer, "Pong") {
+	answers, err := parseAnswer(socket)
+	if (err != nil) || (cmpActionID(answers, actionID) == false) {
+		return false, err
+	}
+	response := getResponse(answers, "Response")
+	if (response != "Success") {
 		return false, errors.New("AMI command ping failed")
 	}
 	return true, nil
