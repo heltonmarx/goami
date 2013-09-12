@@ -4,18 +4,13 @@ import (
 	"strings"
 )
 
-type Answer struct {
-	action   string
-	response string
-}
-
-func parseAnswer(socket *Socket) ([]Answer, error) {
-	answers := make([]Answer, 0)
+func parseMessage(socket *Socket) (map[string]string, error) {
+	message := make(map[string]string, 0)
 
 	for {
 		s, err := socket.Recv()
 		if err != nil {
-			return answers, err
+			return nil, err
 		}
 		line := strings.Split(s, "\r\n")
 		for i := 0; i < len(line); i++ {
@@ -23,33 +18,12 @@ func parseAnswer(socket *Socket) ([]Answer, error) {
 			if len(keys) == 2 {
 				action := strings.TrimSpace(keys[0])
 				response := strings.TrimSpace(keys[1])
-				answers = append(answers, Answer{
-					action:   action,
-					response: response,
-				})
+				message[action] = response
 			} else {
-				return answers, nil
+				goto on_exit
 			}
 		}
 	}
-	return answers, nil
-}
-
-func getResponse(answers []Answer, action string) string {
-	for i := 0; i < len(answers); i++ {
-		if answers[i].action == action {
-			return answers[i].response
-		}
-	}
-	return ""
-}
-
-func cmpActionID(answers []Answer, actionID string) bool {
-	for i := 0; i < len(answers); i++ {
-		if (answers[i].action == "ActionID") && (answers[i].response == actionID) {
-			return true
-		}
-	}
-	return false
-
+on_exit:
+	return message, nil
 }

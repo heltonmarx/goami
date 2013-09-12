@@ -34,50 +34,32 @@ func parseBool(s string) bool {
 	return true
 }
 
-func parseSIPPeers(answers []Answer) SIPPeer {
+func parseSIPPeers(message map[string]string) SIPPeer {
 	var p SIPPeer
-	for i := 0; i < len(answers); i++ {
-		switch answers[i].action {
-		case "Channeltype":
-			p.Channeltype = answers[i].response
-		case "ObjectName":
-			p.ObjectName = answers[i].response
-		case "ChanObjectType":
-			p.ChanObjectType = answers[i].response
-		case "IPaddress":
-			p.IPaddress = answers[i].response
-		case "Status":
-			p.Status = answers[i].response
-		// integer value
-		case "IPport":
-			p.IPport, _ = strconv.Atoi(answers[i].response)
-		//boolean values
-		case "Dynamic":
-			p.Dynamic = parseBool(answers[i].response)
-		case "Forceport":
-			p.Forceport = parseBool(answers[i].response)
-		case "VideoSupport":
-			p.VideoSupport = parseBool(answers[i].response)
-		case "TextSupport":
-			p.TextSupport = parseBool(answers[i].response)
-		case "ACL":
-			p.ACL = parseBool(answers[i].response)
-		case "RealtimeDevice":
-			p.RealtimeDevice = parseBool(answers[i].response)
-		}
-	}
+
+	p.Channeltype = message["Channeltype"]
+	p.ObjectName = message["ObjectName"]
+	p.ChanObjectType = message["ChanObjectType"]
+	p.IPaddress = message["IPaddress"]
+	p.Status = message["Status"]
+	// integer value
+	p.IPport, _ = strconv.Atoi(message["IPport"])
+	//boolean values
+	p.Dynamic = parseBool(message["Dynamic"])
+	p.Forceport = parseBool(message["Forceport"])
+	p.VideoSupport = parseBool(message["VideoSupport"])
+	p.TextSupport = parseBool(message["TextSupport"])
+	p.ACL = parseBool(message["ACL"])
+	p.RealtimeDevice = parseBool(message["RealtimeDevice"])
 	return p
 }
 
 func SIPPeers(socket *Socket, actionID string) ([]SIPPeer, error) {
 	var err error
-	var response string
 	var state opCode
 
-	sippeer := make([]SIPPeer, 0)
-
 	if !socket.Connected() {
-		return sippeer, errors.New("Invalid socket")
+		return nil, errors.New("Invalid socket")
 	}
 
 	peerCmd := []string{
@@ -88,35 +70,33 @@ func SIPPeers(socket *Socket, actionID string) ([]SIPPeer, error) {
 	}
 	err = sendCmd(socket, peerCmd)
 	if err != nil {
-		return sippeer, err
+		return nil, err
 	}
 
 	/* set state to initial state */
+	sippeer := make([]SIPPeer, 0)
 	state = peerGetResponse
 	for {
-		answers, err := parseAnswer(socket)
-		if (err != nil) || (cmpActionID(answers, actionID) == false) {
-			return sippeer, err
+		message, err := parseMessage(socket)
+		if (err != nil) || (message["ActionID"] != actionID) {
+			return nil, err
 		}
 		switch state {
 		case peerGetResponse:
-			response = getResponse(answers, "Response")
-			if response != "Success" {
-				response = getResponse(answers, "Message")
-				return sippeer, errors.New(response)
+			if message["Response"] != "Success" {
+				return nil, errors.New(message["Message"])
 			} else {
 				state = peerGetList
 			}
 		case peerGetList:
-			response = getResponse(answers, "Event")
-			if response == "PeerlistComplete" {
-				return sippeer, nil
-
-			} else if response == "PeerEntry" {
+			if message["Event"] == "PeerlistComplete" {
+				goto on_exit
+			} else if message["Event"] == "PeerEntry" {
 				//decoding and append SIPPeer
-				sippeer = append(sippeer, parseSIPPeers(answers))
+				sippeer = append(sippeer, parseSIPPeers(message))
 			}
 		}
 	}
+on_exit:
 	return sippeer, nil
 }

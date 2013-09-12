@@ -54,14 +54,12 @@ func Login(socket *Socket, user, secret, events, actionID string) (bool, error) 
 	if err != nil {
 		return false, err
 	}
-	answers, err := parseAnswer(socket)
-	if (err != nil) || (cmpActionID(answers, actionID) == false) {
+	message, err := parseMessage(socket)
+	if (err != nil) || (message["ActionID"] != actionID) {
 		return false, err
 	}
-	response := getResponse(answers, "Response")
-	if response != "Success" {
-		response = getResponse(answers, "Message")
-		return false, errors.New(response)
+	if message["Response"] != "Success" {
+		return false, errors.New(message["Message"])
 	}
 	return true, nil
 }
@@ -81,14 +79,13 @@ func Logoff(socket *Socket, actionID string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	answers, err := parseAnswer(socket)
-	if (err != nil) || (cmpActionID(answers, actionID) == false) {
+
+	message, err := parseMessage(socket)
+	if (err != nil) || (message["ActionID"] != actionID) {
 		return false, err
 	}
-	response := getResponse(answers, "Response")
-	if response != "Goodbye" {
-		response = getResponse(answers, "Message")
-		return false, errors.New(response)
+	if message["Response"] != "Goodbye" {
+		return false, errors.New(message["Message"])
 	}
 	return true, nil
 }
@@ -118,14 +115,12 @@ func Ping(socket *Socket, actionID string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-
-	answers, err := parseAnswer(socket)
-	if (err != nil) || (cmpActionID(answers, actionID) == false) {
+	message, err := parseMessage(socket)
+	if (err != nil) || (message["ActionID"] != actionID) {
 		return false, err
 	}
-	response := getResponse(answers, "Response")
-	if response != "Success" {
-		return false, errors.New("AMI command ping failed")
+	if message["Response"] != "Success" {
+		return false, errors.New(message["Message"])
 	}
 	return true, nil
 }
