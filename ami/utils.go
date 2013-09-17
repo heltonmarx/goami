@@ -19,7 +19,7 @@ func parseMessage(socket *Socket) (map[string]string, error) {
 				action := strings.TrimSpace(keys[0])
 				response := strings.TrimSpace(keys[1])
 				message[action] = response
-			} else {
+			} else if strings.Contains(s, "\r\n\r\n") {
 				goto on_exit
 			}
 		}

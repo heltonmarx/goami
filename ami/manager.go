@@ -37,7 +37,6 @@ func Login(socket *Socket, user, secret, events, actionID string) (bool, error) 
 	if !socket.Connected() {
 		return false, errors.New("Invalid socket")
 	}
-
 	authCmd := []string{
 		"Action: Login",
 		"\r\nUsername: ",

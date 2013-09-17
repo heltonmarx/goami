@@ -61,13 +61,12 @@ func (self *Socket) Recv() (string, error) {
 		if err != nil {
 			return "", nil
 		}
+		bytesRead = append(bytesRead, readLine...)
 		if len(bytes.TrimSpace(readLine)) == 0 {
 			break
 		} else if self.buffer.Buffered() == 0 {
-			bytesRead = append(bytesRead, readLine...)
 			return string(bytesRead), nil
 		}
-		bytesRead = append(bytesRead, readLine...)
 	}
 	return string(bytesRead), nil
 }
