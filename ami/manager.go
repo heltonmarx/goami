@@ -53,7 +53,8 @@ func Login(socket *Socket, user, secret, events, actionID string) (bool, error) 
 	if err != nil {
 		return false, err
 	}
-	message, err := parseMessage(socket)
+
+	message, err := decode(socket)
 	if (err != nil) || (message["ActionID"] != actionID) {
 		return false, err
 	}
@@ -79,7 +80,7 @@ func Logoff(socket *Socket, actionID string) (bool, error) {
 		return false, err
 	}
 
-	message, err := parseMessage(socket)
+	message, err := decode(socket)
 	if (err != nil) || (message["ActionID"] != actionID) {
 		return false, err
 	}
@@ -114,7 +115,8 @@ func Ping(socket *Socket, actionID string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	message, err := parseMessage(socket)
+
+	message, err := decode(socket)
 	if (err != nil) || (message["ActionID"] != actionID) {
 		return false, err
 	}
