@@ -39,10 +39,14 @@ func main() {
 	/**
 	 *  SIPPeers
 	 */
-	sippeer, _ := ami.SIPPeers(socket, uuid)
-	fmt.Printf("sippeer qtd: %d\n", len(sippeer))
-	for i := 0; i < len(sippeer); i++ {
-		fmt.Printf("peer[%d]:[%s]\n", i, sippeer[i].ObjectName)
+	list, _ := ami.SIPPeers(socket, uuid)
+	if len(list) > 0 {
+		for _, m := range list {
+			message, _ := ami.SIPShowpeer(socket, uuid, m["ObjectName"])
+			for k, v := range message {
+				fmt.Printf("%s : %q\n", k, v)
+			}
+		}
 	}
 
 	/**

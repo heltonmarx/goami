@@ -37,7 +37,13 @@ func Login(socket *Socket, user, secret, events, actionID string) (bool, error) 
 	if !socket.Connected() {
 		return false, errors.New("Invalid socket")
 	}
-	authCmd := []string{
+
+	// verify parameters
+	if len(user) == 0 || len(secret) == 0 || len(events) == 0 || len(actionID) == 0 {
+		return false, errors.New("Invalid parameters")
+	}
+
+	command := []string{
 		"Action: Login",
 		"\r\nUsername: ",
 		user,
@@ -49,7 +55,7 @@ func Login(socket *Socket, user, secret, events, actionID string) (bool, error) 
 		actionID,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, authCmd)
+	err := sendCmd(socket, command)
 	if err != nil {
 		return false, err
 	}
@@ -69,13 +75,18 @@ func Logoff(socket *Socket, actionID string) (bool, error) {
 		return false, errors.New("Invalid socket")
 	}
 
-	logoffCmd := []string{
+	// verify parameters
+	if len(actionID) == 0 {
+		return false, errors.New("Invalid parameters")
+	}
+
+	command := []string{
 		"Action: Logoff",
 		"\r\nActionID: ",
 		actionID,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, logoffCmd)
+	err := sendCmd(socket, command)
 	if err != nil {
 		return false, err
 	}
@@ -105,13 +116,19 @@ func GetUUID() (string, error) {
 }
 
 func Ping(socket *Socket, actionID string) (bool, error) {
-	pingCmd := []string{
+
+	// verify parameters
+	if len(actionID) == 0 {
+		return false, errors.New("Invalid parameters")
+	}
+
+	command := []string{
 		"Action: Ping",
 		"\r\nActionID: ",
 		actionID,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, pingCmd)
+	err := sendCmd(socket, command)
 	if err != nil {
 		return false, err
 	}
