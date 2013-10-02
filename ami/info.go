@@ -2,13 +2,14 @@ package ami
 
 import (
 	"errors"
+	"fmt"
 )
 
 type opCode int
 
 const (
-	peerGetResponse opCode = iota
-	peerGetList
+	getResponse opCode = iota
+	getList
 )
 
 func SIPPeers(socket *Socket, actionID string) ([]map[string]string, error) {
@@ -36,20 +37,20 @@ func SIPPeers(socket *Socket, actionID string) ([]map[string]string, error) {
 
 	/* set state to initial state */
 	list := make([]map[string]string, 0)
-	state := peerGetResponse
+	state := getResponse
 	for {
 		message, err := decode(socket)
 		if (err != nil) || (message["ActionID"] != actionID) {
 			return nil, err
 		}
 		switch state {
-		case peerGetResponse:
+		case getResponse:
 			if message["Response"] != "Success" {
 				return nil, errors.New(message["Message"])
 			} else {
-				state = peerGetList
+				state = getList
 			}
-		case peerGetList:
+		case getList:
 			if message["Event"] == "PeerlistComplete" {
 				goto on_exit
 			} else if message["Event"] == "PeerEntry" {
@@ -91,4 +92,54 @@ func SIPShowpeer(socket *Socket, actionID string, name string) (map[string]strin
 		return nil, err
 	}
 	return message, nil
+}
+
+//  Agents
+//  Lists agents and their status.
+//
+func Agents(socket *Socket, actionID string) ([]map[string]string, error) {
+	if !socket.Connected() {
+		return nil, errors.New("Invalid socket")
+	}
+
+	// verify action ID
+	if len(actionID) == 0 {
+		return nil, errors.New("Invalid parameters")
+	}
+
+	command := []string{
+		"Action: Agents",
+		"\r\nActionID: ",
+		actionID,
+		"\r\n\r\n", // end of command
+	}
+	err := sendCmd(socket, command)
+	if err != nil {
+		return nil, err
+	}
+
+	list := make([]map[string]string, 0)
+	state := getResponse
+	for {
+		message, err := decode(socket)
+		if (err != nil) || (message["ActionID"] != actionID) {
+			return nil, err
+		}
+		switch state {
+		case getResponse:
+			if message["Response"] != "Success" {
+				return nil, errors.New(message["Message"])
+			} else {
+				state = getList
+			}
+		case getList:
+			if message["Event"] == "AgentsComplete" {
+				goto on_exit
+			} else if message["Event"] == "AgentsEntry" {
+				list = append(list, message)
+			}
+		}
+	}
+on_exit:
+	return list, nil
 }

@@ -48,6 +48,16 @@ func main() {
 			}
 		}
 	}
+	fmt.Printf("\n")
+
+	/**
+	 *	Agents
+	 */
+	agents, _ := ami.Agents(socket, uuid)
+	fmt.Printf("\n\nagents: %d\n", len(agents))
+	for i, j := range agents {
+		fmt.Printf("%s: %q\n", i, j)
+	}
 
 	/**
 	 *  Logoff
