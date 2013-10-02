@@ -28,6 +28,9 @@ func Connect(socket *Socket) (bool, error) {
 	return true, nil
 }
 
+//  Login
+//      Login Manager.
+//
 func Login(socket *Socket, user, secret, events, actionID string) (bool, error) {
 
 	if (len(user) == 0) || (len(secret) == 0) {
@@ -70,6 +73,9 @@ func Login(socket *Socket, user, secret, events, actionID string) (bool, error) 
 	return true, nil
 }
 
+//  Logoff
+//      Logoff the current manager session.      
+//
 func Logoff(socket *Socket, actionID string) (bool, error) {
 	if !socket.Connected() {
 		return false, errors.New("Invalid socket")
@@ -115,6 +121,10 @@ func GetUUID() (string, error) {
 	return uuid, nil
 }
 
+//  Ping
+//      A 'Ping' action will ellicit a 'Pong' response. 
+//      Used to keep the manager connection open.
+//
 func Ping(socket *Socket, actionID string) (bool, error) {
 
 	// verify parameters

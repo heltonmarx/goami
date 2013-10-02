@@ -2,31 +2,28 @@ package ami
 
 import (
 	"errors"
-	"fmt"
 )
-
-type opCode int
 
 const (
-	getResponse opCode = iota
-	getList
+	getResponseState int = iota
+	getListState
 )
 
-func getList(socket *Socket, action, actionID, event, complete string ) ([]map[string]string, error) {
-
+func getMessageList(socket *Socket, action, actionID, event, complete string) ([]map[string]string, error) {
+	// verify socket
 	if !socket.Connected() {
 		return nil, errors.New("Invalid socket")
 	}
 
-	// verify action ID
+	// verify parameters
 	if len(actionID) == 0 || len(action) == 0 ||
-        len(event) == 0 || len(complete) == 0 {
+		len(event) == 0 || len(complete) == 0 {
 		return nil, errors.New("Invalid parameters")
 	}
 
 	command := []string{
 		"Action: ",
-        action,
+		action,
 		"\r\nActionID: ",
 		actionID,
 		"\r\n\r\n", // end of command
@@ -38,20 +35,20 @@ func getList(socket *Socket, action, actionID, event, complete string ) ([]map[s
 	}
 
 	list := make([]map[string]string, 0)
-	state := getResponse
+	state := getResponseState
 	for {
 		message, err := decode(socket)
 		if (err != nil) || (message["ActionID"] != actionID) {
 			return nil, err
 		}
 		switch state {
-		case getResponse:
+		case getResponseState:
 			if message["Response"] != "Success" {
 				return nil, errors.New(message["Message"])
 			} else {
-				state = getList
+				state = getListState
 			}
-		case getList:
+		case getListState:
 			if message["Event"] == complete {
 				goto on_exit
 			} else if message["Event"] == event {
@@ -64,59 +61,20 @@ on_exit:
 
 }
 
-
+//  SIPPeers
+//      Lists SIP peers in text format with details on current status. 
+//      Peerlist will follow as separate events, followed by a final event called PeerlistComplete
+//
 func SIPPeers(socket *Socket, actionID string) ([]map[string]string, error) {
-	var err error
-
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
-	// verify parameters
-	if len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
-	}
-
-	command := []string{
-		"Action: SIPpeers",
-		"\r\nActionID: ",
-		actionID,
-		"\r\n\r\n", // end of command
-	}
-	err = sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
-
-	/* set state to initial state */
-	list := make([]map[string]string, 0)
-	state := getResponse
-	for {
-		message, err := decode(socket)
-		if (err != nil) || (message["ActionID"] != actionID) {
-			return nil, err
-		}
-		switch state {
-		case getResponse:
-			if message["Response"] != "Success" {
-				return nil, errors.New(message["Message"])
-			} else {
-				state = getList
-			}
-		case getList:
-			if message["Event"] == "PeerlistComplete" {
-				goto on_exit
-			} else if message["Event"] == "PeerEntry" {
-				list = append(list, message)
-			}
-		}
-	}
-on_exit:
-	return list, nil
+	return getMessageList(socket, "SIPpeers", actionID, "PeerEntry", "PeerlistComplete")
 }
 
+//  SIPShowpeer
+//      Show one SIP peer with details on current status.
+//
 func SIPShowpeer(socket *Socket, actionID string, name string) (map[string]string, error) {
 
+	//verify socket
 	if !socket.Connected() {
 		return nil, errors.New("Invalid socket")
 	}
@@ -148,9 +106,8 @@ func SIPShowpeer(socket *Socket, actionID string, name string) (map[string]strin
 }
 
 //  Agents
-//  Lists agents and their status.
+//      Lists agents and their status.
 //
 func Agents(socket *Socket, actionID string) ([]map[string]string, error) {
-    return getList(socket, "Agents", actionID, "AgentsEntry", "AgentsComplete")
+	return getMessageList(socket, "Agents", actionID, "AgentsEntry", "AgentsComplete")
 }
-
