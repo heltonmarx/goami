@@ -39,10 +39,10 @@ func main() {
 	/**
 	 *  SIPPeers
 	 */
-	list, _ := ami.SIPPeers(socket, uuid)
+	list, _ := ami.SIPpeers(socket, uuid)
 	if len(list) > 0 {
 		for _, m := range list {
-			message, _ := ami.SIPShowpeer(socket, uuid, m["ObjectName"])
+			message, _ := ami.SIPshowpeer(socket, uuid, m["ObjectName"])
 			for k, v := range message {
 				fmt.Printf("%s : %q\n", k, v)
 			}

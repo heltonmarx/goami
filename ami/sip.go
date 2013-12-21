@@ -4,83 +4,96 @@ import (
 	"errors"
 )
 
-const (
-	getResponseState int = iota
-	getListState
-)
-
-func getMessageList(socket *Socket, action, actionID, event, complete string) ([]map[string]string, error) {
-	// verify socket
+//	SIPnotify	
+//		Send a SIP notify
+//
+func SIPnotify(socket *Socket, actionID string, channel string, variable string) (map[string]string, error) {
+	//verify socket
 	if !socket.Connected() {
 		return nil, errors.New("Invalid socket")
 	}
 
-	// verify parameters
-	if len(actionID) == 0 || len(action) == 0 ||
-		len(event) == 0 || len(complete) == 0 {
+	// verify channel and variable and action ID
+	if len(channel) == 0 || len(actionID) == 0 || len(variable) == 0 {
 		return nil, errors.New("Invalid parameters")
 	}
 
 	command := []string{
-		"Action: ",
-		action,
+		"Action: SIPnotify",
 		"\r\nActionID: ",
 		actionID,
+		"\r\nChannel: ",
+		channel,
+		"\r\nVariable: ",
+		variable,
 		"\r\n\r\n", // end of command
 	}
-
 	err := sendCmd(socket, command)
 	if err != nil {
 		return nil, err
 	}
 
-	list := make([]map[string]string, 0)
-	state := getResponseState
-	for {
-		message, err := decode(socket)
-		if (err != nil) || (message["ActionID"] != actionID) {
-			return nil, err
-		}
-		switch state {
-		case getResponseState:
-			if message["Response"] != "Success" {
-				return nil, errors.New(message["Message"])
-			} else {
-				state = getListState
-			}
-		case getListState:
-			if message["Event"] == complete {
-				goto on_exit
-			} else if message["Event"] == event {
-				list = append(list, message)
-			}
-		}
+	message, err := decode(socket)
+	if (err != nil) || (message["ActionID"] != actionID) {
+		return nil, err
 	}
-on_exit:
-	return list, nil
-
+	return message, nil
 }
 
 //  SIPPeers
 //      Lists SIP peers in text format with details on current status. 
 //      Peerlist will follow as separate events, followed by a final event called PeerlistComplete
 //
-func SIPPeers(socket *Socket, actionID string) ([]map[string]string, error) {
+func SIPpeers(socket *Socket, actionID string) ([]map[string]string, error) {
 	return getMessageList(socket, "SIPpeers", actionID, "PeerEntry", "PeerlistComplete")
 }
 
-//  SIPShowpeer
+//	SIPqualifypeer
+//		Qualify SIP peers.
+//
+func SIPqualifypeer(socket *Socket, actionID string, peer string) (map[string]string, error) {
+	//verify socket
+	if !socket.Connected() {
+		return nil, errors.New("Invalid socket")
+	}
+
+	// verify peer and variable and action ID
+	if len(peer) == 0 || len(actionID) == 0 {
+		return nil, errors.New("Invalid parameters")
+	}
+
+	command := []string{
+		"Action: SIPqualifypeer",
+		"\r\nActionID: ",
+		actionID,
+		"\r\nPeer: ",
+		peer,
+		"\r\n\r\n", // end of command
+	}
+	err := sendCmd(socket, command)
+	if err != nil {
+		return nil, err
+	}
+
+	message, err := decode(socket)
+	if (err != nil) || (message["ActionID"] != actionID) {
+		return nil, err
+	}
+	return message, nil
+}
+
+//  SIPshowpeer
 //      Show one SIP peer with details on current status.
 //
-func SIPShowpeer(socket *Socket, actionID string, name string) (map[string]string, error) {
+func SIPshowpeer(socket *Socket, actionID string, peer string) (map[string]string, error) {
 
 	//verify socket
 	if !socket.Connected() {
 		return nil, errors.New("Invalid socket")
 	}
 
-	// verify name and action ID
-	if len(name) == 0 || len(actionID) == 0 {
+	// verify peer and action ID
+	if len(peer) == 0 || len(actionID) == 0 {
 		return nil, errors.New("Invalid parameters")
 	}
 
@@ -89,7 +102,7 @@ func SIPShowpeer(socket *Socket, actionID string, name string) (map[string]strin
 		"\r\nActionID: ",
 		actionID,
 		"\r\nPeer: ",
-		name,
+		peer,
 		"\r\n\r\n", // end of command
 	}
 
@@ -105,9 +118,35 @@ func SIPShowpeer(socket *Socket, actionID string, name string) (map[string]strin
 	return message, nil
 }
 
-//  Agents
-//      Lists agents and their status.
+//	SIPshowregistry
+//		Show SIP registrations (text format).
 //
-func Agents(socket *Socket, actionID string) ([]map[string]string, error) {
-	return getMessageList(socket, "Agents", actionID, "AgentsEntry", "AgentsComplete")
+func SIPshowregistry(socket *Socket, actionID string) (map[string]string, error) {
+	//verify socket
+	if !socket.Connected() {
+		return nil, errors.New("Invalid socket")
+	}
+
+	// action ID
+	if len(actionID) == 0 {
+		return nil, errors.New("Invalid parameters")
+	}
+
+	command := []string{
+		"Action: SIPshowregistry",
+		"\r\nActionID: ",
+		actionID,
+		"\r\n\r\n", // end of command
+	}
+
+	err := sendCmd(socket, command)
+	if err != nil {
+		return nil, err
+	}
+
+	message, err := decode(socket)
+	if (err != nil) || (message["ActionID"] != actionID) {
+		return nil, err
+	}
+	return message, nil
 }

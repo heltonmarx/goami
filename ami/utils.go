@@ -1,8 +1,8 @@
 package ami
 
 import (
+	"errors"
 	"strings"
-    "errors"
 )
 
 func decode(socket *Socket) (map[string]string, error) {
@@ -85,4 +85,3 @@ on_exit:
 	return list, nil
 
 }
-
