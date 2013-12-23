@@ -30,16 +30,7 @@ func AbsoluteTimeout(socket *Socket, actionID string, channel string, timeout in
 		strconv.Itoa(timeout),
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
+	return getMessage(socket, command, actionID)
 }
 
 //	Atxfer
@@ -70,16 +61,7 @@ func Atxfer(socket *Socket, actionID, channel, exten, context, priority string) 
 		priority,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
+	return getMessage(socket, command, actionID)
 }
 
 //
@@ -111,16 +93,7 @@ func Bridge(socket *Socket, actionID, channel1, channel2 string, tone bool) (map
 		t[tone],
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
+	return getMessage(socket, command, actionID)
 }
 
 //
@@ -160,16 +133,7 @@ func ExtensionState(socket *Socket, actionID, exten, context string) (map[string
 		context,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
+	return getMessage(socket, command, actionID)
 }
 
 //
@@ -197,16 +161,7 @@ func Hangup(socket *Socket, actionID, channel, cause string) (map[string]string,
 		cause,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
+	return getMessage(socket, command, actionID)
 }
 
 //
@@ -267,17 +222,7 @@ func Originate(socket *Socket, actionID string, originate OriginateData) (map[st
 		originate.codecs,
 		"\r\n\r\n", // end of command
 	}
-
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
+	return getMessage(socket, command, actionID)
 }
 
 //	Park
@@ -308,16 +253,7 @@ func Park(socket *Socket, actionID, channel1, channel2 string, timeout int, park
 		parkinglot,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
+	return getMessage(socket, command, actionID)
 }
 
 //
