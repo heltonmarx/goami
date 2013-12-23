@@ -357,16 +357,7 @@ func PlayDTMF(socket *Socket, actionID, channel, digit string) (map[string]strin
 		digit,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
+	return getMessage(socket, command, actionID)
 }
 
 //
@@ -398,16 +389,7 @@ func Redirect(socket *Socket, actionID, channel, exten, context, priority string
 		priority,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
+	return getMessage(socket, command, actionID)
 }
 
 //
@@ -435,16 +417,8 @@ func SendText(socket *Socket, actionID, channel, msg string) (map[string]string,
 		msg,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
+	return getMessage(socket, command, actionID)
 
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
 }
 
 //
@@ -476,16 +450,8 @@ func Setvar(socket *Socket, actionID, channel, variable, value string) (map[stri
 		value,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
+	return getMessage(socket, command, actionID)
 
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
 }
 
 //
@@ -514,14 +480,5 @@ func Status(socket *Socket, actionID, channel, variables string) (map[string]str
 		variables,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
+	return getMessage(socket, command, actionID)
 }

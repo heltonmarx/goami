@@ -1,5 +1,9 @@
 package ami
 
+import (
+	"errors"
+)
+
 //  Agents
 //      Lists agents and their status.
 //
@@ -18,7 +22,7 @@ func AgentLogoff(socket *Socket, actionID, agent string, soft bool) (map[string]
 	}
 
 	// verify agent, soft and action ID
-	if len(agent) == 0 || len(actionID) == 0 || len(soft) == 0 {
+	if len(agent) == 0 || len(actionID) == 0 {
 		return nil, errors.New("Invalid parameters")
 	}
 
@@ -33,14 +37,5 @@ func AgentLogoff(socket *Socket, actionID, agent string, soft bool) (map[string]
 		s[soft],
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
+	return getMessage(socket, command, actionID)
 }

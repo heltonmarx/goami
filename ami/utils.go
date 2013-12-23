@@ -85,3 +85,17 @@ on_exit:
 	return list, nil
 
 }
+
+func getMessage(socket *Socket, command []string, actionID string) (map[string]string, error) {
+
+	err := sendCmd(socket, command)
+	if err != nil {
+		return nil, err
+	}
+
+	message, err := decode(socket)
+	if (err != nil) || (message["ActionID"] != actionID) {
+		return nil, err
+	}
+	return message, nil
+}

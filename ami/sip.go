@@ -28,16 +28,7 @@ func SIPnotify(socket *Socket, actionID string, channel string, variable string)
 		variable,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
+	return getMessage(socket, command, actionID)
 }
 
 //  SIPPeers
@@ -70,16 +61,7 @@ func SIPqualifypeer(socket *Socket, actionID string, peer string) (map[string]st
 		peer,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
+	return getMessage(socket, command, actionID)
 }
 
 //  SIPshowpeer
@@ -105,17 +87,7 @@ func SIPshowpeer(socket *Socket, actionID string, peer string) (map[string]strin
 		peer,
 		"\r\n\r\n", // end of command
 	}
-
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
+	return getMessage(socket, command, actionID)
 }
 
 //	SIPshowregistry
@@ -138,15 +110,5 @@ func SIPshowregistry(socket *Socket, actionID string) (map[string]string, error)
 		actionID,
 		"\r\n\r\n", // end of command
 	}
-
-	err := sendCmd(socket, command)
-	if err != nil {
-		return nil, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return nil, err
-	}
-	return message, nil
+	return getMessage(socket, command, actionID)
 }
