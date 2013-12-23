@@ -5,6 +5,22 @@ import (
 	"strconv"
 )
 
+type AOCData struct {
+	channelPrefix             string
+	msgType                   string
+	chargeType                string
+	unitAmount                string
+	unitType                  string
+	currencyName              string
+	currencyAmount            string
+	currencyMultiplier        string
+	totalType                 string
+	aocBillingId              string
+	chargingAssociationId     string
+	chargingAssociationNumber string
+	chargingAssociationPlan   string
+}
+
 //	AbsoluteTimeout	
 //		Set absolute timeout.
 //		Hangup a channel after a certain time. Acknowledges set time with Timeout Set message.
@@ -355,6 +371,78 @@ func Status(socket *Socket, actionID, channel, variables string) (map[string]str
 		channel,
 		"\r\nVariables: ",
 		variables,
+		"\r\n\r\n", // end of command
+	}
+	return getMessage(socket, command, actionID)
+}
+
+//
+//	AGI
+//		Add an AGI command to execute by Async AGI.
+//
+func AGI(socket *Socket, actionID, channel, agiCommand, agiCommandID string) (map[string]string, error) {
+	// verify channel and action ID
+	if len(channel) == 0 || len(actionID) == 0 ||
+		len(agiCommand) == 0 || len(agiCommandID) == 0 {
+		return nil, errors.New("Invalid parameters")
+	}
+
+	command := []string{
+		"Action: AGI",
+		"\r\nActionID: ",
+		actionID,
+		"\r\nChannel: ",
+		channel,
+		"\r\nCommand: ",
+		agiCommand,
+		"\r\nCommandID: ",
+		agiCommandID,
+		"\r\n\r\n", // end of command
+	}
+	return getMessage(socket, command, actionID)
+}
+
+//
+//	AOCMessage
+//		Generate an Advice of Charge message on a channel.
+//
+func AOCMessage(socket *Socket, actionID, channel string, aocdata AOCData) (map[string]string, error) {
+	// verify channel and action ID
+	if len(channel) == 0 || len(actionID) == 0 {
+		return nil, errors.New("Invalid parameters")
+	}
+	command := []string{
+		"Action: AOCMessage",
+		"\r\nActionID: ",
+		actionID,
+		"\r\nChannel: ",
+		channel,
+		"\r\nChannelPrefix: ",
+		aocdata.channelPrefix,
+		"\r\nMsgType: ",
+		aocdata.msgType,
+		"\r\nChargeType: ",
+		aocdata.chargeType,
+		"\r\nUnitAmount(0): ",
+		aocdata.unitAmount,
+		"\r\nUnitType(0): ",
+		aocdata.unitType,
+		"\r\nCurrencyName: ",
+		aocdata.currencyName,
+		"\r\nCurrencyAmount: ",
+		aocdata.currencyAmount,
+		"\r\nCurrencyMultiplier: ",
+		aocdata.currencyMultiplier,
+		"\r\nTotalType: ",
+		aocdata.totalType,
+		"\r\nAOCBillingId: ",
+		aocdata.aocBillingId,
+		"\r\nChargingAssociationId: ",
+		aocdata.chargingAssociationId,
+		"\r\nChargingAssociationNumber: ",
+		aocdata.chargingAssociationNumber,
+		"\r\nChargingAssociationPlan: ",
+		aocdata.chargingAssociationPlan,
 		"\r\n\r\n", // end of command
 	}
 	return getMessage(socket, command, actionID)
