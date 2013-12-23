@@ -8,11 +8,6 @@ import (
 //		Send a SIP notify
 //
 func SIPnotify(socket *Socket, actionID string, channel string, variable string) (map[string]string, error) {
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	// verify channel and variable and action ID
 	if len(channel) == 0 || len(actionID) == 0 || len(variable) == 0 {
 		return nil, errors.New("Invalid parameters")
@@ -43,11 +38,6 @@ func SIPpeers(socket *Socket, actionID string) ([]map[string]string, error) {
 //		Qualify SIP peers.
 //
 func SIPqualifypeer(socket *Socket, actionID string, peer string) (map[string]string, error) {
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	// verify peer and variable and action ID
 	if len(peer) == 0 || len(actionID) == 0 {
 		return nil, errors.New("Invalid parameters")
@@ -68,12 +58,6 @@ func SIPqualifypeer(socket *Socket, actionID string, peer string) (map[string]st
 //      Show one SIP peer with details on current status.
 //
 func SIPshowpeer(socket *Socket, actionID string, peer string) (map[string]string, error) {
-
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	// verify peer and action ID
 	if len(peer) == 0 || len(actionID) == 0 {
 		return nil, errors.New("Invalid parameters")
@@ -94,11 +78,6 @@ func SIPshowpeer(socket *Socket, actionID string, peer string) (map[string]strin
 //		Show SIP registrations (text format).
 //
 func SIPshowregistry(socket *Socket, actionID string) (map[string]string, error) {
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	// action ID
 	if len(actionID) == 0 {
 		return nil, errors.New("Invalid parameters")

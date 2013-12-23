@@ -87,6 +87,9 @@ on_exit:
 }
 
 func getMessage(socket *Socket, command []string, actionID string) (map[string]string, error) {
+	if !socket.Connected() {
+		return nil, errors.New("Invalid socket")
+	}
 
 	err := sendCmd(socket, command)
 	if err != nil {

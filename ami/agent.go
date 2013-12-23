@@ -16,12 +16,6 @@ func Agents(socket *Socket, actionID string) ([]map[string]string, error) {
 //		Sets an agent as no longer logged in.
 //
 func AgentLogoff(socket *Socket, actionID, agent string, soft bool) (map[string]string, error) {
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
-	// verify agent, soft and action ID
 	if len(agent) == 0 || len(actionID) == 0 {
 		return nil, errors.New("Invalid parameters")
 	}

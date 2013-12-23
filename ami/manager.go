@@ -32,15 +32,6 @@ func Connect(socket *Socket) (bool, error) {
 //      Login Manager.
 //
 func Login(socket *Socket, user, secret, events, actionID string) (bool, error) {
-
-	if (len(user) == 0) || (len(secret) == 0) {
-		return false, errors.New("Invalid user")
-	}
-
-	if !socket.Connected() {
-		return false, errors.New("Invalid socket")
-	}
-
 	// verify parameters
 	if len(user) == 0 || len(secret) == 0 || len(events) == 0 || len(actionID) == 0 {
 		return false, errors.New("Invalid parameters")
@@ -58,15 +49,11 @@ func Login(socket *Socket, user, secret, events, actionID string) (bool, error) 
 		actionID,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
+	message, err := getMessage(socket, command, actionID)
 	if err != nil {
 		return false, err
 	}
 
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
-		return false, err
-	}
 	if message["Response"] != "Success" {
 		return false, errors.New(message["Message"])
 	}
@@ -77,10 +64,6 @@ func Login(socket *Socket, user, secret, events, actionID string) (bool, error) 
 //      Logoff the current manager session.      
 //
 func Logoff(socket *Socket, actionID string) (bool, error) {
-	if !socket.Connected() {
-		return false, errors.New("Invalid socket")
-	}
-
 	// verify parameters
 	if len(actionID) == 0 {
 		return false, errors.New("Invalid parameters")
@@ -92,13 +75,8 @@ func Logoff(socket *Socket, actionID string) (bool, error) {
 		actionID,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
+	message, err := getMessage(socket, command, actionID)
 	if err != nil {
-		return false, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
 		return false, err
 	}
 	if message["Response"] != "Goodbye" {
@@ -138,13 +116,8 @@ func Ping(socket *Socket, actionID string) (bool, error) {
 		actionID,
 		"\r\n\r\n", // end of command
 	}
-	err := sendCmd(socket, command)
+	message, err := getMessage(socket, command, actionID)
 	if err != nil {
-		return false, err
-	}
-
-	message, err := decode(socket)
-	if (err != nil) || (message["ActionID"] != actionID) {
 		return false, err
 	}
 	if message["Response"] != "Success" {

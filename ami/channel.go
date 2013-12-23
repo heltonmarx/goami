@@ -9,12 +9,7 @@ import (
 //		Set absolute timeout.
 //		Hangup a channel after a certain time. Acknowledges set time with Timeout Set message.
 //
-func AbsoluteTimeout(socket *Socket, actionID string, channel string, timeout int) (map[string]string, error) {
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
+func AbsoluteTimeout(socket *Socket, actionID, channel string, timeout int) (map[string]string, error) {
 	// verify channel and action ID
 	if len(channel) == 0 || len(actionID) == 0 {
 		return nil, errors.New("Invalid parameters")
@@ -37,13 +32,9 @@ func AbsoluteTimeout(socket *Socket, actionID string, channel string, timeout in
 //		Attended transfer.
 //
 func Atxfer(socket *Socket, actionID, channel, exten, context, priority string) (map[string]string, error) {
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	// verify channel and action ID
-	if len(channel) == 0 || len(actionID) == 0 {
+	if len(channel) == 0 || len(actionID) == 0 ||
+		len(exten) == 0 || len(context) == 0 || len(priority) == 0 {
 		return nil, errors.New("Invalid parameters")
 	}
 
@@ -69,11 +60,6 @@ func Atxfer(socket *Socket, actionID, channel, exten, context, priority string) 
 //		Bridge two channels already in the PBX.
 //	
 func Bridge(socket *Socket, actionID, channel1, channel2 string, tone bool) (map[string]string, error) {
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	// verify channel and action ID
 	if len(channel1) == 0 || len(channel2) == 0 || len(actionID) == 0 {
 		return nil, errors.New("Invalid parameters")
@@ -113,13 +99,8 @@ func CoreShowChannels(socket *Socket, actionID string) ([]map[string]string, err
 //		Check Extension Status.
 //
 func ExtensionState(socket *Socket, actionID, exten, context string) (map[string]string, error) {
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	// verify action ID
-	if len(actionID) == 0 {
+	if len(actionID) == 0 || len(exten) == 0 || len(context) == 0 {
 		return nil, errors.New("Invalid parameters")
 	}
 
@@ -141,11 +122,6 @@ func ExtensionState(socket *Socket, actionID, exten, context string) (map[string
 //		Hangup channel.
 //
 func Hangup(socket *Socket, actionID, channel, cause string) (map[string]string, error) {
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	// verify action ID
 	if len(channel) == 0 || len(actionID) == 0 {
 		return nil, errors.New("Invalid parameters")
@@ -184,11 +160,6 @@ type OriginateData struct {
 }
 
 func Originate(socket *Socket, actionID string, originate OriginateData) (map[string]string, error) {
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	// verify action ID
 	if len(actionID) == 0 {
 		return nil, errors.New("Invalid parameters")
@@ -229,11 +200,6 @@ func Originate(socket *Socket, actionID string, originate OriginateData) (map[st
 //		Park a channel.
 //
 func Park(socket *Socket, actionID, channel1, channel2 string, timeout int, parkinglot string) (map[string]string, error) {
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	// verify action ID
 	if len(channel1) == 0 || len(channel2) == 0 || len(actionID) == 0 {
 		return nil, errors.New("Invalid parameters")
@@ -273,11 +239,6 @@ func ParkedCalls(socket *Socket, actionID string) ([]map[string]string, error) {
 //		Play DTMF signal on a specific channel.
 //
 func PlayDTMF(socket *Socket, actionID, channel, digit string) (map[string]string, error) {
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	// verify action ID
 	if len(channel) == 0 || len(digit) == 0 || len(actionID) == 0 {
 		return nil, errors.New("Invalid parameters")
@@ -301,11 +262,6 @@ func PlayDTMF(socket *Socket, actionID, channel, digit string) (map[string]strin
 //		Redirect (transfer) a call.
 //
 func Redirect(socket *Socket, actionID, channel, exten, context, priority string) (map[string]string, error) {
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	// verify action ID
 	if len(channel) == 0 || len(exten) == 0 ||
 		len(context) == 0 || len(priority) == 0 || len(actionID) == 0 {
@@ -333,11 +289,6 @@ func Redirect(socket *Socket, actionID, channel, exten, context, priority string
 //		Send text message to channel.
 //
 func SendText(socket *Socket, actionID, channel, msg string) (map[string]string, error) {
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	// verify action ID
 	if len(channel) == 0 || len(msg) == 0 || len(actionID) == 0 {
 		return nil, errors.New("Invalid parameters")
@@ -364,11 +315,6 @@ func SendText(socket *Socket, actionID, channel, msg string) (map[string]string,
 //		Note:	If a channel name is not provided then the variable is global.
 //
 func Setvar(socket *Socket, actionID, channel, variable, value string) (map[string]string, error) {
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	// verify action ID
 	if len(channel) == 0 || len(variable) == 0 || len(value) == 0 || len(actionID) == 0 {
 		return nil, errors.New("Invalid parameters")
@@ -396,11 +342,6 @@ func Setvar(socket *Socket, actionID, channel, variable, value string) (map[stri
 //		Will return the status information of each channel along with the value for the specified channel variables.
 //
 func Status(socket *Socket, actionID, channel, variables string) (map[string]string, error) {
-	//verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	// verify action ID
 	if len(channel) == 0 || len(variables) == 0 || len(actionID) == 0 {
 		return nil, errors.New("Invalid parameters")
