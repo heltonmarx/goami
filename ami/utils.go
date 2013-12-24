@@ -22,6 +22,8 @@ func decode(socket *Socket) (map[string]string, error) {
 				message[action] = response
 			} else if strings.Contains(s, "\r\n\r\n") {
 				goto on_exit
+			} else {
+				break
 			}
 		}
 	}
