@@ -296,4 +296,3 @@ func GetConfigJSON(socket *Socket, actionID, filename string) (map[string]string
 	}
 	return getMessage(socket, command, actionID)
 }
-

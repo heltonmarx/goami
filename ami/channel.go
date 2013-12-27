@@ -447,3 +447,23 @@ func AOCMessage(socket *Socket, actionID, channel string, aocdata AOCData) (map[
 	}
 	return getMessage(socket, command, actionID)
 }
+
+//	Getvar
+//		Gets a channel variable.
+//
+func Getvar(socket *Socket, actionID, channel, variable string) (map[string]string, error) {
+	if len(actionID) == 0 || len(channel) == 0 || len(variable) == 0 {
+		return nil, errors.New("Invalid parameters")
+	}
+	command := []string{
+		"Action: Getvar",
+		"\r\nActionID: ",
+		actionID,
+		"\r\nChannel: ",
+		channel,
+		"\r\nVariable: ",
+		variable,
+		"\r\n\r\n", // end of command
+	}
+	return getMessage(socket, command, actionID)
+}
