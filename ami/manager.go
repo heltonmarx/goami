@@ -296,3 +296,61 @@ func GetConfigJSON(socket *Socket, actionID, filename string) (map[string]string
 	}
 	return getMessage(socket, command, actionID)
 }
+
+//	JabberSend
+//		Sends a message to a Jabber Client.
+//
+func JabberSend(socket *Socket, actionID, jabber, jid, message string) (map[string]string, error) {
+	if len(actionID) == 0 || len(jabber) == 0 ||
+		len(jid) == 0 || len(message) == 0 {
+		return nil, errors.New("Invalid parameters")
+	}
+	command := []string{
+		"Action: JabberSend",
+		"\r\nActionID: ",
+		actionID,
+		"\r\nJabber: ",
+		jabber,
+		"\r\nJID: ",
+		jid,
+		"\r\nMessage: ",
+		message,
+		"\r\n\r\n", // end of command
+	}
+	return getMessage(socket, command, actionID)
+}
+
+//	ListCommands
+//		List available manager commands.
+//		Returns the action name and synopsis for every action that is available to the user
+//
+func ListCommands(socket *Socket, actionID string) (map[string]string, error) {
+	if len(actionID) == 0 {
+		return nil, errors.New("Invalid parameters")
+	}
+	command := []string{
+		"Action: ListCommands",
+		"\r\nActionID: ",
+		actionID,
+		"\r\n\r\n", // end of command
+	}
+	return getMessage(socket, command, actionID)
+}
+
+//	ListCategories
+//		List categories in configuration file.
+//
+func ListCategories(socket *Socket, actionID, filename string) (map[string]string, error) {
+	if len(actionID) == 0 || len(filename) == 0 {
+		return nil, errors.New("Invalid parameters")
+	}
+	command := []string{
+		"Action: ListCategories",
+		"\r\nActionID: ",
+		actionID,
+		"\r\nFilename: ",
+		filename,
+		"\r\n\r\n", // end of command
+	}
+	return getMessage(socket, command, actionID)
+}
