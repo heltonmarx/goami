@@ -467,3 +467,22 @@ func Getvar(socket *Socket, actionID, channel, variable string) (map[string]stri
 	}
 	return getMessage(socket, command, actionID)
 }
+
+//	LocalOptimizeAway
+//		Optimize away a local channel when possible.
+//		A local channel created with "/n" will not automatically optimize away.
+//		Calling this command on the local channel will clear that flag and allow it to optimize away if it's bridged or when it becomes bridged.
+func LocalOptimizeAway(socket *Socket, actionID, channel string) (map[string]string, error) {
+	if len(actionID) == 0 || len(channel) == 0 {
+		return nil, errors.New("Invalid parameters")
+	}
+	command := []string{
+		"Action: LocalOptimizeAway",
+		"\r\nActionID: ",
+		actionID,
+		"\r\nChannel: ",
+		channel,
+		"\r\n\r\n", // end of command
+	}
+	return getMessage(socket, command, actionID)
+}

@@ -354,3 +354,82 @@ func ListCategories(socket *Socket, actionID, filename string) (map[string]strin
 	}
 	return getMessage(socket, command, actionID)
 }
+
+//	ModuleCheck
+//		Check if module is loaded.
+//		Checks if Asterisk module is loaded. Will return Success/Failure. For success returns, the module revision number is included.
+//
+func ModuleCheck(socket *Socket, actionID, module string) (map[string]string, error) {
+	if len(actionID) == 0 || len(module) == 0 {
+		return nil, errors.New("Invalid parameters")
+	}
+	command := []string{
+		"Action: ModuleCheck",
+		"\r\nActionID: ",
+		actionID,
+		"\r\nModule: ",
+		module,
+		"\r\n\r\n", // end of command
+	}
+	return getMessage(socket, command, actionID)
+}
+
+//	ModuleLoad
+//		Module management.
+//		Loads, unloads or reloads an Asterisk module in a running system.
+//
+func ModuleLoad(socket *Socket, actionID, module, loadType string) (map[string]string, error) {
+	if len(actionID) == 0 || len(module) == 0 || len(loadType) == 0 {
+		return nil, errors.New("Invalid parameters")
+	}
+	command := []string{
+		"Action: ModuleLoad",
+		"\r\nActionID: ",
+		actionID,
+		"\r\nModule: ",
+		module,
+		"\r\nLoadType: ",
+		loadType,
+		"\r\n\r\n", // end of command
+	}
+	return getMessage(socket, command, actionID)
+}
+
+//	Reload
+//		Send a reload event.
+//
+func Reload(socket *Socket, actionID, module string) (map[string]string, error) {
+	if len(actionID) == 0 || len(module) == 0 {
+		return nil, errors.New("Invalid parameters")
+	}
+	command := []string{
+		"Action: Reload",
+		"\r\nActionID: ",
+		actionID,
+		"\r\nModule: ",
+		module,
+		"\r\n\r\n", // end of command
+	}
+	return getMessage(socket, command, actionID)
+}
+
+//	ShowDialPlan
+//		Show dialplan contexts and extensions
+//		Be aware that showing the full dialplan may take a lot of capacity
+//
+func ShowDialPlan(socket *Socket, actionID, extension, context string) (map[string]string, error) {
+	if len(actionID) == 0 || len(extension) == 0 || len(context) == 0 {
+		return nil, errors.New("Invalid parameters")
+	}
+	command := []string{
+		"Action: ShowDialPlan",
+		"\r\nActionID: ",
+		actionID,
+		"\r\nExtension: ",
+		extension,
+		"\r\nContext: ",
+		context,
+		"\r\n\r\n", // end of command
+	}
+	return getMessage(socket, command, actionID)
+}
