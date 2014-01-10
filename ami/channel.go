@@ -5,22 +5,6 @@ import (
 	"strconv"
 )
 
-type AOCData struct {
-	channelPrefix             string
-	msgType                   string
-	chargeType                string
-	unitAmount                string
-	unitType                  string
-	currencyName              string
-	currencyAmount            string
-	currencyMultiplier        string
-	totalType                 string
-	aocBillingId              string
-	chargingAssociationId     string
-	chargingAssociationNumber string
-	chargingAssociationPlan   string
-}
-
 //	AbsoluteTimeout	
 //		Set absolute timeout.
 //		Hangup a channel after a certain time. Acknowledges set time with Timeout Set message.
@@ -161,20 +145,6 @@ func Hangup(socket *Socket, actionID, channel, cause string) (map[string]string,
 //		Originate a call.
 //		Generates an outgoing call to a Extension/Context/Priority or Application/Data
 //
-type OriginateData struct {
-	exten       string
-	context     string
-	priority    int
-	application string
-	data        string
-	timeout     int
-	callerid    string
-	variable    string
-	account     string
-	async       string
-	codecs      string
-}
-
 func Originate(socket *Socket, actionID string, originate OriginateData) (map[string]string, error) {
 	// verify action ID
 	if len(actionID) == 0 {
@@ -185,6 +155,8 @@ func Originate(socket *Socket, actionID string, originate OriginateData) (map[st
 		"Action: Originate",
 		"\r\nActionID: ",
 		actionID,
+		"\r\nChannel: ",
+		originate.channel,
 		"\r\nExten: ",
 		originate.exten,
 		"\r\nContext: ",
@@ -406,9 +378,9 @@ func AGI(socket *Socket, actionID, channel, agiCommand, agiCommandID string) (ma
 //	AOCMessage
 //		Generate an Advice of Charge message on a channel.
 //
-func AOCMessage(socket *Socket, actionID, channel string, aocdata AOCData) (map[string]string, error) {
+func AOCMessage(socket *Socket, actionID string, aocData AOCData) (map[string]string, error) {
 	// verify channel and action ID
-	if len(channel) == 0 || len(actionID) == 0 {
+	if len(actionID) == 0 {
 		return nil, errors.New("Invalid parameters")
 	}
 	command := []string{
@@ -416,33 +388,33 @@ func AOCMessage(socket *Socket, actionID, channel string, aocdata AOCData) (map[
 		"\r\nActionID: ",
 		actionID,
 		"\r\nChannel: ",
-		channel,
+		aocData.channel,
 		"\r\nChannelPrefix: ",
-		aocdata.channelPrefix,
+		aocData.channelPrefix,
 		"\r\nMsgType: ",
-		aocdata.msgType,
+		aocData.msgType,
 		"\r\nChargeType: ",
-		aocdata.chargeType,
+		aocData.chargeType,
 		"\r\nUnitAmount(0): ",
-		aocdata.unitAmount,
+		aocData.unitAmount,
 		"\r\nUnitType(0): ",
-		aocdata.unitType,
+		aocData.unitType,
 		"\r\nCurrencyName: ",
-		aocdata.currencyName,
+		aocData.currencyName,
 		"\r\nCurrencyAmount: ",
-		aocdata.currencyAmount,
+		aocData.currencyAmount,
 		"\r\nCurrencyMultiplier: ",
-		aocdata.currencyMultiplier,
+		aocData.currencyMultiplier,
 		"\r\nTotalType: ",
-		aocdata.totalType,
+		aocData.totalType,
 		"\r\nAOCBillingId: ",
-		aocdata.aocBillingId,
+		aocData.aocBillingId,
 		"\r\nChargingAssociationId: ",
-		aocdata.chargingAssociationId,
+		aocData.chargingAssociationId,
 		"\r\nChargingAssociationNumber: ",
-		aocdata.chargingAssociationNumber,
+		aocData.chargingAssociationNumber,
 		"\r\nChargingAssociationPlan: ",
-		aocdata.chargingAssociationPlan,
+		aocData.chargingAssociationPlan,
 		"\r\n\r\n", // end of command
 	}
 	return getMessage(socket, command, actionID)
