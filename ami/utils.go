@@ -65,9 +65,16 @@ func getMessageList(socket *Socket, action, actionID, event, complete string) ([
 	state := getResponseState
 	for {
 		message, err := decode(socket)
-		if (err != nil) || (message["ActionID"] != actionID) {
+		//verify decode error
+		if err != nil {
 			return nil, err
 		}
+
+		//verify action id
+		if len(message["ActionID"]) > 0 && (message["ActionID"] != actionID) {
+			return nil, errors.New("Invalid ActionID\n")
+		}
+
 		switch state {
 		case getResponseState:
 			if message["Response"] != "Success" {

@@ -5,6 +5,28 @@ import (
 	"fmt"
 )
 
+func iax(socket *ami.Socket, actionID string) {
+	iaxPeerList, _ := ami.IAXpeerlist(socket, actionID)
+	if len(iaxPeerList) > 0 {
+		for _, m := range iaxPeerList {
+			fmt.Printf("IAX: %v\n", m)
+		}
+	}
+
+	iaxPeer, _ := ami.IAXpeers(socket, actionID)
+	if len(iaxPeer) > 0 {
+		for _, m := range iaxPeer {
+			fmt.Printf("IAX2: %v\n", m)
+		}
+	}
+	iaxRegistry, _ := ami.IAXregistry(socket, actionID)
+	if len(iaxRegistry) > 0 {
+		for _, m := range iaxPeer {
+			fmt.Printf("IAX Registry: %v\n", m)
+		}
+	}
+}
+
 func main() {
 	socket, err := ami.NewSocket("127.0.0.1:5038")
 	if err != nil {
@@ -59,6 +81,11 @@ func main() {
 		fmt.Printf("%s: %q\n", i, j)
 	}
 	fmt.Printf("\n")
+
+	/**
+	 *	IAX Functions
+	 */
+	iax(socket, uuid)
 
 	/**
 	 *  Logoff
