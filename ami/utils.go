@@ -36,24 +36,16 @@ const (
 	getListState
 )
 
-func getMessageList(socket *Socket, action, actionID, event, complete string) ([]map[string]string, error) {
+func getMessageList(socket *Socket, command []string, actionID, event, complete string) ([]map[string]string, error) {
 	// verify socket
 	if !socket.Connected() {
 		return nil, errors.New("Invalid socket")
 	}
 
 	// verify parameters
-	if len(actionID) == 0 || len(action) == 0 ||
+	if len(actionID) == 0 ||
 		len(event) == 0 || len(complete) == 0 {
 		return nil, errors.New("Invalid parameters")
-	}
-
-	command := []string{
-		"Action: ",
-		action,
-		"\r\nActionID: ",
-		actionID,
-		"\r\n\r\n", // end of command
 	}
 
 	err := sendCmd(socket, command)
@@ -110,4 +102,18 @@ func getMessage(socket *Socket, command []string, actionID string) (map[string]s
 		return nil, err
 	}
 	return message, nil
+}
+
+func getCommand(action, actionID string) ([]string, error) {
+	if len(action) == 0 || len(actionID) == 0 {
+		return nil, errors.New("invalid action or actionID")
+	}
+	command := []string{
+		"Action: ",
+		action,
+		"\r\nActionID: ",
+		actionID,
+		"\r\n\r\n", // end of command
+	}
+	return command, nil
 }

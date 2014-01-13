@@ -87,9 +87,11 @@ func Bridge(socket *Socket, actionID, channel1, channel2 string, tone bool) (map
 //		List currently active channels.
 //
 func CoreShowChannels(socket *Socket, actionID string) ([]map[string]string, error) {
-	return getMessageList(socket,
-		"CoreShowChannels",
-		actionID,
+	command, err := getCommand("CoreShowChannels", actionID)
+	if err != nil {
+		return nil, err
+	}
+	return getMessageList(socket, command, actionID,
 		"CoreShowChannel",
 		"CoreShowChannelsComplete")
 }
@@ -215,9 +217,11 @@ func Park(socket *Socket, actionID, channel1, channel2 string, timeout int, park
 //		List parked calls.
 //
 func ParkedCalls(socket *Socket, actionID string) ([]map[string]string, error) {
-	return getMessageList(socket,
-		"ParkedCalls",
-		actionID,
+	command, err := getCommand("ParkedCalls", actionID)
+	if err != nil {
+		return nil, err
+	}
+	return getMessageList(socket, command, actionID,
 		"ParkedCall",
 		"ParkedCallsComplete")
 }

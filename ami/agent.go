@@ -8,7 +8,12 @@ import (
 //      Lists agents and their status.
 //
 func Agents(socket *Socket, actionID string) ([]map[string]string, error) {
-	return getMessageList(socket, "Agents", actionID, "AgentsEntry", "AgentsComplete")
+	command, err := getCommand("Agents", actionID)
+	if err != nil {
+		return nil, err
+	}
+	return getMessageList(socket, command, actionID,
+		"AgentsEntry", "AgentsComplete")
 }
 
 //

@@ -31,7 +31,12 @@ func SIPnotify(socket *Socket, actionID string, channel string, variable string)
 //      Peerlist will follow as separate events, followed by a final event called PeerlistComplete
 //
 func SIPpeers(socket *Socket, actionID string) ([]map[string]string, error) {
-	return getMessageList(socket, "SIPpeers", actionID, "PeerEntry", "PeerlistComplete")
+	command, err := getCommand("SIPpeers", actionID)
+	if err != nil {
+		return nil, err
+	}
+	return getMessageList(socket, command, actionID,
+		"PeerEntry", "PeerlistComplete")
 }
 
 //	SIPqualifypeer
