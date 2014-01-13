@@ -27,6 +27,18 @@ func iax(socket *ami.Socket, actionID string) {
 	}
 }
 
+func mailbox(socket *ami.Socket, actionID string) {
+	mc, _ := ami.MailboxCount(socket, actionID, "mailbox@vm-context")
+	if mc != nil {
+		fmt.Printf("MailboxCount: %v\n", mc)
+	}
+
+	ms, _ := ami.MailboxStatus(socket, actionID, "mailbox@vm-context")
+	if ms != nil {
+		fmt.Printf("Mailbox status: %v\n", ms)
+	}
+}
+
 func main() {
 	socket, err := ami.NewSocket("127.0.0.1:5038")
 	if err != nil {
@@ -86,6 +98,11 @@ func main() {
 	 *	IAX Functions
 	 */
 	iax(socket, uuid)
+
+	/**
+	 *	Mailbox Functions
+	 */
+	mailbox(socket, uuid)
 
 	/**
 	 *  Logoff
