@@ -57,20 +57,20 @@ package ami
 //									The value is bits 7 through 1 of the Q.931 octet containing the type-of-number and numbering-plan-identification fields.
 //
 type AOCData struct {
-	channel                   string
-	channelPrefix             string
-	msgType                   string
-	chargeType                string
-	unitAmount                string
-	unitType                  string
-	currencyName              string
-	currencyAmount            string
-	currencyMultiplier        string
-	totalType                 string
-	aocBillingId              string
-	chargingAssociationId     string
-	chargingAssociationNumber string
-	chargingAssociationPlan   string
+	Channel                   string
+	ChannelPrefix             string
+	MsgType                   string
+	ChargeType                string
+	UnitAmount                string
+	UnitType                  string
+	CurrencyName              string
+	CurrencyAmount            string
+	CurrencyMultiplier        string
+	TotalType                 string
+	AocBillingId              string
+	ChargingAssociationId     string
+	ChargingAssociationNumber string
+	ChargingAssociationPlan   string
 }
 
 //
@@ -92,16 +92,38 @@ type AOCData struct {
 //		Codecs - Comma-separated list of codecs to use for this call.
 //
 type OriginateData struct {
-	channel     string
-	exten       string
-	context     string
-	priority    int
-	application string
-	data        string
-	timeout     int
-	callerid    string
-	variable    string
-	account     string
-	async       string
-	codecs      string
+	Channel     string
+	Exten       string
+	Context     string
+	Priority    int
+	Application string
+	Data        string
+	Timeout     int
+	Callerid    string
+	Variable    string
+	Account     string
+	Async       string
+	Codecs      string
+}
+
+//	QueueData
+//		used in functions:
+//		QueueAdd, QueueLog, QueuePause,
+//		QueuePenalty, QueueReload, QueueRemove,
+//		QueueReset 
+
+type QueueData struct {
+	Queue          string
+	Interface      string
+	Penalty        string
+	Paused         string
+	MemberName     string
+	StateInterface string
+	Event          string
+	Uniqueid       string
+	Message        string
+	Reason         string
+	Members        string
+	Rules          string
+	Parameters     string
 }
