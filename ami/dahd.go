@@ -1,3 +1,9 @@
+// Copyright 2014 Helton Marques
+//
+//	Use of this source code is governed by a LGPL
+//	license that can be found in the LICENSE file.
+//
+
 package ami
 
 import (
