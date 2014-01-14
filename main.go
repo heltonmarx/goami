@@ -40,6 +40,8 @@ func mailbox(socket *ami.Socket, actionID string) {
 }
 
 func main() {
+	fmt.Printf("goami %s\n", ami.VersionInfo())
+
 	socket, err := ami.NewSocket("127.0.0.1:5038")
 	if err != nil {
 		fmt.Printf("socket error: %v\n", err)

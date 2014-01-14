@@ -13,6 +13,10 @@ import (
 	"strings"
 )
 
+func VersionInfo() string {
+	return "Version: 0.0.1; Build Date: Jan 14, 2013;"
+}
+
 func sendCmd(socket *Socket, cmd []string) error {
 	for _, s := range cmd {
 		err := socket.Send("%s", s)
