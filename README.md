@@ -4,7 +4,7 @@ goami
 AMI Interface in Go
 
 ## About
-This code is based C library interface: [libami] (http://sourceforge.net/projects/amsuite/files/libami/)
+This code is based on C [libami] (http://sourceforge.net/projects/amsuite/files/libami/) library interface
 
 ## Usage instructions
 
