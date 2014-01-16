@@ -7,7 +7,7 @@ This code is based on C [libami] (http://sourceforge.net/projects/amsuite/files/
 
 ## Installation and Requirements
 
-The following command will install the notification api for Go along with the binaries.
+The following command will install the AMI client.
 
 ```sh
 go get github.com/heltonmarx/goami/ami
