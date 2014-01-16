@@ -7,7 +7,7 @@ This code is based on C [libami] (http://sourceforge.net/projects/amsuite/files/
 
 ## Installation and Requirements
 
-The following command will install the notification api for Go along with the binaries.  Also, utilizing this lib requires OSX 10.8 or higher. It will simply not work on lower versions of OSX.
+The following command will install the notification api for Go along with the binaries.
 
 ```sh
 go get github.com/heltonmarx/goami/ami
