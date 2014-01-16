@@ -443,3 +443,16 @@ func ShowDialPlan(socket *Socket, actionID, extension, context string) (map[stri
 	}
 	return getMessage(socket, command, actionID)
 }
+
+//	GetEvents
+//		Get events from current socket connection
+//		It is mandatory set 'events' of ami.Login with "system,call,all,user", to received
+//		events
+//
+func GetEvents(socket *Socket) (map[string]string, error) {
+	message, err := decode(socket)
+	if err != nil {
+		return nil, err
+	}
+	return message, nil
+}
