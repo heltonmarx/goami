@@ -14,7 +14,7 @@ import (
 )
 
 func VersionInfo() string {
-	return "Version: 0.0.1; Build Date: Jan 14, 2013;"
+	return "Version: 1.0.0; Build Date: Jan 16, 2014;"
 }
 
 func sendCmd(socket *Socket, cmd []string) error {
