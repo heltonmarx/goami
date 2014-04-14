@@ -71,7 +71,7 @@ func Login(socket *Socket, user, secret, events, actionID string) (bool, error) 
 }
 
 //  Logoff
-//      Logoff the current manager session.      
+//      Logoff the current manager session.
 //
 func Logoff(socket *Socket, actionID string) (bool, error) {
 	// verify parameters
@@ -110,7 +110,7 @@ func GetUUID() (string, error) {
 }
 
 //  Ping
-//      A 'Ping' action will ellicit a 'Pong' response. 
+//      A 'Ping' action will ellicit a 'Pong' response.
 //      Used to keep the manager connection open.
 //
 func Ping(socket *Socket, actionID string) (bool, error) {
@@ -206,7 +206,7 @@ func CoreStatus(socket *Socket, actionID string) (map[string]string, error) {
 
 //	CreateConfig
 //		Creates an empty file in the configuration directory.
-//		This action will create an empty file in the configuration directory. 
+//		This action will create an empty file in the configuration directory.
 //		This action is intended to be used before an UpdateConfig action.
 //
 func CreateConfig(socket *Socket, actionID, filename string) (map[string]string, error) {
@@ -289,7 +289,7 @@ func GetConfig(socket *Socket, actionID, filename, category string) (map[string]
 
 //	GetConfigJSON
 //		Retrieve configuration (JSON format).
-//		This action will dump the contents of a configuration file by category and contents in JSON format. 
+//		This action will dump the contents of a configuration file by category and contents in JSON format.
 //		This only makes sense to be used using rawman over the HTTP interface.
 //
 func GetConfigJSON(socket *Socket, actionID, filename string) (map[string]string, error) {

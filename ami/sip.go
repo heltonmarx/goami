@@ -10,7 +10,7 @@ import (
 	"errors"
 )
 
-//	SIPnotify	
+//	SIPnotify
 //		Send a SIP notify
 //
 func SIPnotify(socket *Socket, actionID string, channel string, variable string) (map[string]string, error) {
@@ -33,7 +33,7 @@ func SIPnotify(socket *Socket, actionID string, channel string, variable string)
 }
 
 //  SIPPeers
-//      Lists SIP peers in text format with details on current status. 
+//      Lists SIP peers in text format with details on current status.
 //      Peerlist will follow as separate events, followed by a final event called PeerlistComplete
 //
 func SIPpeers(socket *Socket, actionID string) ([]map[string]string, error) {

@@ -12,8 +12,8 @@ import (
 
 //  SKINNYdevices
 //		List SKINNY devices (text format).
-//		Lists Skinny devices in text format with details on current status. 
-//		Devicelist will follow as separate events, 
+//		Lists Skinny devices in text format with details on current status.
+//		Devicelist will follow as separate events,
 //		followed by a final event called DevicelistComplete.
 //
 func SKINNYdevices(socket *Socket, actionID string) ([]map[string]string, error) {
@@ -27,8 +27,8 @@ func SKINNYdevices(socket *Socket, actionID string) ([]map[string]string, error)
 
 //	SKINNYlines
 //		List SKINNY lines (text format).
-//		Lists Skinny lines in text format with details on current status. 
-//		Linelist will follow as separate events, 
+//		Lists Skinny lines in text format with details on current status.
+//		Linelist will follow as separate events,
 //		followed by a final event called LinelistComplete.
 //
 func SKINNYlines(socket *Socket, actionID string) ([]map[string]string, error) {

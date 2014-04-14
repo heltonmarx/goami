@@ -11,8 +11,8 @@ import (
 )
 
 //	MeetmeList
-//		Lists all users in a particular MeetMe conference. 
-//		MeetmeList will follow as separate events, followed by a final event called MeetmeListComplete.	
+//		Lists all users in a particular MeetMe conference.
+//		MeetmeList will follow as separate events, followed by a final event called MeetmeListComplete.
 //
 func MeetmeList(socket *Socket, actionID, conference string) ([]map[string]string, error) {
 	if len(actionID) == 0 || len(conference) == 0 {

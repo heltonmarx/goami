@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-//	AbsoluteTimeout	
+//	AbsoluteTimeout
 //		Set absolute timeout.
 //		Hangup a channel after a certain time. Acknowledges set time with Timeout Set message.
 //
@@ -64,7 +64,7 @@ func Atxfer(socket *Socket, actionID, channel, exten, context, priority string) 
 //
 //	Bridge
 //		Bridge two channels already in the PBX.
-//	
+//
 func Bridge(socket *Socket, actionID, channel1, channel2 string, tone bool) (map[string]string, error) {
 	// verify channel and action ID
 	if len(channel1) == 0 || len(channel2) == 0 || len(actionID) == 0 {
