@@ -21,7 +21,7 @@ func decode(socket *Socket) (map[string]string, error) {
 		}
 		line := strings.Split(s, "\r\n")
 		for i := 0; i < len(line); i++ {
-			keys := strings.Split(line[i], ":")
+			keys := strings.SplitAfterN(line[i], ":", 2)
 			if len(keys) == 2 {
 				action := strings.TrimSpace(keys[0])
 				response := strings.TrimSpace(keys[1])

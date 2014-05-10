@@ -8,8 +8,7 @@ package main
 
 import (
 	"fmt"
-	//	"github.com/heltonmarx/goami/ami"
-	"../ami"
+	"github.com/heltonmarx/goami/ami"
 )
 
 func main() {
