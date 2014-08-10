@@ -65,7 +65,7 @@ func (self *Socket) Recv() (string, error) {
 	for {
 		readLine, err = self.buffer.ReadBytes('\n')
 		if err != nil {
-			return "", nil
+			return "", err
 		}
 		bytesRead = append(bytesRead, readLine...)
 		if len(bytes.TrimSpace(readLine)) == 0 {
