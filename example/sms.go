@@ -35,7 +35,7 @@ func main() {
 		Device:       "b0",
 		Destination:  "4899893791",
 		Confirmation: true,
-		Message:      "hey ho let's go",
+		Message:      "hey ho, let's go",
 	}
 
 	//SendSMS
