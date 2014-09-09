@@ -68,6 +68,10 @@ func main() {
 }
 ```
 
+## Documentation
+
+This projects documentation can be found on godoc at [godoc.org//github.com/heltonmarx/goami/ami](http://godoc.org/github.com/heltonmarx/goami/ami).
+
 ## Copyright and licensing
 
 Distributed under GNU Lesser General Public License.
