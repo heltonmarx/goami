@@ -13,14 +13,18 @@ import (
 	"strings"
 )
 
+var (
+	errManagerConnectionFailed  = errors.New("manager: AMI connection failed")
+	errInvalidManagerParameters = errors.New("manager: Invalid parameters")
+)
+
 func VersionInfo() string {
 	return "Version: 1.0.0; Build Date: Jan 16, 2014;"
 }
 
 func sendCmd(socket *Socket, cmd []string) error {
 	for _, s := range cmd {
-		err := socket.Send("%s", s)
-		if err != nil {
+		if err := socket.Send("%s", s); err != nil {
 			fmt.Printf("send login error:[%v]\n", err)
 			return err
 		}
@@ -29,11 +33,8 @@ func sendCmd(socket *Socket, cmd []string) error {
 }
 
 func Connect(socket *Socket) (bool, error) {
-	if !socket.Connected() {
-		fmt.Printf("could not connect to AMI\n")
-	}
 	if answer, err := socket.Recv(); err != nil || !strings.Contains(answer, "Asterisk Call Manager") {
-		return false, errors.New("AMI connection failed")
+		return false, errManagerConnectionFailed
 	}
 	return true, nil
 }
@@ -44,7 +45,7 @@ func Connect(socket *Socket) (bool, error) {
 func Login(socket *Socket, user, secret, events, actionID string) (bool, error) {
 	// verify parameters
 	if len(user) == 0 || len(secret) == 0 || len(events) == 0 || len(actionID) == 0 {
-		return false, errors.New("Invalid parameters")
+		return false, errInvalidManagerParameters
 	}
 
 	command := []string{
@@ -76,7 +77,7 @@ func Login(socket *Socket, user, secret, events, actionID string) (bool, error) 
 func Logoff(socket *Socket, actionID string) (bool, error) {
 	// verify parameters
 	if len(actionID) == 0 {
-		return false, errors.New("Invalid parameters")
+		return false, errInvalidManagerParameters
 	}
 
 	command := []string{
@@ -117,7 +118,7 @@ func Ping(socket *Socket, actionID string) (bool, error) {
 
 	// verify parameters
 	if len(actionID) == 0 {
-		return false, errors.New("Invalid parameters")
+		return false, errInvalidManagerParameters
 	}
 
 	command := []string{
@@ -141,7 +142,7 @@ func Ping(socket *Socket, actionID string) (bool, error) {
 //
 func Challenge(socket *Socket, actionID string) (map[string]string, error) {
 	if len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidManagerParameters
 	}
 	command := []string{
 		"Action: Challenge",
@@ -159,7 +160,7 @@ func Challenge(socket *Socket, actionID string) (map[string]string, error) {
 //
 func Command(socket *Socket, actionID, cmd string) (map[string]string, error) {
 	if len(actionID) == 0 || len(cmd) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidManagerParameters
 	}
 	command := []string{
 		"Action: Command",
@@ -177,7 +178,7 @@ func Command(socket *Socket, actionID, cmd string) (map[string]string, error) {
 //
 func CoreSettings(socket *Socket, actionID string) (map[string]string, error) {
 	if len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidManagerParameters
 	}
 	command := []string{
 		"Action: CoreSettings",
@@ -193,7 +194,7 @@ func CoreSettings(socket *Socket, actionID string) (map[string]string, error) {
 //
 func CoreStatus(socket *Socket, actionID string) (map[string]string, error) {
 	if len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidManagerParameters
 	}
 	command := []string{
 		"Action: CoreStatus",
@@ -211,7 +212,7 @@ func CoreStatus(socket *Socket, actionID string) (map[string]string, error) {
 //
 func CreateConfig(socket *Socket, actionID, filename string) (map[string]string, error) {
 	if len(actionID) == 0 || len(filename) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidManagerParameters
 	}
 	command := []string{
 		"Action: CreateConfig",
@@ -230,7 +231,7 @@ func CreateConfig(socket *Socket, actionID, filename string) (map[string]string,
 func DataGet(socket *Socket, actionID, path, search, filter string) (map[string]string, error) {
 	if len(actionID) == 0 || len(path) == 0 ||
 		len(search) == 0 || len(filter) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidManagerParameters
 	}
 	command := []string{
 		"Action: DataGet",
@@ -253,7 +254,7 @@ func DataGet(socket *Socket, actionID, path, search, filter string) (map[string]
 //
 func Events(socket *Socket, actionID, eventMask string) (map[string]string, error) {
 	if len(actionID) == 0 || len(eventMask) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidManagerParameters
 	}
 	command := []string{
 		"Action: Events",
@@ -272,7 +273,7 @@ func Events(socket *Socket, actionID, eventMask string) (map[string]string, erro
 //
 func GetConfig(socket *Socket, actionID, filename, category string) (map[string]string, error) {
 	if len(actionID) == 0 || len(filename) == 0 || len(category) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidManagerParameters
 	}
 	command := []string{
 		"Action: GetConfig",
@@ -294,7 +295,7 @@ func GetConfig(socket *Socket, actionID, filename, category string) (map[string]
 //
 func GetConfigJSON(socket *Socket, actionID, filename string) (map[string]string, error) {
 	if len(actionID) == 0 || len(filename) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidManagerParameters
 	}
 	command := []string{
 		"Action: GetConfigJSON",
@@ -313,7 +314,7 @@ func GetConfigJSON(socket *Socket, actionID, filename string) (map[string]string
 func JabberSend(socket *Socket, actionID, jabber, jid, message string) (map[string]string, error) {
 	if len(actionID) == 0 || len(jabber) == 0 ||
 		len(jid) == 0 || len(message) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidManagerParameters
 	}
 	command := []string{
 		"Action: JabberSend",
@@ -336,7 +337,7 @@ func JabberSend(socket *Socket, actionID, jabber, jid, message string) (map[stri
 //
 func ListCommands(socket *Socket, actionID string) (map[string]string, error) {
 	if len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidManagerParameters
 	}
 	command := []string{
 		"Action: ListCommands",
@@ -352,7 +353,7 @@ func ListCommands(socket *Socket, actionID string) (map[string]string, error) {
 //
 func ListCategories(socket *Socket, actionID, filename string) (map[string]string, error) {
 	if len(actionID) == 0 || len(filename) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidManagerParameters
 	}
 	command := []string{
 		"Action: ListCategories",
@@ -371,7 +372,7 @@ func ListCategories(socket *Socket, actionID, filename string) (map[string]strin
 //
 func ModuleCheck(socket *Socket, actionID, module string) (map[string]string, error) {
 	if len(actionID) == 0 || len(module) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidManagerParameters
 	}
 	command := []string{
 		"Action: ModuleCheck",
@@ -390,7 +391,7 @@ func ModuleCheck(socket *Socket, actionID, module string) (map[string]string, er
 //
 func ModuleLoad(socket *Socket, actionID, module, loadType string) (map[string]string, error) {
 	if len(actionID) == 0 || len(module) == 0 || len(loadType) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidManagerParameters
 	}
 	command := []string{
 		"Action: ModuleLoad",
@@ -410,7 +411,7 @@ func ModuleLoad(socket *Socket, actionID, module, loadType string) (map[string]s
 //
 func Reload(socket *Socket, actionID, module string) (map[string]string, error) {
 	if len(actionID) == 0 || len(module) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidManagerParameters
 	}
 	command := []string{
 		"Action: Reload",
@@ -429,7 +430,7 @@ func Reload(socket *Socket, actionID, module string) (map[string]string, error) 
 //
 func ShowDialPlan(socket *Socket, actionID, extension, context string) (map[string]string, error) {
 	if len(actionID) == 0 || len(extension) == 0 || len(context) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidManagerParameters
 	}
 	command := []string{
 		"Action: ShowDialPlan",

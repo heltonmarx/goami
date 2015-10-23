@@ -10,6 +10,10 @@ import (
 	"errors"
 )
 
+var (
+	errInvalidSkinnyParameters = errors.New("skinny: Invalid parameters")
+)
+
 //  SKINNYdevices
 //		List SKINNY devices (text format).
 //		Lists Skinny devices in text format with details on current status.
@@ -46,7 +50,7 @@ func SKINNYlines(socket *Socket, actionID string) ([]map[string]string, error) {
 //
 func SKINNYshowdevice(socket *Socket, actionID, device string) (map[string]string, error) {
 	if len(actionID) == 0 || len(device) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidSkinnyParameters
 	}
 	command := []string{
 		"Action: SKINNYshowdevice",
@@ -65,7 +69,7 @@ func SKINNYshowdevice(socket *Socket, actionID, device string) (map[string]strin
 //
 func SKINNYshowline(socket *Socket, actionID, line string) (map[string]string, error) {
 	if len(actionID) == 0 || len(line) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidSkinnyParameters
 	}
 	command := []string{
 		"Action: SKINNYshowline",

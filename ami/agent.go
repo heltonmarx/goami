@@ -10,6 +10,10 @@ import (
 	"errors"
 )
 
+var (
+	errInvalidAgentsParameters = errors.New("agents: Invalid parameters")
+)
+
 //  Agents
 //      Lists agents and their status.
 //
@@ -28,7 +32,7 @@ func Agents(socket *Socket, actionID string) ([]map[string]string, error) {
 //
 func AgentLogoff(socket *Socket, actionID, agent string, soft bool) (map[string]string, error) {
 	if len(agent) == 0 || len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidAgentsParameters
 	}
 
 	s := map[bool]string{false: "false", true: "true"}

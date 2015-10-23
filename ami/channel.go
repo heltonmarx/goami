@@ -11,6 +11,10 @@ import (
 	"strconv"
 )
 
+var (
+	errInvalidChannelParameters = errors.New("channel: Invalid parameters")
+)
+
 //	AbsoluteTimeout
 //		Set absolute timeout.
 //		Hangup a channel after a certain time. Acknowledges set time with Timeout Set message.
@@ -18,7 +22,7 @@ import (
 func AbsoluteTimeout(socket *Socket, actionID, channel string, timeout int) (map[string]string, error) {
 	// verify channel and action ID
 	if len(channel) == 0 || len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidChannelParameters
 	}
 
 	command := []string{
@@ -41,7 +45,7 @@ func Atxfer(socket *Socket, actionID, channel, exten, context, priority string) 
 	// verify channel and action ID
 	if len(channel) == 0 || len(actionID) == 0 ||
 		len(exten) == 0 || len(context) == 0 || len(priority) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidChannelParameters
 	}
 
 	command := []string{
@@ -68,7 +72,7 @@ func Atxfer(socket *Socket, actionID, channel, exten, context, priority string) 
 func Bridge(socket *Socket, actionID, channel1, channel2 string, tone bool) (map[string]string, error) {
 	// verify channel and action ID
 	if len(channel1) == 0 || len(channel2) == 0 || len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidChannelParameters
 	}
 
 	t := map[bool]string{false: "no", true: "yes"}
@@ -109,7 +113,7 @@ func CoreShowChannels(socket *Socket, actionID string) ([]map[string]string, err
 func ExtensionState(socket *Socket, actionID, exten, context string) (map[string]string, error) {
 	// verify action ID
 	if len(actionID) == 0 || len(exten) == 0 || len(context) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidChannelParameters
 	}
 
 	command := []string{
@@ -132,7 +136,7 @@ func ExtensionState(socket *Socket, actionID, exten, context string) (map[string
 func Hangup(socket *Socket, actionID, channel, cause string) (map[string]string, error) {
 	// verify action ID
 	if len(channel) == 0 || len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidChannelParameters
 	}
 
 	command := []string{
@@ -156,7 +160,7 @@ func Hangup(socket *Socket, actionID, channel, cause string) (map[string]string,
 func Originate(socket *Socket, actionID string, originate OriginateData) (map[string]string, error) {
 	// verify action ID
 	if len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidChannelParameters
 	}
 
 	command := []string{
@@ -198,7 +202,7 @@ func Originate(socket *Socket, actionID string, originate OriginateData) (map[st
 func Park(socket *Socket, actionID, channel1, channel2 string, timeout int, parkinglot string) (map[string]string, error) {
 	// verify action ID
 	if len(channel1) == 0 || len(channel2) == 0 || len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidChannelParameters
 	}
 
 	command := []string{
@@ -239,7 +243,7 @@ func ParkedCalls(socket *Socket, actionID string) ([]map[string]string, error) {
 func PlayDTMF(socket *Socket, actionID, channel, digit string) (map[string]string, error) {
 	// verify action ID
 	if len(channel) == 0 || len(digit) == 0 || len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidChannelParameters
 	}
 
 	command := []string{
@@ -263,7 +267,7 @@ func Redirect(socket *Socket, actionID, channel, exten, context, priority string
 	// verify action ID
 	if len(channel) == 0 || len(exten) == 0 ||
 		len(context) == 0 || len(priority) == 0 || len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidChannelParameters
 	}
 	command := []string{
 		"Action: Redirect",
@@ -289,7 +293,7 @@ func Redirect(socket *Socket, actionID, channel, exten, context, priority string
 func SendText(socket *Socket, actionID, channel, msg string) (map[string]string, error) {
 	// verify action ID
 	if len(channel) == 0 || len(msg) == 0 || len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidChannelParameters
 	}
 
 	command := []string{
@@ -315,7 +319,7 @@ func SendText(socket *Socket, actionID, channel, msg string) (map[string]string,
 func Setvar(socket *Socket, actionID, channel, variable, value string) (map[string]string, error) {
 	// verify action ID
 	if len(channel) == 0 || len(variable) == 0 || len(value) == 0 || len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidChannelParameters
 	}
 
 	command := []string{
@@ -342,7 +346,7 @@ func Setvar(socket *Socket, actionID, channel, variable, value string) (map[stri
 func Status(socket *Socket, actionID, channel, variables string) (map[string]string, error) {
 	// verify action ID
 	if len(channel) == 0 || len(variables) == 0 || len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidChannelParameters
 	}
 
 	command := []string{
@@ -366,7 +370,7 @@ func AGI(socket *Socket, actionID, channel, agiCommand, agiCommandID string) (ma
 	// verify channel and action ID
 	if len(channel) == 0 || len(actionID) == 0 ||
 		len(agiCommand) == 0 || len(agiCommandID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidChannelParameters
 	}
 
 	command := []string{
@@ -391,7 +395,7 @@ func AGI(socket *Socket, actionID, channel, agiCommand, agiCommandID string) (ma
 func AOCMessage(socket *Socket, actionID string, aocData AOCData) (map[string]string, error) {
 	// verify channel and action ID
 	if len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidChannelParameters
 	}
 	command := []string{
 		"Action: AOCMessage",
@@ -435,7 +439,7 @@ func AOCMessage(socket *Socket, actionID string, aocData AOCData) (map[string]st
 //
 func Getvar(socket *Socket, actionID, channel, variable string) (map[string]string, error) {
 	if len(actionID) == 0 || len(channel) == 0 || len(variable) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidChannelParameters
 	}
 	command := []string{
 		"Action: Getvar",
@@ -456,7 +460,7 @@ func Getvar(socket *Socket, actionID, channel, variable string) (map[string]stri
 //		Calling this command on the local channel will clear that flag and allow it to optimize away if it's bridged or when it becomes bridged.
 func LocalOptimizeAway(socket *Socket, actionID, channel string) (map[string]string, error) {
 	if len(actionID) == 0 || len(channel) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidChannelParameters
 	}
 	command := []string{
 		"Action: LocalOptimizeAway",

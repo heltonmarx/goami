@@ -10,13 +10,17 @@ import (
 	"errors"
 )
 
+var (
+	errInvalidDAHDIDParameters = errors.New("DHADID: Invalid parameters")
+)
+
 //	DAHDIDialOffhook
 //		Dial over DAHDI channel while offhook.
 //		Generate DTMF control frames to the bridged peer.
 //
 func DAHDIDialOffhook(socket *Socket, actionID, channel, number string) (map[string]string, error) {
 	if len(actionID) == 0 || len(channel) == 0 || len(number) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidDAHDIDParameters
 	}
 	command := []string{
 		"Action: DAHDIDialOffhook",
@@ -36,7 +40,7 @@ func DAHDIDialOffhook(socket *Socket, actionID, channel, number string) (map[str
 //
 func DAHDIDNDoff(socket *Socket, actionID, channel string) (map[string]string, error) {
 	if len(actionID) == 0 || len(channel) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidDAHDIDParameters
 	}
 	command := []string{
 		"Action: DAHDIDNDoff",
@@ -54,7 +58,7 @@ func DAHDIDNDoff(socket *Socket, actionID, channel string) (map[string]string, e
 //
 func DAHDIDNDon(socket *Socket, actionID, channel string) (map[string]string, error) {
 	if len(actionID) == 0 || len(channel) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidDAHDIDParameters
 	}
 	command := []string{
 		"Action: DAHDIDNDon",
@@ -72,7 +76,7 @@ func DAHDIDNDon(socket *Socket, actionID, channel string) (map[string]string, er
 //
 func DAHDIHangup(socket *Socket, actionID, channel string) (map[string]string, error) {
 	if len(actionID) == 0 || len(channel) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidDAHDIDParameters
 	}
 	command := []string{
 		"Action: DAHDIHangup",
@@ -90,7 +94,7 @@ func DAHDIHangup(socket *Socket, actionID, channel string) (map[string]string, e
 //
 func DAHDIRestart(socket *Socket, actionID string) (map[string]string, error) {
 	if len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidDAHDIDParameters
 	}
 	command := []string{
 		"Action: DAHDIRestart",
@@ -106,7 +110,7 @@ func DAHDIRestart(socket *Socket, actionID string) (map[string]string, error) {
 //
 func DAHDIShowChannels(socket *Socket, actionID, channel string) (map[string]string, error) {
 	if len(actionID) == 0 || len(channel) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidDAHDIDParameters
 	}
 	command := []string{
 		"Action: DAHDIShowChannels",
@@ -124,7 +128,7 @@ func DAHDIShowChannels(socket *Socket, actionID, channel string) (map[string]str
 //
 func DAHDITransfer(socket *Socket, actionID, channel string) (map[string]string, error) {
 	if len(actionID) == 0 || len(channel) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidDAHDIDParameters
 	}
 	command := []string{
 		"Action: DAHDITransfer",

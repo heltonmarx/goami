@@ -11,6 +11,12 @@ import (
 	"strings"
 )
 
+var (
+	ErrInvalidMessageParameters = errors.New("Invalid message parameters")
+	ErrInvalidActionID          = errors.New("Invalid Action ID")
+	ErrInvalidAction            = errors.New("invalid Action")
+)
+
 func decode(socket *Socket) (map[string]string, error) {
 	message := make(map[string]string)
 
@@ -43,15 +49,10 @@ const (
 )
 
 func getMessageList(socket *Socket, command []string, actionID, event, complete string) ([]map[string]string, error) {
-	// verify socket
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	// verify parameters
 	if len(actionID) == 0 ||
 		len(event) == 0 || len(complete) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, ErrInvalidMessageParameters
 	}
 
 	err := sendCmd(socket, command)
@@ -70,16 +71,15 @@ func getMessageList(socket *Socket, command []string, actionID, event, complete 
 
 		//verify action id
 		if len(message["ActionID"]) > 0 && (message["ActionID"] != actionID) {
-			return nil, errors.New("Invalid ActionID\n")
+			return nil, ErrInvalidActionID
 		}
 
 		switch state {
 		case getResponseState:
 			if message["Response"] != "Success" {
 				return nil, errors.New(message["Message"])
-			} else {
-				state = getListState
 			}
+			state = getListState
 		case getListState:
 			if message["Event"] == complete {
 				goto on_exit
@@ -94,10 +94,6 @@ on_exit:
 }
 
 func getMessage(socket *Socket, command []string, actionID string) (map[string]string, error) {
-	if !socket.Connected() {
-		return nil, errors.New("Invalid socket")
-	}
-
 	err := sendCmd(socket, command)
 	if err != nil {
 		return nil, err
@@ -111,8 +107,11 @@ func getMessage(socket *Socket, command []string, actionID string) (map[string]s
 }
 
 func getCommand(action, actionID string) ([]string, error) {
-	if len(action) == 0 || len(actionID) == 0 {
-		return nil, errors.New("invalid action or actionID")
+	if len(action) == 0 {
+		return nil, ErrInvalidAction
+	}
+	if len(actionID) == 0 {
+		return nil, ErrInvalidActionID
 	}
 	command := []string{
 		"Action: ",

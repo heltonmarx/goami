@@ -10,13 +10,17 @@ import (
 	"errors"
 )
 
+var (
+	errInvalidDBParameters = errors.New("DB: Invalid parameters")
+)
+
 //
 //	DBDel
 //		Delete DB entry.
 //
 func DBDel(socket *Socket, actionID, family, key string) (map[string]string, error) {
 	if len(actionID) == 0 || len(family) == 0 || len(key) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidDBParameters
 	}
 	command := []string{
 		"Action: DBDel",
@@ -37,7 +41,7 @@ func DBDel(socket *Socket, actionID, family, key string) (map[string]string, err
 //
 func DBDelTree(socket *Socket, actionID, family, key string) (map[string]string, error) {
 	if len(actionID) == 0 || len(family) == 0 || len(key) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidDBParameters
 	}
 	command := []string{
 		"Action: DBDelTree",
@@ -58,7 +62,7 @@ func DBDelTree(socket *Socket, actionID, family, key string) (map[string]string,
 //
 func DBPut(socket *Socket, actionID, family, key, val string) (map[string]string, error) {
 	if len(actionID) == 0 || len(family) == 0 || len(key) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidDBParameters
 	}
 	command := []string{
 		"Action: DBPut",
@@ -81,7 +85,7 @@ func DBPut(socket *Socket, actionID, family, key, val string) (map[string]string
 //
 func DBGet(socket *Socket, actionID, family, key string) (map[string]string, error) {
 	if len(actionID) == 0 || len(family) == 0 || len(key) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidDBParameters
 	}
 	command := []string{
 		"Action: DBGet",

@@ -10,13 +10,17 @@ import (
 	"errors"
 )
 
+var (
+	errInvalidMailboxParameters = errors.New("mailbox: Invalid parameters")
+)
+
 //
 //	MailboxCount
 //		Check Mailbox Message Count.
 //
 func MailboxCount(socket *Socket, actionID, mailbox string) (map[string]string, error) {
 	if len(mailbox) == 0 || len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidMailboxParameters
 	}
 	command := []string{
 		"Action: MailboxCount",
@@ -35,7 +39,7 @@ func MailboxCount(socket *Socket, actionID, mailbox string) (map[string]string, 
 //
 func MailboxStatus(socket *Socket, actionID, mailbox string) (map[string]string, error) {
 	if len(mailbox) == 0 || len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidMailboxParameters
 	}
 	command := []string{
 		"Action: MailboxStatus",

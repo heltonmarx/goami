@@ -10,15 +10,22 @@ import (
 	"errors"
 )
 
+var (
+	errInvalidSMSParameters  = errors.New("khomp: Invalid SMS parameters")
+	errInvalidSMSDevice      = errors.New("khomp: Invalid SMS device")
+	errInvalidSMSDestination = errors.New("khomp: Invalid SMS destination")
+	errInvalidSMSMessage     = errors.New("khomp: Invalid SMS message")
+)
+
 func checkKhompSMSData(data KhompSMSData) error {
 	if len(data.Device) == 0 {
-		return errors.New("Invalid SMS device")
+		return errInvalidSMSDevice
 	}
 	if len(data.Destination) == 0 {
-		return errors.New("Invalid SMS destination")
+		return errInvalidSMSDestination
 	}
 	if len(data.Message) == 0 {
-		return errors.New("Invalid SMS message")
+		return errInvalidSMSMessage
 	}
 	return nil
 }
@@ -29,7 +36,7 @@ func checkKhompSMSData(data KhompSMSData) error {
 func KSendSMS(socket *Socket, actionID string, data KhompSMSData) (map[string]string, error) {
 
 	if len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidSMSParameters
 	}
 	if err := checkKhompSMSData(data); err != nil {
 		return nil, err

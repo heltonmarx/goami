@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"strings"
 )
 
 type Socket struct {
@@ -20,69 +21,70 @@ type Socket struct {
 	address string
 }
 
-func (self *Socket) Connected() bool {
-	if self.conn == nil {
+var (
+	ErrNotConnected = errors.New("socket: net.Conn not connected")
+)
+
+func (socket *Socket) Connected() bool {
+	if socket.conn == nil {
 		return false
 	}
 	return true
 }
 
-func (self *Socket) Disconnect() error {
-	if self.conn != nil {
-		return self.conn.Close()
+func (socket *Socket) Disconnect() error {
+	if socket.conn != nil {
+		return socket.conn.Close()
 	}
 	return nil
 }
 
-func (self *Socket) Connect() error {
-	if self.Connected() {
-		self.Disconnect()
+func (socket *Socket) Connect() error {
+	if socket.Connected() {
+		socket.Disconnect()
 	}
 	var err error
-	self.conn, err = net.Dial("tcp", self.address)
+	socket.conn, err = net.Dial("tcp", socket.address)
 
 	// connected succesfull
 	if err == nil {
-		self.buffer = bufio.NewReaderSize(self.conn, 8192)
+		socket.buffer = bufio.NewReaderSize(socket.conn, 8192)
 	}
 	return err
 }
 
-func (self *Socket) Send(format string, a ...interface{}) error {
-	if !self.Connected() {
-		return errors.New("Not connected to AMI\n")
+func (socket *Socket) Send(format string, a ...interface{}) error {
+	if !socket.Connected() {
+		return ErrNotConnected
 	}
 	m := fmt.Sprintf(format, a...)
-	fmt.Fprint(self.conn, m)
+	fmt.Fprint(socket.conn, m)
 	return nil
 }
 
-func (self *Socket) Recv() (string, error) {
-	bytesRead := make([]byte, 0)
-	var readLine []byte
-	var err error
-
+func (socket *Socket) Recv() (string, error) {
+	if !socket.Connected() {
+		return "", ErrNotConnected
+	}
+	buf := make([]byte, 0)
 	for {
-		readLine, err = self.buffer.ReadBytes('\n')
+		b, err := socket.buffer.ReadBytes('\n')
 		if err != nil {
 			return "", err
 		}
-		bytesRead = append(bytesRead, readLine...)
-		if len(bytes.TrimSpace(readLine)) == 0 {
+		buf = append(buf, b...)
+		if strings.Contains(string(buf), string('\n')) ||
+			len(bytes.TrimSpace(b)) == 0 ||
+			socket.buffer.Buffered() == 0 {
 			break
-		} else if self.buffer.Buffered() == 0 {
-			return string(bytesRead), nil
 		}
 	}
-	return string(bytesRead), nil
+	return string(buf), nil
 }
 
 func NewSocket(address string) (*Socket, error) {
-	socket := Socket{
-		address: address,
-	}
-	err := socket.Connect()
-	if err != nil {
+	socket := Socket{address: address}
+	if err := socket.Connect(); err != nil {
 		return nil, err
 	}
 	return &socket, nil

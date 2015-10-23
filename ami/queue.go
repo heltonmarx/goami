@@ -10,19 +10,23 @@ import (
 	"errors"
 )
 
+var (
+	errInvalidQueueParameters = errors.New("queue: Invalid parameters")
+)
+
 //	QueueAdd
 //		Add interface to queue.
 //
 func QueueAdd(socket *Socket, actionID string, queueData QueueData) (map[string]string, error) {
 	if len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidQueueParameters
 	}
 
 	// verify struct parameters
 	if len(queueData.Queue) == 0 || len(queueData.Interface) == 0 ||
 		len(queueData.Penalty) == 0 || len(queueData.Paused) == 0 ||
 		len(queueData.MemberName) == 0 || len(queueData.StateInterface) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidQueueParameters
 	}
 
 	command := []string{
@@ -51,14 +55,14 @@ func QueueAdd(socket *Socket, actionID string, queueData QueueData) (map[string]
 //
 func QueueLog(socket *Socket, actionID string, queueData QueueData) (map[string]string, error) {
 	if len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidQueueParameters
 	}
 
 	// verify struct parameters
 	if len(queueData.Queue) == 0 || len(queueData.Event) == 0 ||
 		len(queueData.Event) == 0 || len(queueData.Uniqueid) == 0 ||
 		len(queueData.Interface) == 0 || len(queueData.Message) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidQueueParameters
 	}
 
 	command := []string{
@@ -85,13 +89,13 @@ func QueueLog(socket *Socket, actionID string, queueData QueueData) (map[string]
 //
 func QueuePause(socket *Socket, actionID string, queueData QueueData) (map[string]string, error) {
 	if len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidQueueParameters
 	}
 
 	// verify struct parameters
 	if len(queueData.Queue) == 0 || len(queueData.Interface) == 0 ||
 		len(queueData.Paused) == 0 || len(queueData.Reason) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidQueueParameters
 	}
 
 	command := []string{
@@ -116,12 +120,12 @@ func QueuePause(socket *Socket, actionID string, queueData QueueData) (map[strin
 //
 func QueuePenalty(socket *Socket, actionID string, queueData QueueData) (map[string]string, error) {
 	if len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidQueueParameters
 	}
 
 	// verify struct parameters
 	if len(queueData.Queue) == 0 || len(queueData.Interface) == 0 || len(queueData.Penalty) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidQueueParameters
 	}
 
 	command := []string{
@@ -144,13 +148,13 @@ func QueuePenalty(socket *Socket, actionID string, queueData QueueData) (map[str
 //
 func QueueReload(socket *Socket, actionID string, queueData QueueData) (map[string]string, error) {
 	if len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidQueueParameters
 	}
 
 	// verify struct parameters
 	if len(queueData.Queue) == 0 || len(queueData.Members) == 0 ||
 		len(queueData.Rules) == 0 || len(queueData.Parameters) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidQueueParameters
 	}
 
 	command := []string{
@@ -175,12 +179,12 @@ func QueueReload(socket *Socket, actionID string, queueData QueueData) (map[stri
 //
 func QueueRemove(socket *Socket, actionID string, queueData QueueData) (map[string]string, error) {
 	if len(actionID) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidQueueParameters
 	}
 
 	// verify struct parameters
 	if len(queueData.Queue) == 0 || len(queueData.Interface) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidQueueParameters
 	}
 
 	command := []string{
@@ -201,7 +205,7 @@ func QueueRemove(socket *Socket, actionID string, queueData QueueData) (map[stri
 //
 func QueueReset(socket *Socket, actionID, queue string) (map[string]string, error) {
 	if len(actionID) == 0 || len(queue) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidQueueParameters
 	}
 	command := []string{
 		"Action: QueueReset",
@@ -219,7 +223,7 @@ func QueueReset(socket *Socket, actionID, queue string) (map[string]string, erro
 //
 func QueueRule(socket *Socket, actionID, rule string) (map[string]string, error) {
 	if len(actionID) == 0 || len(rule) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidQueueParameters
 	}
 	command := []string{
 		"Action: QueueRule",
@@ -237,7 +241,7 @@ func QueueRule(socket *Socket, actionID, rule string) (map[string]string, error)
 //
 func QueueStatus(socket *Socket, actionID, queue, member string) (map[string]string, error) {
 	if len(actionID) == 0 || len(queue) == 0 || len(member) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidQueueParameters
 	}
 	command := []string{
 		"Action: QueueStatus",
@@ -257,7 +261,7 @@ func QueueStatus(socket *Socket, actionID, queue, member string) (map[string]str
 //
 func QueueSummary(socket *Socket, actionID, queue string) (map[string]string, error) {
 	if len(actionID) == 0 || len(queue) == 0 {
-		return nil, errors.New("Invalid parameters")
+		return nil, errInvalidQueueParameters
 	}
 	command := []string{
 		"Action: QueueSummary",
