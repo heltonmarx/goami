@@ -73,11 +73,10 @@ func (socket *Socket) Recv() (string, error) {
 			return "", err
 		}
 		buf = append(buf, b...)
-		if len(bytes.TrimSpace(b)) == 0 &&
-			strings.Contains(string(buf), string('\n')) == true {
+		if (len(bytes.TrimSpace(b)) == 0 &&
+			strings.Contains(string(buf), string('\n')) == true) ||
+			socket.buffer.Buffered() == 0 {
 			break
-		} else if socket.buffer.Buffered() == 0 {
-			return string(buf), nil
 		}
 	}
 	return string(buf), nil

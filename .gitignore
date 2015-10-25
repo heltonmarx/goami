@@ -1,3 +1,9 @@
 .*.swp
 .*.swo
 main
+
+#ignore example binary
+example/events
+example/login
+example/sippeers
+example/sms
