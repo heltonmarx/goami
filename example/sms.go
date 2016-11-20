@@ -1,13 +1,8 @@
-// Copyright 2014 Helton Marques
-//
-//	Use of this source code is governed by a LGPL
-//	license that can be found in the LICENSE file.
-//
-
 package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/heltonmarx/goami/ami"
 )
@@ -21,15 +16,12 @@ func main() {
 	if _, err := ami.Connect(socket); err != nil {
 		return
 	}
-	var ret bool
-
 	//Login
 	uuid, _ := ami.GetUUID()
-	ret, err = ami.Login(socket, "admin", "admin", "Off", uuid)
-	if err != nil || ret == false {
-		fmt.Printf("login error (%v)\n", err)
-		return
+	if err := ami.Login(socket, "admin", "admin", "Off", uuid); err != nil {
+		log.Fatalf("login error (%v)\n", err)
 	}
+	defer ami.Logoff(socket, uuid)
 	fmt.Printf("login ok!\n")
 
 	data := ami.KhompSMSData{
@@ -38,22 +30,9 @@ func main() {
 		Confirmation: true,
 		Message:      "hey ho, let's go",
 	}
-
-	//SendSMS
-	//	func KSendSMS(socket *Socket, actionID string, data KhompSMSData) (map[string]string, error) {
-	//
 	s, err := ami.KSendSMS(socket, uuid, data)
 	if err != nil {
 		fmt.Printf("sms sms error\n", err)
 	}
 	fmt.Printf("response: [%v]\n", s)
-
-	//Logoff
-	fmt.Printf("logoff\n")
-	ret, err = ami.Logoff(socket, uuid)
-	if err != nil || ret == false {
-		fmt.Printf("logoff error: (%v)\n", err)
-		return
-	}
-	fmt.Printf("goodbye !\n")
 }

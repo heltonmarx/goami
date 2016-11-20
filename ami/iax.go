@@ -1,43 +1,25 @@
-// Copyright 2014 Helton Marques
-//
-//	Use of this source code is governed by a LGPL
-//	license that can be found in the LICENSE file.
-//
-
 package ami
 
-//	IAXpeerlist
-//		Show IAX channels network statistics.
-//
-func IAXpeerlist(socket *Socket, actionID string) ([]map[string]string, error) {
-	command, err := getCommand("IAXpeerlist", actionID)
-	if err != nil {
-		return nil, err
-	}
-	return getMessageList(socket, command, actionID,
-		"PeerEntry", "PeerlistComplete")
+// IAXpeerlist show IAX channels network statistics.
+func IAXpeerlist(socket *Socket, actionID string) (map[string]string, error) {
+	return sendCommand(socket, map[string]string{
+		"Action":   "IAXpeerlist",
+		"ActionID": actionID,
+	})
 }
 
-//	IAXpeers
-//		List IAX peers.
-//
-func IAXpeers(socket *Socket, actionID string) ([]map[string]string, error) {
-	command, err := getCommand("IAXpeers", actionID)
-	if err != nil {
-		return nil, err
-	}
-	return getMessageList(socket, command, actionID,
-		"PeerEntry", "PeerlistComplete")
+// IAXpeers list IAX peers.
+func IAXpeers(socket *Socket, actionID string) (map[string]string, error) {
+	return sendCommand(socket, map[string]string{
+		"Action":   "IAXpeers",
+		"ActionID": actionID,
+	})
 }
 
-//	IAXregistry
-//		Show IAX registrations.
-//
-func IAXregistry(socket *Socket, actionID string) ([]map[string]string, error) {
-	command, err := getCommand("IAXregistry", actionID)
-	if err != nil {
-		return nil, err
-	}
-	return getMessageList(socket, command, actionID,
-		"RegistryEntry", "RegistrationsComplete")
+// IAXregistry show IAX registrations.
+func IAXregistry(socket *Socket, actionID string) (map[string]string, error) {
+	return sendCommand(socket, map[string]string{
+		"Action":   "IAXregistry",
+		"ActionID": actionID,
+	})
 }

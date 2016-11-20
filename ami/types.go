@@ -1,14 +1,6 @@
-// Copyright 2014 Helton Marques
-//
-//	Use of this source code is governed by a LGPL
-//	license that can be found in the LICENSE file.
-//
-
 package ami
 
-//	AOCMessage
-//		Generate an Advice of Charge message on a channel.
-//
+// AOCData holds the information to generate an Advice of Charge message on a channel.
 //		Channel - Channel name to generate the AOC message on.
 //		ChannelPrefix -	Partial channel prefix. By using this option one can match the beginning part of a channel name without having to put the entire name in.
 //						For example if a channel name is SIP/snom-00000001 and this value is set to SIP/snom, then that channel matches and the message will be sent.
@@ -73,17 +65,13 @@ type AOCData struct {
 	CurrencyAmount            string
 	CurrencyMultiplier        string
 	TotalType                 string
-	AocBillingId              string
-	ChargingAssociationId     string
+	AocBillingID              string
+	ChargingAssociationID     string
 	ChargingAssociationNumber string
 	ChargingAssociationPlan   string
 }
 
-//
-//	Originate
-//		Originate a call.
-//		Generates an outgoing call to a Extension/Context/Priority or Application/Data
-//
+// OriginateData holds information used to originate outgoing calls.
 //		Channel - Channel name to call.
 //		Exten - Extension to use (requires Context and Priority)
 //		Context - Context to use (requires Exten and Priority)
@@ -96,7 +84,6 @@ type AOCData struct {
 //		Account - Account code.
 //		Async - Set to true for fast origination.
 //		Codecs - Comma-separated list of codecs to use for this call.
-//
 type OriginateData struct {
 	Channel     string
 	Exten       string
@@ -112,12 +99,11 @@ type OriginateData struct {
 	Codecs      string
 }
 
-//	QueueData
-//		used in functions:
-//		QueueAdd, QueueLog, QueuePause,
-//		QueuePenalty, QueueReload, QueueRemove,
-//		QueueReset
-
+// QueueData holds to queue calls.
+// used in functions:
+//  QueueAdd, QueueLog, QueuePause,
+//  QueuePenalty, QueueReload, QueueRemove,
+//  QueueReset
 type QueueData struct {
 	Queue          string
 	Interface      string
@@ -134,9 +120,7 @@ type QueueData struct {
 	Parameters     string
 }
 
-//
-//	KhompSMSData
-//
+// KhompSMSData holds the Khomp SMS information.
 type KhompSMSData struct {
 	Device       string
 	Destination  string

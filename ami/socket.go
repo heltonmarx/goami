@@ -1,91 +1,65 @@
-// Copyright 2014 Helton Marques
-//
-//	Use of this source code is governed by a LGPL
-//	license that can be found in the LICENSE file.
-//
-
 package ami
 
 import (
 	"bufio"
 	"bytes"
-	"errors"
-	"fmt"
 	"net"
 	"strings"
 )
 
+// Socket holds the socket client connection data.
 type Socket struct {
-	conn    net.Conn
-	buffer  *bufio.Reader
-	address string
+	conn net.Conn
 }
 
-var (
-	ErrNotConnected = errors.New("socket: net.Conn not connected")
-)
+// NewSocket provides a new socket client, connecting to a tcp server.
+func NewSocket(address string) (*Socket, error) {
+	conn, err := net.Dial("tcp", address)
+	if err != nil {
+		return nil, err
+	}
+	return &Socket{
+		conn: conn,
+	}, nil
+}
 
-func (socket *Socket) Connected() bool {
-	if socket.conn == nil {
+// Connected returns the socket status, true for connected,
+// false for disconnected.
+func (s *Socket) Connected() bool {
+	if s.conn == nil {
 		return false
 	}
 	return true
 }
 
-func (socket *Socket) Disconnect() error {
-	if socket.conn != nil {
-		return socket.conn.Close()
+// Close closes the client connection.
+func (s *Socket) Close() error {
+	if s.conn != nil {
+		return s.conn.Close()
 	}
 	return nil
 }
 
-func (socket *Socket) Connect() error {
-	if socket.Connected() {
-		socket.Disconnect()
-	}
-	var err error
-	socket.conn, err = net.Dial("tcp", socket.address)
-
-	// connected succesfull
-	if err == nil {
-		socket.buffer = bufio.NewReaderSize(socket.conn, 8192)
-	}
+// Send sends data to socket using fprintf format.
+func (s *Socket) Send(message string) error {
+	_, err := s.conn.Write([]byte(message))
 	return err
 }
 
-func (socket *Socket) Send(format string, a ...interface{}) error {
-	if !socket.Connected() {
-		return ErrNotConnected
-	}
-	m := fmt.Sprintf(format, a...)
-	fmt.Fprint(socket.conn, m)
-	return nil
-}
-
-func (socket *Socket) Recv() (string, error) {
-	if !socket.Connected() {
-		return "", ErrNotConnected
-	}
-	buf := make([]byte, 0)
+// Recv receives a string from socket server.
+func (s *Socket) Recv() (string, error) {
+	var buf []byte
+	reader := bufio.NewReader(s.conn)
 	for {
-		b, err := socket.buffer.ReadBytes('\n')
+		b, err := reader.ReadBytes('\n')
 		if err != nil {
 			return "", err
 		}
 		buf = append(buf, b...)
 		if (len(bytes.TrimSpace(b)) == 0 &&
-			strings.Contains(string(buf), string('\n')) == true) ||
-			socket.buffer.Buffered() == 0 {
+			strings.Contains(string(buf), string('\n')) == true) || reader.Buffered() == 0 {
 			break
 		}
 	}
 	return string(buf), nil
-}
-
-func NewSocket(address string) (*Socket, error) {
-	socket := Socket{address: address}
-	if err := socket.Connect(); err != nil {
-		return nil, err
-	}
-	return &socket, nil
 }
