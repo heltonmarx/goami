@@ -1,25 +1,16 @@
 package ami
 
 // IAXpeerlist show IAX channels network statistics.
-func IAXpeerlist(socket *Socket, actionID string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "IAXpeerlist",
-		"ActionID": actionID,
-	})
+func IAXpeerlist(client Client, actionID string) (Response, error) {
+	return send(client, "IAXpeerlist", actionID, nil)
 }
 
 // IAXpeers list IAX peers.
-func IAXpeers(socket *Socket, actionID string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "IAXpeers",
-		"ActionID": actionID,
-	})
+func IAXpeers(client Client, actionID string) (Response, error) {
+	return send(client, "IAXpeers", actionID, nil)
 }
 
 // IAXregistry show IAX registrations.
-func IAXregistry(socket *Socket, actionID string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "IAXregistry",
-		"ActionID": actionID,
-	})
+func IAXregistry(client Client, actionID string) (Response, error) {
+	return send(client, "IAXregistry", actionID, nil)
 }

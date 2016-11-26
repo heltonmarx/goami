@@ -1,10 +1,8 @@
 package ami
 
 // SIPNotify sends a SIP notify
-func SIPNotify(socket *Socket, actionID string, channel string, variable string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "SIPnotify",
-		"ActionID": actionID,
+func SIPNotify(client Client, actionID string, channel string, variable string) (Response, error) {
+	return send(client, "SIPnotify", actionID, map[string]string{
 		"Channel":  channel,
 		"Variable": variable,
 	})
@@ -12,35 +10,25 @@ func SIPNotify(socket *Socket, actionID string, channel string, variable string)
 
 // SIPPeers lists SIP peers in text format with details on current status.
 // Peerlist will follow as separate events, followed by a final event called PeerlistComplete
-func SIPPeers(socket *Socket, actionID string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "SIPpeers",
-		"ActionID": actionID,
-	})
+func SIPPeers(client Client, actionID string) (Response, error) {
+	return send(client, "SIPpeers", actionID, nil)
 }
 
 // SIPQualifyPeer qualify SIP peers.
-func SIPQualifyPeer(socket *Socket, actionID string, peer string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "SIPqualifypeer",
-		"ActionID": actionID,
-		"Peer":     peer,
+func SIPQualifyPeer(client Client, actionID string, peer string) (Response, error) {
+	return send(client, "SIPqualifypeer", actionID, map[string]string{
+		"Peer": peer,
 	})
 }
 
 // SIPShowPeer shows one SIP peer with details on current status.
-func SIPShowPeer(socket *Socket, actionID string, peer string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "SIPshowpeer",
-		"ActionID": actionID,
-		"Peer":     peer,
+func SIPShowPeer(client Client, actionID string, peer string) (Response, error) {
+	return send(client, "SIPshowpeer", actionID, map[string]string{
+		"Peer": peer,
 	})
 }
 
 // SIPShowRegistry shows SIP registrations (text format).
-func SIPShowRegistry(socket *Socket, actionID string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "SIPshowregistry",
-		"ActionID": actionID,
-	})
+func SIPShowRegistry(client Client, actionID string) (Response, error) {
+	return send(client, "SIPshowregistry", actionID, nil)
 }

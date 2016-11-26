@@ -1,110 +1,58 @@
 package ami
 
 // QueueAdd adds interface to queue.
-func QueueAdd(socket *Socket, actionID string, queueData QueueData) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":         "QueueAdd",
-		"ActionID":       actionID,
-		"Queue":          queueData.Queue,
-		"Interface":      queueData.Interface,
-		"Penalty":        queueData.Penalty,
-		"Paused":         queueData.Paused,
-		"MemberName":     queueData.MemberName,
-		"StateInterface": queueData.StateInterface,
-	})
+func QueueAdd(client Client, actionID string, queueData QueueData) (Response, error) {
+	return send(client, "QueueAdd", actionID, queueData)
 }
 
 // QueueLog adds custom entry in queue_log.
-func QueueLog(socket *Socket, actionID string, queueData QueueData) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":    "QueueLog",
-		"ActionID":  actionID,
-		"Queue":     queueData.Queue,
-		"Event":     queueData.Event,
-		"Uniqueid":  queueData.Uniqueid,
-		"Interface": queueData.Interface,
-		"Message":   queueData.Message,
-	})
+func QueueLog(client Client, actionID string, queueData QueueData) (Response, error) {
+	return send(client, "QueueLog", actionID, queueData)
 }
 
 // QueuePause makes a queue member temporarily unavailable.
-func QueuePause(socket *Socket, actionID string, queueData QueueData) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":    "QueuePause",
-		"ActionID":  actionID,
-		"Queue":     queueData.Queue,
-		"Interface": queueData.Interface,
-		"Paused":    queueData.Paused,
-		"Reason":    queueData.Reason,
-	})
+func QueuePause(client Client, actionID string, queueData QueueData) (Response, error) {
+	return send(client, "QueuePause", actionID, queueData)
 }
 
 // QueuePenalty sets the penalty for a queue member.
-func QueuePenalty(socket *Socket, actionID string, queueData QueueData) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":    "QueuePenalty",
-		"ActionID":  actionID,
-		"Queue":     queueData.Queue,
-		"Interface": queueData.Interface,
-		"Penalty":   queueData.Penalty,
-	})
+func QueuePenalty(client Client, actionID string, queueData QueueData) (Response, error) {
+	return send(client, "QueuePenalty", actionID, queueData)
 }
 
 // QueueReload reloads a queue, queues, or any sub-section of a queue or queues.
-func QueueReload(socket *Socket, actionID string, queueData QueueData) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":     "QueueReload",
-		"ActionID":   actionID,
-		"Queue":      queueData.Queue,
-		"Members":    queueData.Members,
-		"Rules":      queueData.Rules,
-		"Parameters": queueData.Parameters,
-	})
+func QueueReload(client Client, actionID string, queueData QueueData) (Response, error) {
+	return send(client, "QueueReload", actionID, queueData)
 }
 
 // QueueRemove removes interface from queue.
-func QueueRemove(socket *Socket, actionID string, queueData QueueData) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":    "QueueRemove",
-		"ActionID":  actionID,
-		"Queue":     queueData.Queue,
-		"Interface": queueData.Interface,
-	})
+func QueueRemove(client Client, actionID string, queueData QueueData) (Response, error) {
+	return send(client, "QueueRemove", actionID, queueData)
 }
 
 // QueueReset resets queue statistics.
-func QueueReset(socket *Socket, actionID, queue string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "QueueReset",
-		"ActionID": actionID,
-		"Queue":    queue,
-	})
+func QueueReset(client Client, actionID, queue string) (Response, error) {
+	return send(client, "QueueReset", actionID, QueueData{Queue: queue})
 }
 
 // QueueRule queues Rules.
-func QueueRule(socket *Socket, actionID, rule string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "QueueRule",
-		"ActionID": actionID,
-		"Rule":     rule,
+func QueueRule(client Client, actionID, rule string) (Response, error) {
+	return send(client, "QueueRule", actionID, map[string]string{
+		"Rule": rule,
 	})
 }
 
 // QueueStatus show queue status.
-func QueueStatus(socket *Socket, actionID, queue, member string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "QueueStatus",
-		"ActionID": actionID,
-		"Queue":    queue,
-		"Member":   member,
+func QueueStatus(client Client, actionID, queue, member string) (Response, error) {
+	return send(client, "QueueStatus", actionID, map[string]string{
+		"Queue":  queue,
+		"Member": member,
 	})
 }
 
 // QueueSummary show queue summary.
-func QueueSummary(socket *Socket, actionID, queue string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "QueueSummary",
-		"ActionID": actionID,
-		"Queue":    queue,
+func QueueSummary(client Client, actionID, queue string) (Response, error) {
+	return send(client, "QueueSummary", actionID, map[string]string{
+		"Queue": queue,
 	})
 }

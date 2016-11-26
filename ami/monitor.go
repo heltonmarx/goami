@@ -1,70 +1,65 @@
 package ami
 
-import "strconv"
-
 // Monitor monitors a channel.
 // This action may be used to record the audio on a specified channel.
-func Monitor(socket *Socket, actionID, channel, file, format string, mix bool) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "Monitor",
-		"ActionID": actionID,
-		"Channel":  channel,
-		"File":     file,
-		"Format":   format,
-		"Mix":      strconv.FormatBool(mix),
+func Monitor(client Client, actionID, channel, file, format string, mix bool) (Response, error) {
+	return send(client, "Monitor", actionID, monitorData{
+		Channel: channel,
+		File:    file,
+		Format:  format,
+		Mix:     mix,
 	})
 }
 
 // ChangeMonitor changes monitoring filename of a channel.
 // This action may be used to change the file started by a previous 'Monitor' action.
-func ChangeMonitor(socket *Socket, actionID, channel, file string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "ChangeMonitor",
-		"ActionID": actionID,
-		"Channel":  channel,
-		"File: ":   file,
+func ChangeMonitor(client Client, actionID, channel, file string) (Response, error) {
+	return send(client, "ChangeMonitor", actionID, monitorData{
+		Channel: channel,
+		File:    file,
 	})
 }
 
 // MixMonitorMute Mute / unMute a Mixmonitor recording.
 // This action may be used to mute a MixMonitor recording.
-func MixMonitorMute(socket *Socket, actionID, channel, direction string, state bool) (map[string]string, error) {
+func MixMonitorMute(client Client, actionID, channel, direction string, state bool) (Response, error) {
 	s := map[bool]string{false: "0", true: "1"}
-	return sendCommand(socket, map[string]string{
-		"Action":    "MixMonitorMute",
-		"ActionID":  actionID,
-		"Channel":   channel,
-		"Direction": direction,
-		"State":     s[state],
+	return send(client, "MixMonitorMute", actionID, monitorData{
+		Channel:   channel,
+		Direction: direction,
+		State:     s[state],
 	})
 }
 
 // PauseMonitor pauses monitoring of a channel.
 // This action may be used to temporarily stop the recording of a channel.
-func PauseMonitor(socket *Socket, actionID, channel string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "PauseMonitor",
-		"ActionID": actionID,
-		"Channel":  channel,
+func PauseMonitor(client Client, actionID, channel string) (Response, error) {
+	return send(client, "PauseMonitor", actionID, monitorData{
+		Channel: channel,
 	})
 }
 
 // UnpauseMonitor unpause monitoring of a channel.
 // This action may be used to re-enable recording of a channel after calling PauseMonitor.
-func UnpauseMonitor(socket *Socket, actionID, channel string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "UnpauseMonitor",
-		"ActionID": actionID,
-		"Channel":  channel,
+func UnpauseMonitor(client Client, actionID, channel string) (Response, error) {
+	return send(client, "UnpauseMonitor", actionID, monitorData{
+		Channel: channel,
 	})
 }
 
 // StopMonitor stops monitoring a channel.
 // This action may be used to end a previously started 'Monitor' action.
-func StopMonitor(socket *Socket, actionID, channel string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "StopMonitor",
-		"ActionID": actionID,
-		"Channel":  channel,
+func StopMonitor(client Client, actionID, channel string) (Response, error) {
+	return send(client, "StopMonitor", actionID, monitorData{
+		Channel: channel,
 	})
+}
+
+type monitorData struct {
+	Channel   string `ami:"Channel"`
+	Direction string `ami:"Direction,omitempty"`
+	State     string `ami:"State,omitempty"`
+	File      string `ami:"File, omitempty"`
+	Format    string `ami:"Format,omitempty"`
+	Mix       bool   `ami:"Mix,omitempty"`
 }

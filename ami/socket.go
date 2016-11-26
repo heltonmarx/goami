@@ -32,7 +32,7 @@ func (s *Socket) Connected() bool {
 	return true
 }
 
-// Close closes the client connection.
+// Close closes socket connection.
 func (s *Socket) Close() error {
 	if s.conn != nil {
 		return s.conn.Close()

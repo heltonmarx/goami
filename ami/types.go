@@ -55,20 +55,20 @@ package ami
 //									The value is bits 7 through 1 of the Q.931 octet containing the type-of-number and numbering-plan-identification fields.
 //
 type AOCData struct {
-	Channel                   string
-	ChannelPrefix             string
-	MsgType                   string
-	ChargeType                string
-	UnitAmount                string
-	UnitType                  string
-	CurrencyName              string
-	CurrencyAmount            string
-	CurrencyMultiplier        string
-	TotalType                 string
-	AocBillingID              string
-	ChargingAssociationID     string
-	ChargingAssociationNumber string
-	ChargingAssociationPlan   string
+	Channel                   string `ami:"Channel"`
+	ChannelPrefix             string `ami:"ChannelPrefix"`
+	MsgType                   string `ami:"MsgType"`
+	ChargeType                string `ami:"ChargeType"`
+	UnitAmount                string `ami:"UnitAmount(0)"`
+	UnitType                  string `ami:"UnitType(0)"`
+	CurrencyName              string `ami:"CurrencyName"`
+	CurrencyAmount            string `ami:"CurrencyAmount"`
+	CurrencyMultiplier        string `ami:"CurrencyMultiplier"`
+	TotalType                 string `ami:"TotalType"`
+	AOCBillingID              string `ami:"AOCBillingId"`
+	ChargingAssociationID     string `ami:"ChargingAssociationId"`
+	ChargingAssociationNumber string `ami:"ChargingAssociationNumber"`
+	ChargingAssociationPlan   string `ami:"ChargingAssociationPlan"`
 }
 
 // OriginateData holds information used to originate outgoing calls.
@@ -85,18 +85,18 @@ type AOCData struct {
 //		Async - Set to true for fast origination.
 //		Codecs - Comma-separated list of codecs to use for this call.
 type OriginateData struct {
-	Channel     string
-	Exten       string
-	Context     string
-	Priority    int
-	Application string
-	Data        string
-	Timeout     int
-	Callerid    string
-	Variable    string
-	Account     string
-	Async       string
-	Codecs      string
+	Channel     string `ami:"Channel"`
+	Exten       string `ami:"Exten"`
+	Context     string `ami:"Context"`
+	Priority    int    `ami:"Priority"`
+	Application string `ami:"Application"`
+	Data        string `ami:"Data"`
+	Timeout     int    `ami:"Timeout"`
+	CallerID    string `ami:"CallerID"`
+	Variable    string `ami:"Variable"`
+	Account     string `ami:"Account"`
+	Async       string `ami:"Async"`
+	Codecs      string `ami:"Codecs"`
 }
 
 // QueueData holds to queue calls.
@@ -105,25 +105,25 @@ type OriginateData struct {
 //  QueuePenalty, QueueReload, QueueRemove,
 //  QueueReset
 type QueueData struct {
-	Queue          string
-	Interface      string
-	Penalty        string
-	Paused         string
-	MemberName     string
-	StateInterface string
-	Event          string
-	Uniqueid       string
-	Message        string
-	Reason         string
-	Members        string
-	Rules          string
-	Parameters     string
+	Queue          string `ami:"Queue,omitempty"`
+	Interface      string `ami:"Interface,omitempty"`
+	Penalty        string `ami:"Penalty,omitempty"`
+	Paused         string `ami:"Paused,omitempty"`
+	MemberName     string `ami:"MemberName,omitempty"`
+	StateInterface string `ami:"StateInterface,omitempty"`
+	Event          string `ami:"Event,omitempty"`
+	UniqueID       string `ami:"UniqueID,omitempty"`
+	Message        string `ami:"Message,omitempty"`
+	Reason         string `ami:"Reason,omitempty"`
+	Members        string `ami:"Members,omitempty"`
+	Rules          string `ami:"Rules,omitempty"`
+	Parameters     string `ami:"Parameters,omitempty"`
 }
 
 // KhompSMSData holds the Khomp SMS information.
 type KhompSMSData struct {
-	Device       string
-	Destination  string
-	Confirmation bool
-	Message      string
+	Device       string `ami:"Device"`
+	Destination  string `ami:"Destination"`
+	Confirmation bool   `ami:"Confirmation"`
+	Message      string `ami:"Message"`
 }

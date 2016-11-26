@@ -2,30 +2,24 @@ package ami
 
 // MeetmeList lists all users in a particular MeetMe conference.
 // Will follow as separate events, followed by a final event called MeetmeListComplete.
-func MeetmeList(socket *Socket, actionID, conference string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":     "MeetmeList",
-		"ActionID":   actionID,
+func MeetmeList(client Client, actionID, conference string) (Response, error) {
+	return send(client, "MeetmeList", actionID, map[string]string{
 		"Conference": conference,
 	})
 }
 
 // MeetmeMute mute a Meetme user.
-func MeetmeMute(socket *Socket, actionID, meetme, usernum string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "MeetmeMute",
-		"ActionID": actionID,
-		"Meetme":   meetme,
-		"Usernum":  usernum,
+func MeetmeMute(client Client, actionID, meetme, usernum string) (Response, error) {
+	return send(client, "MeetmeMute", actionID, map[string]string{
+		"Meetme":  meetme,
+		"Usernum": usernum,
 	})
 }
 
 // MeetmeUnMute unmute a Meetme user.
-func MeetmeUnMute(socket *Socket, actionID, meetme, usernum string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "MeetmeUnMute",
-		"ActionID": actionID,
-		"Meetme":   meetme,
-		"Usernum":  usernum,
+func MeetmeUnMute(client Client, actionID, meetme, usernum string) (Response, error) {
+	return send(client, "MeetmeUnMute", actionID, map[string]string{
+		"Meetme":  meetme,
+		"Usernum": usernum,
 	})
 }

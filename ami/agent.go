@@ -1,21 +1,14 @@
 package ami
 
-import "strconv"
-
 // Agents lists agents and their status.
-func Agents(socket *Socket, actionID string) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "Agents",
-		"ActionID": actionID,
-	})
+func Agents(client Client, actionID string) (Response, error) {
+	return send(client, "Agents", actionID, nil)
 }
 
 // AgentLogoff sets an agent as no longer logged in.
-func AgentLogoff(socket *Socket, actionID, agent string, soft bool) (map[string]string, error) {
-	return sendCommand(socket, map[string]string{
-		"Action":   "AgentLogoff",
-		"ActionID": actionID,
-		"Agent":    agent,
-		"Soft":     strconv.FormatBool(soft),
+func AgentLogoff(client Client, actionID, agent string, soft bool) (Response, error) {
+	return send(client, "AgentLogoff", actionID, map[string]interface{}{
+		"Agent": agent,
+		"Soft":  soft,
 	})
 }
