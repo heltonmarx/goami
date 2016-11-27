@@ -27,13 +27,15 @@ func TestEncodeInt(t *testing.T) {
 	var buf bytes.Buffer
 
 	// int
-	i := 11
+	var i int
+	i = 11
 	ensure.Nil(t, encode(&buf, reflect.ValueOf(i)))
 	ensure.DeepEqual(t, fmt.Sprintf("%d\r\n", i), buf.String())
 	buf.Reset()
 
 	// Int8
-	i8 := math.MaxInt8
+	var i8 int8
+	i8 = math.MaxInt8
 	ensure.Nil(t, encode(&buf, reflect.ValueOf(i8)))
 	ensure.DeepEqual(t, fmt.Sprintf("%d\r\n", i8), buf.String())
 	buf.Reset()
@@ -44,7 +46,8 @@ func TestEncodeInt(t *testing.T) {
 	buf.Reset()
 
 	// Int16
-	i16 := math.MaxInt16
+	var i16 int16
+	i16 = math.MaxInt16
 	ensure.Nil(t, encode(&buf, reflect.ValueOf(i16)))
 	ensure.DeepEqual(t, fmt.Sprintf("%d\r\n", i16), buf.String())
 	buf.Reset()
@@ -55,7 +58,8 @@ func TestEncodeInt(t *testing.T) {
 	buf.Reset()
 
 	//  Int32
-	i32 := math.MaxInt32
+	var i32 int32
+	i32 = math.MaxInt32
 	ensure.Nil(t, encode(&buf, reflect.ValueOf(i32)))
 	ensure.DeepEqual(t, fmt.Sprintf("%d\r\n", i32), buf.String())
 	buf.Reset()
@@ -66,7 +70,8 @@ func TestEncodeInt(t *testing.T) {
 	buf.Reset()
 
 	// Int64
-	i64 := math.MaxInt64
+	var i64 int64
+	i64 = math.MaxInt64
 	ensure.Nil(t, encode(&buf, reflect.ValueOf(i64)))
 	ensure.DeepEqual(t, fmt.Sprintf("%d\r\n", i64), buf.String())
 	buf.Reset()
@@ -76,20 +81,28 @@ func TestEncodeInt(t *testing.T) {
 	ensure.DeepEqual(t, fmt.Sprintf("%d\r\n", i64), buf.String())
 	buf.Reset()
 
+}
+
+func TestEncodeUint(t *testing.T) {
+	var buf bytes.Buffer
+
 	// Uint8
-	ui8 := math.MaxUint8
+	var ui8 uint8
+	ui8 = math.MaxUint8
 	ensure.Nil(t, encode(&buf, reflect.ValueOf(ui8)))
 	ensure.DeepEqual(t, fmt.Sprintf("%d\r\n", ui8), buf.String())
 	buf.Reset()
 
 	// Uint16
-	ui16 := math.MaxUint16
+	var ui16 uint16
+	ui16 = math.MaxUint16
 	ensure.Nil(t, encode(&buf, reflect.ValueOf(ui16)))
 	ensure.DeepEqual(t, fmt.Sprintf("%d\r\n", ui16), buf.String())
 	buf.Reset()
 
 	// Uint32
-	ui32 := math.MaxUint32
+	var ui32 uint32
+	ui32 = math.MaxUint32
 	ensure.Nil(t, encode(&buf, reflect.ValueOf(ui32)))
 	ensure.DeepEqual(t, fmt.Sprintf("%d\r\n", ui32), buf.String())
 	buf.Reset()
