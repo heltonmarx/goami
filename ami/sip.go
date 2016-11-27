@@ -10,8 +10,8 @@ func SIPNotify(client Client, actionID string, channel string, variable string) 
 
 // SIPPeers lists SIP peers in text format with details on current status.
 // Peerlist will follow as separate events, followed by a final event called PeerlistComplete
-func SIPPeers(client Client, actionID string) (Response, error) {
-	return send(client, "SIPpeers", actionID, nil)
+func SIPPeers(client Client, actionID string) ([]Response, error) {
+	return requestList(client, "SIPpeers", actionID, "PeerEntry", "PeerlistComplete")
 }
 
 // SIPQualifyPeer qualify SIP peers.

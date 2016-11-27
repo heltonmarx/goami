@@ -4,16 +4,16 @@ package ami
 // Lists Skinny devices in text format with details on current status.
 // Devicelist will follow as separate events,
 // followed by a final event called DevicelistComplete.
-func SKINNYdevices(client Client, actionID string) (Response, error) {
-	return send(client, "SKINNYdevices", actionID, nil)
+func SKINNYdevices(client Client, actionID string) ([]Response, error) {
+	return requestList(client, "SKINNYdevices", actionID, "DeviceEntry", "DevicelistComplete")
 }
 
 // SKINNYlines lists SKINNY lines (text format).
 // Lists Skinny lines in text format with details on current status.
 // Linelist will follow as separate events,
 // followed by a final event called LinelistComplete.
-func SKINNYlines(client Client, actionID string) (Response, error) {
-	return send(client, "SKINNYlines", actionID, nil)
+func SKINNYlines(client Client, actionID string) ([]Response, error) {
+	return requestList(client, "SKINNYlines", actionID, "LineEntry", "LinelistComplete")
 }
 
 // SKINNYshowdevice show SKINNY device (text format).

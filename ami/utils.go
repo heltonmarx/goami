@@ -12,13 +12,10 @@ var (
 )
 
 func send(client Client, action, id string, v interface{}) (Response, error) {
-	var err error
-	var b []byte
-
 	if action == "" {
 		return nil, ErrInvalidAction
 	}
-	b, err = marshal(&struct {
+	b, err := marshal(&struct {
 		Action string `ami:"Action"`
 		ID     string `ami:"ActionID, omitempty"`
 		V      interface{}
@@ -35,15 +32,6 @@ func send(client Client, action, id string, v interface{}) (Response, error) {
 	}
 	return parseResponse(input)
 }
-
-/*
-func requestEvent(client Client, action, id, event, complete string) ([]Response, error) {
-	cmd := newCommand(action, id)
-	if err := client.Send(cmd.String()); err != nil {
-		return nil, err
-	}
-}
-*/
 
 func parseResponse(input string) (Response, error) {
 	resp := make(Response)
@@ -62,27 +50,57 @@ func parseResponse(input string) (Response, error) {
 	return resp, nil
 }
 
-func parseEvent(event, complete string, input []string) ([]Response, error) {
-	list := make([]Response, 0)
+func requestList(client Client, action, id, event, complete string) ([]Response, error) {
+	if action == "" {
+		return nil, ErrInvalidAction
+	}
+	b, err := marshal(&struct {
+		Action string `ami:"Action"`
+		ID     string `ami:"ActionID, omitempty"`
+	}{Action: action, ID: id})
+	if err != nil {
+		return nil, err
+	}
+	if err := client.Send(string(b)); err != nil {
+		return nil, err
+	}
+	for {
+		input, err := client.Recv()
+		if err != nil {
+			return nil, err
+		}
+		responses, finish, err := parseEvent(event, complete, []string{input})
+		if err != nil {
+			return nil, err
+		}
+		if finish {
+			return responses, nil
+		}
+	}
+	return nil, fmt.Errorf("could not parse request %s", action)
+}
+
+func parseEvent(event, complete string, input []string) ([]Response, bool, error) {
+	var list []Response
 	verify := false
 	for _, in := range input {
 		rsp, err := parseResponse(in)
 		if err != nil {
-			return nil, err
+			return nil, false, err
 		}
 		if !verify {
 			if success := rsp.Get("Response"); success != "Success" {
-				return nil, fmt.Errorf("failed on event %s:%v\n", event, rsp.Get("Message"))
+				return nil, false, fmt.Errorf("failed on event %s:%v\n", event, rsp.Get("Message"))
 			}
 			verify = true
 		} else {
 			evt := rsp.Get("Event")
 			if evt == complete {
-				return list, nil
+				return list, true, nil
 			} else if evt == event {
 				list = append(list, rsp)
 			}
 		}
 	}
-	return list, nil
+	return list, false, nil
 }

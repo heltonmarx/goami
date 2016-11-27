@@ -30,8 +30,8 @@ func Bridge(client Client, actionID, channel1, channel2 string, tone bool) (Resp
 }
 
 // CoreShowChannels list currently active channels.
-func CoreShowChannels(client Client, actionID string) (Response, error) {
-	return send(client, "CoreShowChannels", actionID, nil)
+func CoreShowChannels(client Client, actionID string) ([]Response, error) {
+	return requestList(client, "CoreShowChannels", actionID, "CoreShowChannel", "CoreShowChannelsComplete")
 }
 
 // ExtensionState checks extension status.
@@ -67,8 +67,8 @@ func Park(client Client, actionID, channel1, channel2 string, timeout int, parki
 }
 
 // ParkedCalls list parked calls.
-func ParkedCalls(client Client, actionID string) (Response, error) {
-	return send(client, "ParkedCalls", actionID, nil)
+func ParkedCalls(client Client, actionID string) ([]Response, error) {
+	return requestList(client, "ParkedCalls", actionID, "ParkedCall", "ParkedCallsComplete")
 }
 
 // PlayDTMF plays DTMF signal on a specific channel.
