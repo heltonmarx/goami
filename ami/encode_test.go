@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"strconv"
 	"testing"
 
 	"github.com/facebookgo/ensure"
@@ -113,4 +114,49 @@ func TestEncodeUint(t *testing.T) {
 	ensure.Nil(t, encode(&buf, reflect.ValueOf(ui64)))
 	ensure.DeepEqual(t, fmt.Sprintf("%v\r\n", ui64), buf.String())
 	buf.Reset()
+}
+
+func TestEncodeFloat(t *testing.T) {
+	var buf bytes.Buffer
+
+	var f32 float32
+	f32 = math.MaxFloat32
+	ensure.Nil(t, encode(&buf, reflect.ValueOf(f32)))
+	s := strconv.FormatFloat(float64(f32), 'E', -1, 32) + "\r\n"
+	ensure.DeepEqual(t, s, buf.String())
+	buf.Reset()
+
+	var f64 float64
+	f64 = math.MaxFloat64
+	ensure.Nil(t, encode(&buf, reflect.ValueOf(f64)))
+	s = strconv.FormatFloat(f64, 'E', -1, 64) + "\r\n"
+	ensure.DeepEqual(t, s, buf.String())
+	buf.Reset()
+}
+
+func TestEncodeMap(t *testing.T) {
+	var buf bytes.Buffer
+	m := map[string]interface{}{
+		"Name":  "foobar",
+		"Age":   99,
+		"Valid": true,
+	}
+	expect := "Name: foobar\r\nAge: 99\r\nValid: true\r\n"
+	ensure.Nil(t, encode(&buf, reflect.ValueOf(m)))
+	verifyResponse(t, buf.String(), expect)
+}
+
+func TestEncodeStruct(t *testing.T) {
+	var buf bytes.Buffer
+	st := struct {
+		Action string `ami:"Action"`
+		ID     string `ami:"ActionID"`
+		Foo    int    `ami:"Foo,omitempty"`
+		Bar    string `ami:"-"`
+	}{
+		Action: "A", ID: "B", Bar: "C",
+	}
+	expect := "Action: A\r\nActionID: B\r\n"
+	ensure.Nil(t, encode(&buf, reflect.ValueOf(st)))
+	ensure.DeepEqual(t, expect, buf.String())
 }

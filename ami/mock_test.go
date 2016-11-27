@@ -1,6 +1,7 @@
 package ami
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/facebookgo/ensure"
@@ -38,11 +39,27 @@ func newClientMock(t *testing.T, input, output string) mockClient {
 			return nil
 		},
 		sendFn: func(message string) error {
-			ensure.DeepEqual(t, message, input)
+			verifyResponse(t, message, input)
 			return nil
 		},
 		recvFn: func() (string, error) {
 			return output, nil
 		},
+	}
+}
+
+func verifyResponse(t *testing.T, actual, expect string) {
+	as := strings.Split(actual, "\r\n")
+	es := strings.Split(expect, "\r\n")
+
+	ensure.DeepEqual(t, len(as), len(es))
+	for _, m := range as {
+		found := false
+		for _, n := range es {
+			if m == n {
+				found = true
+			}
+		}
+		ensure.True(t, found)
 	}
 }
