@@ -25,16 +25,15 @@ func main() {
 	fmt.Printf("login ok!\n")
 
 	//List All SIPPeers
-	list, err := ami.SIPPeers(socket, uuid)
+	peers, err := ami.SIPPeers(socket, uuid)
 	if err != nil {
 		log.Fatalf("sip peers error: %v\n", err)
 	}
-	message, err := ami.SIPShowPeer(socket, uuid, list["ObjectName"])
-	if err != nil {
-		log.Fatalf("sip show peer error: %v\n", err)
+	for _, peer := range peers {
+		message, err := ami.SIPShowPeer(socket, uuid, peer.Get("ObjectName"))
+		if err != nil {
+			log.Fatalf("sip show peer error: %v\n", err)
+		}
+		log.Printf("message: [%q]\n", message)
 	}
-	for k, v := range message {
-		fmt.Printf("%s : %q\n", k, v)
-	}
-	fmt.Printf("\n")
 }

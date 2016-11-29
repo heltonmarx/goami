@@ -3,7 +3,6 @@ package ami
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 )
 
@@ -42,23 +41,6 @@ func Logoff(client Client, actionID string) error {
 		return fmt.Errorf("logout failed: %v\n", resp.Get("Message"))
 	}
 	return nil
-}
-
-// GetUUID returns a new UUID based on /dev/urandom (unix).
-func GetUUID() (string, error) {
-	f, err := os.Open("/dev/urandom")
-	if err != nil {
-		return "", fmt.Errorf("open /dev/urandom error:[%v]", err)
-	}
-	defer f.Close()
-	b := make([]byte, 16)
-
-	_, err = f.Read(b)
-	if err != nil {
-		return "", err
-	}
-	uuid := fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
-	return uuid, nil
 }
 
 // Ping action will ellicit a 'Pong' response.

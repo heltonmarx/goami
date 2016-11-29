@@ -26,7 +26,7 @@ func main() {
 
 	//Events
 	for {
-		events, err := ami.GetEvents(socket)
+		events, err := ami.Events(socket)
 		if err != nil {
 			fmt.Printf("events error (%v)\n", err)
 			return

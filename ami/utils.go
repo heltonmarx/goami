@@ -3,6 +3,7 @@ package ami
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -10,6 +11,23 @@ var (
 	// ErrInvalidAction occurs when the action type is invalid.
 	ErrInvalidAction = errors.New("invalid Action")
 )
+
+// GetUUID returns a new UUID based on /dev/urandom (unix).
+func GetUUID() (string, error) {
+	f, err := os.Open("/dev/urandom")
+	if err != nil {
+		return "", fmt.Errorf("open /dev/urandom error:[%v]", err)
+	}
+	defer f.Close()
+	b := make([]byte, 16)
+
+	_, err = f.Read(b)
+	if err != nil {
+		return "", err
+	}
+	uuid := fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+	return uuid, nil
+}
 
 func send(client Client, action, id string, v interface{}) (Response, error) {
 	if action == "" {

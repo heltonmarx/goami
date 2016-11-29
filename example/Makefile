@@ -1,7 +1,4 @@
-GOCC=go
-
-OS=linux
-ARCH=amd64
+GO	?= go
 
 ALL_PROGS := events login sippeers sms
 
@@ -9,19 +6,19 @@ all: $(ALL_PROGS)
 
 events: events.go
 	@echo "[CC] events.go"
-	@$(GOCC) build -o events $^
+	@$(GO) build -o events $^
 
 login: login.go
 	@echo "[CC] login.go"
-	@$(GOCC) build -o login $^
+	@$(GO) build -o login $^
 
 sippeers: sippeers.go
 	@echo "[CC] sippeers.go"
-	@$(GOCC) build -o sippeers $^
+	@$(GO) build -o sippeers $^
 
 sms: sms.go
 	@echo "[CC] sms.go"
-	@$(GOCC) build -o sms $^
+	@$(GO) build -o sms $^
 
 format:
 	@echo "[FORMAT] *.go files"
