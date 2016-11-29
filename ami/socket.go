@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"net"
-	"strings"
 )
 
 // Socket holds the socket client connection data.
@@ -48,18 +47,18 @@ func (s *Socket) Send(message string) error {
 
 // Recv receives a string from socket server.
 func (s *Socket) Recv() (string, error) {
-	var buf []byte
+	var buffer bytes.Buffer
 	reader := bufio.NewReader(s.conn)
+
 	for {
-		b, err := reader.ReadBytes('\n')
+		msg, err := reader.ReadString('\n')
 		if err != nil {
 			return "", err
 		}
-		buf = append(buf, b...)
-		if (len(bytes.TrimSpace(b)) == 0 &&
-			strings.Contains(string(buf), string('\n')) == true) || reader.Buffered() == 0 {
-			break
+		buffer.WriteString(msg)
+		if reader.Buffered() == 0 {
+			return buffer.String(), nil
 		}
 	}
-	return string(buf), nil
+	return buffer.String(), nil
 }

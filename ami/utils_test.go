@@ -55,8 +55,7 @@ func TestRequestEvent(t *testing.T) {
 			"Status":         []string{"OK (5 ms)"},
 		}
 	)
-	rsp, finish, err := parseEvent("PeerEntry", "PeerlistComplete", peerEntryList)
+	rsp, err := parseEvent("PeerEntry", "PeerlistComplete", peerEntryList)
 	ensure.Nil(t, err)
-	ensure.True(t, finish)
 	ensure.DeepEqual(t, rsp[0], response)
 }

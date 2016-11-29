@@ -3,8 +3,11 @@ package ami
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"strings"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 var (
@@ -45,6 +48,7 @@ func send(client Client, action, id string, v interface{}) (Response, error) {
 		return nil, err
 	}
 	input, err := client.Recv()
+	log.Println("input: ", spew.Sdump(input))
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +57,6 @@ func send(client Client, action, id string, v interface{}) (Response, error) {
 
 func parseResponse(input string) (Response, error) {
 	resp := make(Response)
-
 	lines := strings.Split(input, "\r\n")
 	for _, line := range lines {
 		keys := strings.SplitAfterN(line, ":", 2)
@@ -67,6 +70,11 @@ func parseResponse(input string) (Response, error) {
 	}
 	return resp, nil
 }
+
+const (
+	getResponseState int = iota
+	getListState
+)
 
 func requestList(client Client, action, id, event, complete string) ([]Response, error) {
 	if action == "" {
@@ -82,43 +90,38 @@ func requestList(client Client, action, id, event, complete string) ([]Response,
 	if err := client.Send(string(b)); err != nil {
 		return nil, err
 	}
-	for {
-		input, err := client.Recv()
-		if err != nil {
-			return nil, err
-		}
-		responses, finish, err := parseEvent(event, complete, []string{input})
-		if err != nil {
-			return nil, err
-		}
-		if finish {
-			return responses, nil
-		}
+	input, err := client.Recv()
+	if err != nil {
+		return nil, err
 	}
-	return nil, fmt.Errorf("could not parse request %s", action)
+	commands := strings.Split(input, "\r\n\r\n")
+	return parseEvent(event, complete, commands)
 }
 
-func parseEvent(event, complete string, input []string) ([]Response, bool, error) {
+func parseEvent(event, complete string, input []string) ([]Response, error) {
 	var list []Response
 	verify := false
+
 	for _, in := range input {
 		rsp, err := parseResponse(in)
 		if err != nil {
-			return nil, false, err
+			return nil, err
 		}
-		if !verify {
+		switch verify {
+		case false:
 			if success := rsp.Get("Response"); success != "Success" {
-				return nil, false, fmt.Errorf("failed on event %s:%v\n", event, rsp.Get("Message"))
+				return nil, fmt.Errorf("failed on event %s:%v\n", event, rsp.Get("Message"))
 			}
 			verify = true
-		} else {
+		case true:
 			evt := rsp.Get("Event")
 			if evt == complete {
-				return list, true, nil
-			} else if evt == event {
+				break
+			}
+			if evt == event {
 				list = append(list, rsp)
 			}
 		}
 	}
-	return list, false, nil
+	return list, nil
 }
