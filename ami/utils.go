@@ -3,11 +3,8 @@ package ami
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"strings"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 var (
@@ -48,7 +45,6 @@ func send(client Client, action, id string, v interface{}) (Response, error) {
 		return nil, err
 	}
 	input, err := client.Recv()
-	log.Println("input: ", spew.Sdump(input))
 	if err != nil {
 		return nil, err
 	}

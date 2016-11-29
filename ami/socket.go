@@ -49,7 +49,6 @@ func (s *Socket) Send(message string) error {
 func (s *Socket) Recv() (string, error) {
 	var buffer bytes.Buffer
 	reader := bufio.NewReader(s.conn)
-
 	for {
 		msg, err := reader.ReadString('\n')
 		if err != nil {
