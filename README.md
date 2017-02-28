@@ -46,23 +46,19 @@ func main() {
 	if _, err := ami.Connect(socket); err != nil {
 		return
 	}
-	var ret bool
 
 	//Login
 	uuid, _ := ami.GetUUID()
-	ret, err = ami.Login(socket, "admin", "admin", "Off", uuid)
-	if err != nil || ret == false {
-		fmt.Printf("login error (%v)\n", err)
-		return
+	if err := ami.Login(socket, "admin", "admin", "Off", uuid); err != nil {
+		log.Fatalf("login error (%v)\n", err)
 	}
 	fmt.Printf("login ok!\n")
 
 	//Logoff
 	fmt.Printf("logoff\n")
-	ret, err = ami.Logoff(socket, uuid)
-	if err != nil || ret == false {
-		fmt.Printf("logoff error: (%v)\n", err)
-		return
+	if err := ami.Logoff(socket, uuid); err != nil {
+		log.Fatalf("logoff error: (%v)\n", err)
+	}
 	}
 	fmt.Printf("goodbye !\n")
 }
