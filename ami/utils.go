@@ -1,6 +1,7 @@
 package ami
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -44,11 +45,22 @@ func send(client Client, action, id string, v interface{}) (Response, error) {
 	if err := client.Send(string(b)); err != nil {
 		return nil, err
 	}
-	input, err := client.Recv()
-	if err != nil {
-		return nil, err
+	return read(client)
+}
+
+func read(client Client) (Response, error) {
+	var buffer bytes.Buffer
+	for {
+		input, err := client.Recv()
+		if err != nil {
+			return nil, err
+		}
+		buffer.WriteString(input)
+		if strings.HasSuffix(buffer.String(), "\r\n\r\n") {
+			break
+		}
 	}
-	return parseResponse(input)
+	return parseResponse(buffer.String())
 }
 
 func parseResponse(input string) (Response, error) {
@@ -60,17 +72,12 @@ func parseResponse(input string) (Response, error) {
 			key := strings.TrimSpace(strings.Trim(keys[0], ":"))
 			value := strings.TrimSpace(keys[1])
 			resp[key] = append(resp[key], value)
-		} else if strings.Contains(line, "\r\n\r\n") || len(line) == 0 {
+		} else if strings.Contains(line, "\r\n\r\n") || line == "" {
 			return resp, nil
 		}
 	}
 	return resp, nil
 }
-
-const (
-	getResponseState int = iota
-	getListState
-)
 
 func requestList(client Client, action, id, event, complete string) ([]Response, error) {
 	if action == "" {
@@ -86,38 +93,20 @@ func requestList(client Client, action, id, event, complete string) ([]Response,
 	if err := client.Send(string(b)); err != nil {
 		return nil, err
 	}
-	input, err := client.Recv()
-	if err != nil {
-		return nil, err
-	}
-	commands := strings.Split(input, "\r\n\r\n")
-	return parseEvent(event, complete, commands)
-}
 
-func parseEvent(event, complete string, input []string) ([]Response, error) {
-	var list []Response
-	verify := false
-
-	for _, in := range input {
-		rsp, err := parseResponse(in)
+	var response []Response
+	for {
+		rsp, err := read(client)
 		if err != nil {
 			return nil, err
 		}
-		switch verify {
-		case false:
-			if success := rsp.Get("Response"); success != "Success" {
-				return nil, fmt.Errorf("failed on event %s:%v\n", event, rsp.Get("Message"))
-			}
-			verify = true
-		case true:
-			evt := rsp.Get("Event")
-			if evt == complete {
-				break
-			}
-			if evt == event {
-				list = append(list, rsp)
-			}
+		e := rsp.Get("Event")
+		r := rsp.Get("Response")
+		if e == event {
+			response = append(response, rsp)
+		} else if e == complete || r != "" && r != "Success" {
+			break
 		}
 	}
-	return list, nil
+	return response, nil
 }

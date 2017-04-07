@@ -182,9 +182,5 @@ func ShowDialPlan(client Client, actionID, extension, context string) (Response,
 // Events gets events from current client connection
 // It is mandatory set 'events' of ami.Login with "system,call,all,user", to received events.
 func Events(client Client) (Response, error) {
-	input, err := client.Recv()
-	if err != nil {
-		return nil, err
-	}
-	return parseResponse(input)
+	return read(client)
 }

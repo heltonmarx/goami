@@ -1,25 +1,33 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 
 	"github.com/heltonmarx/goami/ami"
 )
 
+var (
+	username = flag.String("username", "admin", "AMI username")
+	secret   = flag.String("secret", "admin", "AMI secret")
+	host     = flag.String("host", "127.0.0.1:5038", "AMI host address")
+)
+
 func main() {
-	socket, err := ami.NewSocket("127.0.0.1:5038")
+	flag.Parse()
+
+	socket, err := ami.NewSocket(*host)
 	if err != nil {
-		fmt.Printf("socket error: %v\n", err)
-		return
+		log.Fatalf("socket error: %v\n", err)
 	}
 	if _, err := ami.Connect(socket); err != nil {
-		return
+		log.Fatalf("connect error: %v\n", err)
 	}
 	//Login
 	uuid, _ := ami.GetUUID()
-	if err := ami.Login(socket, "admin", "admin", "Off", uuid); err != nil {
-		log.Fatalf("login error (%v)\n", err)
+	if err := ami.Login(socket, *username, *secret, "Off", uuid); err != nil {
+		log.Fatalf("login error: %v\n", err)
 	}
 	defer ami.Logoff(socket, uuid)
 	fmt.Printf("login ok!\n")
@@ -34,6 +42,6 @@ func main() {
 		if err != nil {
 			log.Fatalf("sip show peer error: %v\n", err)
 		}
-		log.Printf("message: [%q]\n", message)
+		fmt.Printf("message: [%v]\n", message)
 	}
 }

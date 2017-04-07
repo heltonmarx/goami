@@ -35,7 +35,7 @@ func TestSocketSend(t *testing.T) {
 }
 
 func TestSocketRecv(t *testing.T) {
-	response := "Asterisk Call Manager/1.0\r\nResponse: Success\r\nMessage: Authentication accepted\r\n\r\n"
+	response := "Asterisk Call Manager/1.0\r\n"
 
 	wait := make(chan struct{})
 	srv := newServer(t, func(conn net.Conn) {
