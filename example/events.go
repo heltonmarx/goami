@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/heltonmarx/goami/ami"
 )
@@ -40,5 +41,10 @@ func main() {
 			return
 		}
 		fmt.Printf("recv event: %v\n", events)
+		switch event := events.Get("Event"); event {
+		case "Shutdown":
+			fmt.Printf("asterisk shutdown !\n")
+			os.Exit(1)
+		}
 	}
 }
