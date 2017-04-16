@@ -3,15 +3,16 @@ goami
 Asterisk Manager Interface (AMI) client in Go.
 
 ## About
-This code is based on C [libami] (http://sourceforge.net/projects/amsuite/files/libami/) library interface
+This code is based on C [libami](http://sourceforge.net/projects/amsuite/files/libami/) library interface
 
 ## Installation and Requirements
 
 The following command will install the AMI client.
 
 ```sh
-go get github.com/heltonmarx/goami/ami
+go get -u github.com/heltonmarx/goami/ami
 ```
+
 To test this package with Asterisk it's necessary set the file `/etc/asterisk/manager.conf` with configuration bellow:
 
     [general]
@@ -74,5 +75,5 @@ func main() {
 
 ## Documentation
 
-This projects documentation can be found on godoc at [godoc.org//github.com/heltonmarx/goami/ami](http://godoc.org/github.com/heltonmarx/goami/ami).
+This projects documentation can be found on godoc at [goami](http://godoc.org/github.com/heltonmarx/goami/ami).
 
