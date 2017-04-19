@@ -8,11 +8,6 @@ import (
 	"strings"
 )
 
-var (
-	// ErrInvalidAction occurs when the action type is invalid.
-	ErrInvalidAction = errors.New("invalid Action")
-)
-
 // GetUUID returns a new UUID based on /dev/urandom (unix).
 func GetUUID() (string, error) {
 	f, err := os.Open("/dev/urandom")
@@ -30,15 +25,19 @@ func GetUUID() (string, error) {
 	return uuid, nil
 }
 
-func send(client Client, action, id string, v interface{}) (Response, error) {
+func command(action string, id string, v ...interface{}) ([]byte, error) {
 	if action == "" {
-		return nil, ErrInvalidAction
+		return nil, errors.New("invalid Action")
 	}
-	b, err := marshal(&struct {
+	return marshal(&struct {
 		Action string `ami:"Action"`
 		ID     string `ami:"ActionID, omitempty"`
-		V      interface{}
+		V      []interface{}
 	}{Action: action, ID: id, V: v})
+}
+
+func send(client Client, action, id string, v interface{}) (Response, error) {
+	b, err := command(action, id, v)
 	if err != nil {
 		return nil, err
 	}
@@ -79,14 +78,8 @@ func parseResponse(input string) (Response, error) {
 	return resp, nil
 }
 
-func requestList(client Client, action, id, event, complete string) ([]Response, error) {
-	if action == "" {
-		return nil, ErrInvalidAction
-	}
-	b, err := marshal(&struct {
-		Action string `ami:"Action"`
-		ID     string `ami:"ActionID, omitempty"`
-	}{Action: action, ID: id})
+func requestList(client Client, action, id, event, complete string, v ...interface{}) ([]Response, error) {
+	b, err := command(action, id, v)
 	if err != nil {
 		return nil, err
 	}

@@ -51,8 +51,8 @@ func QueueStatus(client Client, actionID, queue, member string) (Response, error
 }
 
 // QueueSummary show queue summary.
-func QueueSummary(client Client, actionID, queue string) (Response, error) {
-	return send(client, "QueueSummary", actionID, map[string]string{
+func QueueSummary(client Client, actionID, queue string) ([]Response, error) {
+	return requestList(client, "QueueSummary", actionID, "QueueSummary", "QueueSummaryComplete", map[string]string{
 		"Queue": queue,
 	})
 }
