@@ -43,9 +43,9 @@ func encode(buf *bytes.Buffer, v reflect.Value) error {
 		return encodeMap(buf, v)
 	case reflect.Slice:
 		for i := 0; i < v.Len(); i++ {
-			if !v.Index(i).IsNil() {
-				elem := v.Index(i).Interface()
-				if err := encode(buf, reflect.ValueOf(elem)); err != nil {
+			elem := v.Index(i)
+			if !elem.IsNil() {
+				if err := encode(buf, elem); err != nil {
 					return err
 				}
 			}
