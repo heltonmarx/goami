@@ -41,8 +41,17 @@ func encode(buf *bytes.Buffer, v reflect.Value) error {
 		}
 	case reflect.Map:
 		return encodeMap(buf, v)
+	case reflect.Slice:
+		for i := 0; i < v.Len(); i++ {
+			elem := v.Index(i)
+			if !elem.IsNil() {
+				if err := encode(buf, elem); err != nil {
+					return err
+				}
+			}
+		}
 	default:
-		return fmt.Errorf("unsupported kind %s", v.Type())
+		return fmt.Errorf("unsupported kind %v", v.Kind())
 	}
 	return nil
 }
