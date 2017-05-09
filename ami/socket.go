@@ -69,9 +69,10 @@ func (s *Socket) Recv() (string, error) {
 			if strings.HasSuffix(buffer.String(), "\r\n") {
 				return buffer.String(), nil
 			}
+		case <-s.shutdown:
+			return buffer.String(), nil
 		}
 	}
-	return buffer.String(), nil
 }
 
 func (s *Socket) run(conn net.Conn) {
