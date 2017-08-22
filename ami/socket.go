@@ -76,12 +76,12 @@ func (s *Socket) Recv() (string, error) {
 }
 
 func (s *Socket) run(conn net.Conn) {
-	reader := bufio.NewReader(conn)
+	defer s.wg.Done()
 
+	reader := bufio.NewReader(conn)
 	for {
 		select {
 		case <-s.shutdown:
-			s.wg.Done()
 			return
 		default:
 			msg, err := reader.ReadString('\n')

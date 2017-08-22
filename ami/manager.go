@@ -26,7 +26,7 @@ func Login(client Client, user, secret, events, actionID string) error {
 		return err
 	}
 	if ok := resp.Get("Response"); ok != "Success" {
-		return fmt.Errorf("login failed: %v\n", resp.Get("Message"))
+		return fmt.Errorf("login failed: %v", resp.Get("Message"))
 	}
 	return nil
 }
@@ -38,7 +38,7 @@ func Logoff(client Client, actionID string) error {
 		return err
 	}
 	if msg := resp.Get("Response"); msg != "Goodbye" {
-		return fmt.Errorf("logout failed: %v\n", resp.Get("Message"))
+		return fmt.Errorf("logout failed: %v", resp.Get("Message"))
 	}
 	return nil
 }
@@ -51,7 +51,7 @@ func Ping(client Client, actionID string) error {
 		return err
 	}
 	if ok := resp.Get("Response"); ok != "Success" {
-		return fmt.Errorf("ping failed: %v\n", resp.Get("Message"))
+		return fmt.Errorf("ping failed: %v", resp.Get("Message"))
 	}
 	return nil
 }

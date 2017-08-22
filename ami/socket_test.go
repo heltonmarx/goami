@@ -1,6 +1,7 @@
 package ami
 
 import (
+	"context"
 	"io/ioutil"
 	"net"
 	"testing"
@@ -12,14 +13,18 @@ import (
 func TestSocketSend(t *testing.T) {
 	message := "Action: Login\r\nUsername: testuser\r\nSecret: testsecret\r\n\r\n"
 
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
 	done := make(chan struct{})
-	srv := newServer(t, func(conn net.Conn) {
+	srv, err := newServer(ctx, func(conn net.Conn) {
 		defer conn.Close()
 		buf, err := ioutil.ReadAll(conn)
 		ensure.Nil(t, err)
 		ensure.DeepEqual(t, message, string(buf))
 		close(done)
 	})
+	ensure.Nil(t, err)
 	defer srv.Close()
 
 	socket, err := NewSocket(srv.Addr())
@@ -37,14 +42,18 @@ func TestSocketSend(t *testing.T) {
 func TestSocketRecv(t *testing.T) {
 	response := "Asterisk Call Manager/1.0\r\n"
 
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
 	wait := make(chan struct{})
-	srv := newServer(t, func(conn net.Conn) {
+	srv, err := newServer(ctx, func(conn net.Conn) {
 		defer conn.Close()
 		n, err := conn.Write([]byte(response))
 		ensure.Nil(t, err)
 		ensure.True(t, n == len(response))
 		<-wait
 	})
+	ensure.Nil(t, err)
 	defer srv.Close()
 
 	socket, err := NewSocket(srv.Addr())
@@ -62,9 +71,11 @@ type testServer struct {
 	stop chan struct{}
 }
 
-func newServer(t *testing.T, handler func(net.Conn)) *testServer {
+func newServer(ctx context.Context, handler func(net.Conn)) (*testServer, error) {
 	ln, err := net.Listen("tcp", ":")
-	ensure.Nil(t, err)
+	if err != nil {
+		return nil, err
+	}
 
 	ts := &testServer{
 		ln:   ln,
@@ -75,17 +86,19 @@ func newServer(t *testing.T, handler func(net.Conn)) *testServer {
 			select {
 			case <-ts.stop:
 				return
-			case <-time.After(100 * time.Millisecond):
+			case <-ctx.Done():
+				return
+			default:
 				conn, err := ts.ln.Accept()
 				if err != nil {
-					ensure.Nil(t, err)
+					time.Sleep(10 * time.Millisecond)
 					continue
 				}
 				go handler(conn)
 			}
 		}
 	}()
-	return ts
+	return ts, nil
 }
 
 func (ts *testServer) Close() error {
