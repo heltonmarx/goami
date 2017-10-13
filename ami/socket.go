@@ -3,6 +3,7 @@ package ami
 import (
 	"bufio"
 	"bytes"
+	"io"
 	"log"
 	"net"
 	"strings"
@@ -70,7 +71,7 @@ func (s *Socket) Recv() (string, error) {
 				return buffer.String(), nil
 			}
 		case <-s.shutdown:
-			return buffer.String(), nil
+			return buffer.String(), io.EOF
 		}
 	}
 }

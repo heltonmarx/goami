@@ -101,11 +101,11 @@ func encodeStruct(buf *bytes.Buffer, v reflect.Value) error {
 	var err error
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Type().Field(i)
-		tag := field.Tag.Get("ami")
-		if tag == "" && strings.Index(string(field.Tag), ":") < 0 {
+		tag, ok := field.Tag.Lookup("ami")
+		switch {
+		case !ok:
 			tag = string(field.Tag)
-		}
-		if tag == "-" {
+		case tag == "-":
 			continue
 		}
 		tag, omitempty, err = isOmitempty(tag)
