@@ -1,25 +1,30 @@
-GO	?= go
+GO  			?= go
+BUILDFLAGS		:= -v -tags 'netgo'
+TESTFLAGS		:= -cover
+BINDIR			:= bin
 
-ALL_PROGS := events login sippeers sms
+DOCKER_COMPOSE	?= docker-compose
 
-all: $(ALL_PROGS)
+export GOOS        := $(subst Darwin,darwin,$(subst Linux,linux,$(subst FreeBSD,freebsd,$(shell uname))))
+export CGO_ENABLED := 0
+export GOGC        := 400
 
-events: events.go
-	@echo "[GO] events.go"
-	@$(GO) build -o events $^
+.PHONY: build
+build:
+	$(GO) build $(BUILDFLAGS)
 
-login: login.go
-	@echo "[GO] login.go"
-	@$(GO) build -o login $^
-
-sippeers: sippeers.go
-	@echo "[GO] sippeers.go"
-	@$(GO) build -o sippeers $^
-
-sms: sms.go
-	@echo "[GO] sms.go"
-	@$(GO) build -o sms $^
-
+.PHONY: clean
 clean:
-	@echo "[CLEAN]"
-	@rm -rf $(ALL_PROGS)
+	@$(GO) clean
+	@rm -rf $(BINDIR)/*
+
+.PHONY: test
+test: PKG ?= $(shell go list./... | grep -v /vendor/)
+test:
+	@$(GO) test $(TESTFLAGS) $(PKG)
+
+.PHONY: docker-run
+docker-run: export DOCKER_VOLUME := /go/src/github.com/heltonmarx/goami/example
+docker-run:
+	@$(DOCKER_COMPOSE) run --rm -w $(DOCKER_VOLUME) -e DOCKER_VOLUME=$(DOCKER_VOLUME) ami-test /bin/bash
+
