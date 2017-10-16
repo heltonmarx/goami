@@ -2,11 +2,9 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"sync"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/heltonmarx/goami/ami"
 )
 
@@ -59,23 +57,24 @@ func (as *Asterisk) Events() <-chan ami.Response {
 }
 
 // SIPPeers fetch the list of SIP peers present on asterisk.
-func (as *Asterisk) SIPPeers() error {
+func (as *Asterisk) SIPPeers() ([]ami.Response, error) {
+	var peers []ami.Response
 	resp, err := ami.SIPPeers(as.socket, as.uuid)
 	switch {
 	case err != nil:
-		return err
+		return nil, err
 	case len(resp) == 0:
-		return errors.New("there's no sip peers configured")
+		return nil, errors.New("there's no sip peers configured")
 	default:
 		for _, v := range resp {
-			message, err := ami.SIPShowPeer(as.socket, as.uuid, v.Get("ObjectName"))
+			peer, err := ami.SIPShowPeer(as.socket, as.uuid, v.Get("ObjectName"))
 			if err != nil {
-				return err
+				return nil, err
 			}
-			fmt.Printf("message: %v\n", spew.Sdump(message))
+			peers = append(peers, peer)
 		}
 	}
-	return nil
+	return peers, nil
 }
 
 func (as *Asterisk) run() error {
@@ -83,7 +82,6 @@ func (as *Asterisk) run() error {
 	for {
 		select {
 		case <-as.stop:
-			log.Printf("adios...\n")
 			return nil
 		default:
 			events, err := ami.Events(as.socket)

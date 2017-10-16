@@ -7,7 +7,7 @@ import (
 
 var (
 	username = flag.String("username", "admin", "AMI username")
-	secret   = flag.String("secret", "admin", "AMI secret")
+	secret   = flag.String("secret", "dials", "AMI secret")
 	host     = flag.String("host", "127.0.0.1:5038", "AMI host address")
 )
 
@@ -20,8 +20,9 @@ func main() {
 	}
 	defer asterisk.Logoff()
 
-	err = asterisk.SIPPeers()
+	peers, err := asterisk.SIPPeers()
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Printf("peers: %v\n", peers)
 }
