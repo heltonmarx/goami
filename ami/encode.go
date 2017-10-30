@@ -36,9 +36,7 @@ func encode(buf *bytes.Buffer, v reflect.Value) error {
 			return encode(buf, v.Elem())
 		}
 	case reflect.Struct:
-		if err := encodeStruct(buf, v); err != nil {
-			return err
-		}
+		return encodeStruct(buf, v)
 	case reflect.Map:
 		return encodeMap(buf, v)
 	case reflect.Slice:
