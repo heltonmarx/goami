@@ -65,7 +65,10 @@ func (s *Socket) Recv() (string, error) {
 	var buffer bytes.Buffer
 	for {
 		select {
-		case msg := <-s.incoming:
+		case msg, ok := <-s.incoming:
+			if !ok {
+				continue
+			}
 			buffer.WriteString(msg)
 			if strings.HasSuffix(buffer.String(), "\r\n") {
 				return buffer.String(), nil

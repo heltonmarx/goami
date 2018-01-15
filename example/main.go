@@ -20,6 +20,8 @@ func main() {
 	}
 	defer asterisk.Logoff()
 
+	log.Printf("connected with asterisk\n")
+
 	peers, err := asterisk.SIPPeers()
 	if err != nil {
 		log.Fatal(err)

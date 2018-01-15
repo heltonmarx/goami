@@ -1,5 +1,5 @@
 GO  			?= go
-BUILDFLAGS		:= -v -tags 'netgo'
+BUILDFLAGS		:= -v -i -tags 'netgo'
 TESTFLAGS		:= -cover
 TESTPKG         := $(shell go list ./... | grep -v /vendor/)
 
