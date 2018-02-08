@@ -2,7 +2,7 @@ package ami
 
 // Agents lists agents and their status.
 func Agents(client Client, actionID string) ([]Response, error) {
-	return requestList(client, "Agents", actionID, "AgentsEntry", "AgentsComplete")
+	return requestList(client, "Agents", actionID, "Agents", "AgentsComplete")
 }
 
 // AgentLogoff sets an agent as no longer logged in.
