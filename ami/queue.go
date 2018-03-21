@@ -42,11 +42,18 @@ func QueueRule(client Client, actionID, rule string) (Response, error) {
 	})
 }
 
-// QueueStatus show queue status.
+// QueueStatus show queue status by member.
 func QueueStatus(client Client, actionID, queue, member string) (Response, error) {
 	return send(client, "QueueStatus", actionID, map[string]string{
 		"Queue":  queue,
 		"Member": member,
+	})
+}
+
+// QueueStatuses show queue status all mebers.
+func QueueStatuses(client Client, actionID, queue string) ([]Response, error) {
+	return requestList(client, "QueueStatus", actionID, "QueueMember", "QueueStatusComplete", map[string]string{
+		"Queue": queue,
 	})
 }
 
