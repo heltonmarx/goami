@@ -1,6 +1,6 @@
 package ami
 
-// Client provides methods to client socket methods.
+// Client defines an interface to client socket.
 type Client interface {
 	// Connected returns the client status.
 	Connected() bool

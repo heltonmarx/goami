@@ -87,7 +87,7 @@ func requestList(client Client, action, id, event, complete string, v ...interfa
 		return nil, err
 	}
 
-	var response []Response
+	response := make([]Response, 0)
 	for {
 		rsp, err := read(client)
 		if err != nil {
