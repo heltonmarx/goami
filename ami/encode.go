@@ -58,12 +58,10 @@ func isOmitempty(tag string) (string, bool, error) {
 	fields := strings.Split(tag, ",")
 	if len(fields) > 1 {
 		for _, flag := range fields[1:] {
-			switch strings.TrimSpace(flag) {
-			case "omitempty":
+			if strings.TrimSpace(flag) == "omitempty" {
 				return fields[0], true, nil
-			default:
-				return tag, false, fmt.Errorf("unsupported flag %q in tag %q", flag, tag)
 			}
+			return tag, false, fmt.Errorf("unsupported flag %q in tag %q", flag, tag)
 		}
 	}
 	return tag, false, nil

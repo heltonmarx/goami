@@ -37,10 +37,7 @@ func NewSocket(address string) (*Socket, error) {
 // Connected returns the socket status, true for connected,
 // false for disconnected.
 func (s *Socket) Connected() bool {
-	if s.conn == nil {
-		return false
-	}
-	return true
+	return s.conn != nil
 }
 
 // Close closes socket connection.
