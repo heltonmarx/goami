@@ -50,21 +50,13 @@ func QueueStatus(client Client, actionID, queue, member string) (Response, error
 	})
 }
 
-<<<<<<< HEAD
 // QueueStatuses show status all members in queue.
-=======
-// QueueStatuses show queue status all mebers.
->>>>>>> a0db663d9a4a4536d3707fbebd9f0aac63c2c081
 func QueueStatuses(client Client, actionID, queue string) ([]Response, error) {
 	return requestList(client, "QueueStatus", actionID, "QueueMember", "QueueStatusComplete", map[string]string{
 		"Queue": queue,
 	})
 }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> a0db663d9a4a4536d3707fbebd9f0aac63c2c081
 // QueueSummary show queue summary.
 func QueueSummary(client Client, actionID, queue string) ([]Response, error) {
 	return requestList(client, "QueueSummary", actionID, "QueueSummary", "QueueSummaryComplete", map[string]string{
