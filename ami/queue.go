@@ -50,6 +50,14 @@ func QueueStatus(client Client, actionID, queue, member string) (Response, error
 	})
 }
 
+// QueueStatuses show status all members in queue.
+func QueueStatuses(client Client, actionID, queue string) ([]Response, error) {
+	return requestList(client, "QueueStatus", actionID, "QueueMember", "QueueStatusComplete", map[string]string{
+		"Queue": queue,
+	})
+}
+
+
 // QueueSummary show queue summary.
 func QueueSummary(client Client, actionID, queue string) ([]Response, error) {
 	return requestList(client, "QueueSummary", actionID, "QueueSummary", "QueueSummaryComplete", map[string]string{
