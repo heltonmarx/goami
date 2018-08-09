@@ -59,3 +59,18 @@ func ConfbridgeSetSingleVideoSrc(client Client, actionID string, conference stri
 		"Channel":    channel,
 	})
 }
+
+// ConfbridgeStartRecord starts a recording in the context of given conference and creates a file with the name specified by recordFile
+func ConfbridgeStartRecord(client Client, actionID string, conference string, recordFile string) (Response, error) {
+	return send(client, "ConfbridgeStartRecord", actionID, map[string]string{
+		"Conference": conference,
+		"RecordFile": recordFile,
+	})
+}
+
+// ConfbridgeStopRecord stops a recording pertaining to the given conference
+func ConfbridgeStopRecord(client Client, actionID string, conference string) (Response, error) {
+	return send(client, "ConfbridgeStopRecord", actionID, map[string]string{
+		"Conference": conference,
+	})
+}
