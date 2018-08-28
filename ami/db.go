@@ -27,10 +27,18 @@ func DBPut(client Client, actionID, family, key, val string) (Response, error) {
 
 // DBGet gets DB Entry.
 func DBGet(client Client, actionID, family, key string) (Response, error) {
-	return send(client, "DBGet", actionID, dbData{
+	data := dbData{
 		Family: family,
 		Key:    key,
-	})
+	}
+
+	responses, err := requestList(client, "DBGet", actionID, "DBGetResponse", "DBGetComplete", data)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return responses[0], nil
 }
 
 type dbData struct {
