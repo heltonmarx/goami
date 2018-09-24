@@ -1,5 +1,7 @@
 package ami
 
+import "fmt"
+
 // DBDel Delete DB entry.
 func DBDel(client Client, actionID, family, key string) (Response, error) {
 	return send(client, "DBDel", actionID, dbData{
@@ -27,10 +29,21 @@ func DBPut(client Client, actionID, family, key, val string) (Response, error) {
 
 // DBGet gets DB Entry.
 func DBGet(client Client, actionID, family, key string) (Response, error) {
-	return send(client, "DBGet", actionID, dbData{
+	data := dbData{
 		Family: family,
 		Key:    key,
-	})
+	}
+
+	responses, err := requestList(client, "DBGet", actionID, "DBGetResponse", "DBGetComplete", data)
+
+	switch {
+	case err != nil:
+		return nil, err
+	case len(responses) == 0:
+		return nil, fmt.Errorf("there is no db entries: family:%s key:%s", family, key)
+	}
+
+	return responses[0], nil
 }
 
 type dbData struct {
