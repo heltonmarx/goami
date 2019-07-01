@@ -21,3 +21,8 @@ func MeetmeUnMute(client Client, actionID, meetme, usernum string) (Response, er
 		"Usernum": usernum,
 	})
 }
+
+// MeetmeListRooms list active conferences.
+func MeetmeListRooms(client Client, actionID string) ([]Response, error) {
+	return requestList(client, "MeetmeListRooms", actionID, "MeetmeEntry", "MeetmeListRoomsComplete")
+}

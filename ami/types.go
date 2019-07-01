@@ -127,3 +127,15 @@ type KhompSMSData struct {
 	Confirmation bool   `ami:"Confirmation"`
 	Message      string `ami:"Message"`
 }
+
+// CallData holds the call data to transfer.
+type CallData struct {
+	Channel       string `ami:"Channel"`
+	ExtraChannel  string `ami:"ExtraChannel,omitempty"`
+	Exten         string `ami:"Exten"`
+	ExtraExten    string `ami:"ExtraExten,omitempty"`
+	Context       string `ami:"Context"`
+	ExtraContext  string `ami:"ExtraContext,omitempty"`
+	Priority      string `ami:"Priority"`
+	ExtraPriority string `ami:"ExtraPriority,omitempty"`
+}

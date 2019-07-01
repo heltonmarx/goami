@@ -80,13 +80,8 @@ func PlayDTMF(client Client, actionID, channel, digit string) (Response, error) 
 }
 
 // Redirect redirects (transfer) a call.
-func Redirect(client Client, actionID, channel, exten, context, priority string) (Response, error) {
-	return send(client, "Redirect", actionID, map[string]string{
-		"Channel":  channel,
-		"Exten":    exten,
-		"Context":  context,
-		"Priority": priority,
-	})
+func Redirect(client Client, actionID string, call CallData) (Response, error) {
+	return send(client, "Redirect", actionID, call)
 }
 
 // SendText sends text message to channel.
@@ -119,9 +114,9 @@ func Status(client Client, actionID, channel, variables string) (Response, error
 // AGI add an AGI command to execute by Async AGI.
 func AGI(client Client, actionID, channel, agiCommand, agiCommandID string) (Response, error) {
 	return send(client, "AGI", actionID, map[string]string{
-		"Channel":     channel,
-		"Command: ":   agiCommand,
-		"CommandID: ": agiCommandID,
+		"Channel":   channel,
+		"Command":   agiCommand,
+		"CommandID": agiCommandID,
 	})
 }
 

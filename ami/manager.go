@@ -184,3 +184,18 @@ func ShowDialPlan(client Client, actionID, extension, context string) (Response,
 func Events(client Client) (Response, error) {
 	return read(client)
 }
+
+// Filter dinamically add filters for the current manager session.
+func Filter(client Client, actionID, operation, filter string) (Response, error) {
+	return send(client, "ShowDialPlan", actionID, map[string]string{
+		"Operation": operation,
+		"Filter":    filter,
+	})
+}
+
+// PRIShowSpans show status of PRI spans.
+func PRIShowSpans(client Client, actionID, span string) (Response, error) {
+	return send(client, "PRIShowSpans", actionID, map[string]string{
+		"Span": span,
+	})
+}

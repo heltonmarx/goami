@@ -19,7 +19,7 @@ To test this package with Asterisk it's necessary set the file `/etc/asterisk/ma
     enabled = yes
     port = 5038
     bindaddr = 127.0.0.1
-        
+
     [admin]
     secret = admin
     deny = 0.0.0.0/0.0.0.0
@@ -75,5 +75,11 @@ func main() {
 
 ## Documentation
 
-This projects documentation can be found on godoc at [goami](http://godoc.org/github.com/heltonmarx/goami/ami).
+This projects documentation can be found on godoc at [goami](http://godoc.org/github.com/heltonmarx/goami/ami),
+and supports [Asterisk 10 AMI Actions](https://wiki.asterisk.org/wiki/display/AST/Asterisk+10+AMI+Actions)
+
+## License
+
+MIT-LICENSE. See [LICENSE](https://github.com/heltonmarx/goami/blob/master/LICENSE)
+or the LICENSE file provied in the repository for details.
 
