@@ -29,6 +29,6 @@ func SIPShowPeer(client Client, actionID string, peer string) (Response, error) 
 }
 
 // SIPShowRegistry shows SIP registrations (text format).
-func SIPShowRegistry(client Client, actionID string) (Response, error) {
-	return send(client, "SIPshowregistry", actionID, nil)
+func SIPShowRegistry(client Client, actionID string) ([]Response, error) {
+	return requestList(client, "SIPshowregistry", actionID, "RegistrationEntry", "RegistrationsComplete")
 }

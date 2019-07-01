@@ -5,6 +5,11 @@ const (
 	iaxComplete = "PeerlistComplete"
 )
 
+// IAXnetstats show IAX channels network statistics.
+func IAXnetstats(client Client, actionID string) ([]Response, error) {
+	return requestList(client, "IAXnetstats", actionID, iaxEvent, iaxComplete)
+}
+
 // IAXpeerlist show IAX channels network statistics.
 func IAXpeerlist(client Client, actionID string) ([]Response, error) {
 	return requestList(client, "IAXpeerlist", actionID, iaxEvent, iaxComplete)
