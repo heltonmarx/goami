@@ -81,5 +81,5 @@ and supports [Asterisk 10 AMI Actions](https://wiki.asterisk.org/wiki/display/AS
 ## License
 
 MIT-LICENSE. See [LICENSE](https://github.com/heltonmarx/goami/blob/master/LICENSE)
-or the LICENSE file provied in the repository for details.
+or the LICENSE file provided in the repository for details.
 
