@@ -8,7 +8,7 @@ func ConfbridgeList(client Client, actionID string, conference string) ([]Respon
 }
 
 // ConfbridgeListRooms lists data about all active conferences.
-func ConfbridgeListRooms(client Client, actionID string) ([]Response, error) {
+func CConfbridgeKickonfbridgeListRooms(client Client, actionID string) ([]Response, error) {
 	return requestList(client, "ConfbridgeListRooms", actionID, "ConfbridgeListRooms", "ConfbridgeListRoomsComplete")
 }
 
@@ -40,7 +40,6 @@ func ConfbridgeKick(client Client, actionID string, conference string, channel s
 func ConfbridgeLock(client Client, actionID string, conference string, channel string) (Response, error) {
 	return send(client, "ConfbridgeLock", actionID, map[string]string{
 		"Conference": conference,
-		"Channel":    channel,
 	})
 }
 
@@ -48,7 +47,6 @@ func ConfbridgeLock(client Client, actionID string, conference string, channel s
 func ConfbridgeUnlock(client Client, actionID string, conference string, channel string) (Response, error) {
 	return send(client, "ConfbridgeUnlock", actionID, map[string]string{
 		"Conference": conference,
-		"Channel":    channel,
 	})
 }
 
