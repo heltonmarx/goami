@@ -1,5 +1,7 @@
 package ami
 
+import "strconv"
+
 // AbsoluteTimeout set absolute timeout.
 // Hangup a channel after a certain time. Acknowledges set time with Timeout Set message.
 func AbsoluteTimeout(client Client, actionID, channel string, timeout int) (Response, error) {
@@ -9,37 +11,9 @@ func AbsoluteTimeout(client Client, actionID, channel string, timeout int) (Resp
 	})
 }
 
-// Atxfer attended transfer.
-func Atxfer(client Client, actionID, channel, exten, context, priority string) (Response, error) {
-	return send(client, "AbsoluteTimeout", actionID, map[string]string{
-		"Channel":  channel,
-		"Exten":    exten,
-		"Context":  context,
-		"Priority": priority,
-	})
-}
-
-// Bridge bridges two channels already in the PBX.
-func Bridge(client Client, actionID, channel1, channel2 string, tone bool) (Response, error) {
-	t := map[bool]string{false: "no", true: "yes"}
-	return send(client, "Bridge", actionID, map[string]string{
-		"Channel1": channel1,
-		"Channel2": channel2,
-		"Tone":     t[tone],
-	})
-}
-
 // CoreShowChannels list currently active channels.
 func CoreShowChannels(client Client, actionID string) ([]Response, error) {
 	return requestList(client, "CoreShowChannels", actionID, "CoreShowChannel", "CoreShowChannelsComplete")
-}
-
-// ExtensionState checks extension status.
-func ExtensionState(client Client, actionID, exten, context string) (Response, error) {
-	return send(client, "ExtensionState", actionID, map[string]string{
-		"Exten":   exten,
-		"Context": context,
-	})
 }
 
 // Hangup hangups channel.
@@ -71,11 +45,17 @@ func ParkedCalls(client Client, actionID string) ([]Response, error) {
 	return requestList(client, "ParkedCalls", actionID, "ParkedCall", "ParkedCallsComplete")
 }
 
+// Parkinglots get a list of parking lots.
+func Parkinglots(client Client, actionID string) ([]Response, error) {
+	return requestList(client, "Parkinglots", actionID, "ParkedCall", "ParkinglotsComplete")
+}
+
 // PlayDTMF plays DTMF signal on a specific channel.
-func PlayDTMF(client Client, actionID, channel, digit string) (Response, error) {
+func PlayDTMF(client Client, actionID, channel, digit string, duration int) (Response, error) {
 	return send(client, "PlayDTMF", actionID, map[string]string{
-		"Channel": channel,
-		"Digit":   digit,
+		"Channel":  channel,
+		"Digit":    digit,
+		"Duration": strconv.Itoa(duration),
 	})
 }
 
@@ -139,5 +119,15 @@ func Getvar(client Client, actionID, channel, variable string) (Response, error)
 func LocalOptimizeAway(client Client, actionID, channel string) (Response, error) {
 	return send(client, "LocalOptimizeAway", actionID, map[string]string{
 		"Channel": channel,
+	})
+}
+
+// MuteAudio mute an audio stream.
+func MuteAudio(client Client, actionID, channel, direction string, state bool) (Response, error) {
+	stateMap := map[bool]string{false: "off", true: "on"}
+	return send(client, "MuteAudio", actionID, map[string]string{
+		"Channel":   channel,
+		"Direction": direction,
+		"State":     stateMap[state],
 	})
 }

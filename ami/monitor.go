@@ -20,6 +20,16 @@ func ChangeMonitor(client Client, actionID, channel, file string) (Response, err
 	})
 }
 
+// MixMonitor record a call and mix the audio during the recording.
+func MixMonitor(client Client, actionID, channel, file, options, command string) (Response, error) {
+	return send(client, "MixMonitor", actionID, map[string]string{
+		"Channel": channel,
+		"File":    file,
+		"options": options,
+		"Command": command,
+	})
+}
+
 // MixMonitorMute Mute / unMute a Mixmonitor recording.
 // This action may be used to mute a MixMonitor recording.
 func MixMonitorMute(client Client, actionID, channel, direction string, state bool) (Response, error) {

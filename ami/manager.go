@@ -108,19 +108,22 @@ func EventFlow(client Client, actionID, eventMask string) (Response, error) {
 
 // GetConfig retrieves configuration.
 // This action will dump the contents of a configuration file by category and contents or optionally by specified category only.
-func GetConfig(client Client, actionID, filename, category string) (Response, error) {
+func GetConfig(client Client, actionID, filename, category, filter string) (Response, error) {
 	return send(client, "GetConfig", actionID, map[string]string{
 		"Filename": filename,
 		"Category": category,
+		"Filter":   filter,
 	})
 }
 
 // GetConfigJSON retrieves configuration (JSON format).
 // This action will dump the contents of a configuration file by category and contents in JSON format.
 // This only makes sense to be used using rawman over the HTTP interface.
-func GetConfigJSON(client Client, actionID, filename string) (Response, error) {
+func GetConfigJSON(client Client, actionID, filename, category, filter string) (Response, error) {
 	return send(client, "GetConfigJSON", actionID, map[string]string{
 		"Filename": filename,
+		"Category": category,
+		"Filter":   filter,
 	})
 }
 
@@ -187,7 +190,7 @@ func Events(client Client) (Response, error) {
 
 // Filter dinamically add filters for the current manager session.
 func Filter(client Client, actionID, operation, filter string) (Response, error) {
-	return send(client, "ShowDialPlan", actionID, map[string]string{
+	return send(client, "Filter", actionID, map[string]string{
 		"Operation": operation,
 		"Filter":    filter,
 	})
@@ -198,4 +201,15 @@ func PRIShowSpans(client Client, actionID, span string) (Response, error) {
 	return send(client, "PRIShowSpans", actionID, map[string]string{
 		"Span": span,
 	})
+}
+
+// DeviceStateList list the current known device states.
+func DeviceStateList(client Client, actionID string) ([]Response, error) {
+	return requestList(client, "DeviceStateList", actionID,
+		"DeviceStateChange", "DeviceStateListComplete")
+}
+
+// LoggerRotate reload and rotate the Asterisk logger.
+func LoggerRotate(client Client, actionID string) (Response, error) {
+	return send(client, "LoggerRotate", actionID, nil)
 }

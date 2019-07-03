@@ -137,11 +137,13 @@ func TestGetConfigJSON(t *testing.T) {
 	var (
 		filename = "filename.txt"
 		actionID = "testid"
-		input    = "Action: GetConfigJSON\r\nActionID: testid\r\nFilename: filename.txt\r\n\r\n"
+		category = "category"
+		filter   = "filter"
+		input    = "Action: GetConfigJSON\r\nActionID: testid\r\nFilename: filename.txt\r\nCategory: category\r\nFilter: filter\r\n\r\n"
 		response = "Response: Success\r\n\r\n"
 	)
 	client := newClientMock(t, input, response)
-	rsp, err := GetConfigJSON(client, actionID, filename)
+	rsp, err := GetConfigJSON(client, actionID, filename, category, filter)
 	ensure.Nil(t, err)
 	ensure.DeepEqual(t, rsp.Get("Response"), "Success")
 }
