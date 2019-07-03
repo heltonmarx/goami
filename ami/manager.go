@@ -217,3 +217,14 @@ func DeviceStateList(client Client, actionID string) ([]Response, error) {
 func LoggerRotate(client Client, actionID string) (Response, error) {
 	return send(client, "LoggerRotate", actionID, nil)
 }
+
+// DeviceStateList list the current known device states.
+func DeviceStateList(client Client, actionID string) ([]Response, error) {
+	return requestList(client, "DeviceStateList", actionID,
+		"DeviceStateChange", "DeviceStateListComplete")
+}
+
+// LoggerRotate reload and rotate the Asterisk logger.
+func LoggerRotate(client Client, actionID string) (Response, error) {
+	return send(client, "LoggerRotate", actionID, nil)
+}
