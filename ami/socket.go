@@ -77,7 +77,7 @@ func (s *Socket) Recv() (string, error) {
 }
 
 func (s *Socket) run(conn net.Conn) {
-	defer s.wg.Done()
+	defer s.done()
 
 	reader := bufio.NewReader(conn)
 	for {
@@ -87,10 +87,15 @@ func (s *Socket) run(conn net.Conn) {
 		default:
 			msg, err := reader.ReadString('\n')
 			if err != nil {
-				s.Close()
-				log.Fatalf("incoming message error: %v\n", err)
+				log.Printf("incoming message error: %v\n", err)
+				return
 			}
 			s.incoming <- msg
 		}
 	}
+}
+
+func (s *Socket) done() {
+	s.wg.Done()
+	s.Close()
 }
