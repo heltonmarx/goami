@@ -187,7 +187,7 @@ func Events(client Client) (Response, error) {
 
 // Filter dinamically add filters for the current manager session.
 func Filter(client Client, actionID, operation, filter string) (Response, error) {
-	return send(client, "ShowDialPlan", actionID, map[string]string{
+	return send(client, "Filter", actionID, map[string]string{
 		"Operation": operation,
 		"Filter":    filter,
 	})
