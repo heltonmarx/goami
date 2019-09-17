@@ -11,7 +11,7 @@ func AbsoluteTimeout(client Client, actionID, channel string, timeout int) (Resp
 
 // Atxfer attended transfer.
 func Atxfer(client Client, actionID, channel, exten, context, priority string) (Response, error) {
-	return send(client, "AbsoluteTimeout", actionID, map[string]string{
+	return send(client, "Atxfer", actionID, map[string]string{
 		"Channel":  channel,
 		"Exten":    exten,
 		"Context":  context,
