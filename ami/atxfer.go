@@ -2,7 +2,7 @@ package ami
 
 // Atxfer attended transfer.
 func Atxfer(client Client, actionID, channel, exten, context string) (Response, error) {
-	return send(client, "AbsoluteTimeout", actionID, map[string]string{
+	return send(client, "Atxfer", actionID, map[string]string{
 		"Channel": channel,
 		"Exten":   exten,
 		"Context": context,
