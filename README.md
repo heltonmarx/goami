@@ -76,8 +76,9 @@ func main() {
 ## Documentation
 
 This projects documentation can be found on godoc at [goami](http://godoc.org/github.com/heltonmarx/goami/ami),
-and supports [Asterisk 13 AMI Actions](https://wiki.asterisk.org/wiki/display/AST/Asterisk+13+AMI+Actions) (wip)
+and supports [Asterisk 13 AMI Actions](https://wiki.asterisk.org/wiki/display/AST/Asterisk+13+AMI+Actions).
 
+For Asterisk 10 AMI Actions, you can use the [ami.v10](https://github.com/heltonmarx/goami/tree/ami.v10) branch.
 
 ## License
 
