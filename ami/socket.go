@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"bytes"
 	"io"
-	"log"
 	"net"
 	"strings"
 	"sync"
+	"time"
 )
 
 // Socket holds the socket client connection data.
@@ -29,8 +29,7 @@ func NewSocket(address string) (*Socket, error) {
 		incoming: make(chan string, 32),
 		shutdown: make(chan struct{}),
 	}
-	s.wg.Add(1)
-	go s.run(conn)
+	s.run(conn)
 	return s, nil
 }
 
@@ -43,10 +42,18 @@ func (s *Socket) Connected() bool {
 // Close closes socket connection.
 func (s *Socket) Close() error {
 	close(s.shutdown)
-	s.wg.Wait()
 
-	if s.conn != nil {
-		return s.conn.Close()
+	// wait for shutdown of run process
+	done := make(chan struct{})
+	go func() {
+		s.wg.Wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-time.NewTimer(150 * time.Millisecond).C:
+		return s.terminate()
 	}
 	return nil
 }
@@ -77,25 +84,29 @@ func (s *Socket) Recv() (string, error) {
 }
 
 func (s *Socket) run(conn net.Conn) {
-	defer s.done()
-
-	reader := bufio.NewReader(conn)
-	for {
-		select {
-		case <-s.shutdown:
-			return
-		default:
-			msg, err := reader.ReadString('\n')
-			if err != nil {
-				log.Printf("incoming message error: %v\n", err)
+	s.wg.Add(1)
+	go func() {
+		defer s.wg.Done()
+		reader := bufio.NewReader(conn)
+		for {
+			select {
+			case <-s.shutdown:
+				s.terminate()
 				return
+			default:
+				msg, err := reader.ReadString('\n')
+				if err != nil {
+					return
+				}
+				s.incoming <- msg
 			}
-			s.incoming <- msg
 		}
-	}
+	}()
 }
 
-func (s *Socket) done() {
-	s.wg.Done()
-	s.Close()
+func (s *Socket) terminate() error {
+	if s.conn != nil {
+		return s.conn.Close()
+	}
+	return nil
 }
