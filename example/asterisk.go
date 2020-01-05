@@ -77,20 +77,19 @@ func (as *Asterisk) SIPPeers() ([]ami.Response, error) {
 	return peers, nil
 }
 
-func (as *Asterisk) run() error {
+func (as *Asterisk) run() {
 	defer as.wg.Done()
 	for {
 		select {
 		case <-as.stop:
-			return nil
+			return
 		default:
 			events, err := ami.Events(as.socket)
 			if err != nil {
 				log.Printf("AMI events failed: %v\n", err)
-				return err
+				return
 			}
 			as.events <- events
 		}
 	}
-	return nil
 }

@@ -82,21 +82,27 @@ type AOCData struct {
 //		CallerID - Caller ID to be set on the outgoing channel.
 //		Variable - Channel variable to set, multiple Variable: headers are allowed.
 //		Account - Account code.
+//		EarlyMedia - Set to true to force call bridge on early media.
 //		Async - Set to true for fast origination.
 //		Codecs - Comma-separated list of codecs to use for this call.
+//		ChannelId - Channel UniqueId to be set on the channel.
+//		OtherChannelId - Channel UniqueId to be set on the second local channel.
 type OriginateData struct {
-	Channel     string `ami:"Channel"`
-	Exten       string `ami:"Exten"`
-	Context     string `ami:"Context"`
-	Priority    int    `ami:"Priority"`
-	Application string `ami:"Application"`
-	Data        string `ami:"Data"`
-	Timeout     int    `ami:"Timeout"`
-	CallerID    string `ami:"CallerID"`
-	Variable    string `ami:"Variable"`
-	Account     string `ami:"Account"`
-	Async       string `ami:"Async"`
-	Codecs      string `ami:"Codecs"`
+	Channel        string `ami:"Channel"`
+	Exten          string `ami:"Exten"`
+	Context        string `ami:"Context"`
+	Priority       int    `ami:"Priority"`
+	Application    string `ami:"Application"`
+	Data           string `ami:"Data"`
+	Timeout        int    `ami:"Timeout"`
+	CallerID       string `ami:"CallerID"`
+	Variable       string `ami:"Variable"`
+	Account        string `ami:"Account"`
+	EarlyMedia     string `ami:"EarlyMedia"`
+	Async          string `ami:"Async"`
+	Codecs         string `ami:"Codecs"`
+	ChannelID      string `ami:"ChannelId"`
+	OtherChannelID string `ami:"OtherChannelId"`
 }
 
 // QueueData holds to queue calls.
@@ -138,4 +144,23 @@ type CallData struct {
 	ExtraContext  string `ami:"ExtraContext,omitempty"`
 	Priority      string `ami:"Priority"`
 	ExtraPriority string `ami:"ExtraPriority,omitempty"`
+}
+
+// ExtensionData holds the extension data to dialplan.
+type ExtensionData struct {
+	Context         string `ami:"Context"`
+	Extension       string `ami:"Extension"`
+	Priority        string `ami:"Priority,omitempty"`
+	Application     string `ami:"Application,omitempty"`
+	ApplicationData string `ami:"ApplicationData,omitempty"`
+	Replace         string `ami:"Replace,omitempty"`
+}
+
+// MessageData holds the message data to message send command.
+type MessageData struct {
+	To         string `ami:"To"`
+	From       string `ami:"From"`
+	Body       string `ami:"Body"`
+	Base64Body string `ami:"Base64Body,omitempty"`
+	Variable   string `ami:"Variable"`
 }

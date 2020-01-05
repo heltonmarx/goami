@@ -4,6 +4,7 @@ import (
 	"context"
 	"io/ioutil"
 	"net"
+	"sync"
 	"testing"
 	"time"
 
@@ -16,13 +17,14 @@ func TestSocketSend(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
-	done := make(chan struct{})
+	var wg sync.WaitGroup
+	wg.Add(1)
 	srv, err := newServer(ctx, func(conn net.Conn) {
 		defer conn.Close()
 		buf, err := ioutil.ReadAll(conn)
 		ensure.Nil(t, err)
 		ensure.DeepEqual(t, message, string(buf))
-		close(done)
+		wg.Done()
 	})
 	ensure.Nil(t, err)
 	defer srv.Close()
@@ -36,7 +38,7 @@ func TestSocketSend(t *testing.T) {
 	err = socket.Close()
 	ensure.Nil(t, err)
 
-	<-done
+	wg.Wait()
 }
 
 func TestSocketRecv(t *testing.T) {

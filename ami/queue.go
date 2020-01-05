@@ -63,3 +63,12 @@ func QueueSummary(client Client, actionID, queue string) ([]Response, error) {
 		"Queue": queue,
 	})
 }
+
+// QueueMemberRingInUse set the ringinuse value for a queue member.
+func QueueMemberRingInUse(client Client, actionID, iface, ringInUse, queue string) (Response, error) {
+	return send(client, "QueueMemberRingInUse", actionID, map[string]string{
+		"Interface": iface,
+		"RingInUse": ringInUse,
+		"Queue":     queue,
+	})
+}

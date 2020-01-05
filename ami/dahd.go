@@ -36,8 +36,8 @@ func DAHDIRestart(client Client, actionID string) (Response, error) {
 }
 
 // DAHDIShowChannels show status of DAHDI channels.
-func DAHDIShowChannels(client Client, actionID, channel string) (Response, error) {
-	return send(client, "DAHDIShowChannels", actionID, map[string]string{
+func DAHDIShowChannels(client Client, actionID, channel string) ([]Response, error) {
+	return requestList(client, "DAHDIShowChannels", actionID, "DAHDIShowChannels", "DAHDIShowChannelsComplete", map[string]string{
 		"DAHDIChannel": channel,
 	})
 }
