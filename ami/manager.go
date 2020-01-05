@@ -196,13 +196,6 @@ func Filter(client Client, actionID, operation, filter string) (Response, error)
 	})
 }
 
-// PRIShowSpans show status of PRI spans.
-func PRIShowSpans(client Client, actionID, span string) (Response, error) {
-	return send(client, "PRIShowSpans", actionID, map[string]string{
-		"Span": span,
-	})
-}
-
 // DeviceStateList list the current known device states.
 func DeviceStateList(client Client, actionID string) ([]Response, error) {
 	return requestList(client, "DeviceStateList", actionID,
