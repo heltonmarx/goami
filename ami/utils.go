@@ -2,6 +2,7 @@ package ami
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -36,7 +37,7 @@ func command(action string, id string, v ...interface{}) ([]byte, error) {
 	}{Action: action, ID: id, V: v})
 }
 
-func send(client Client, action, id string, v interface{}) (Response, error) {
+func send(ctx context.Context, client Client, action, id string, v interface{}) (Response, error) {
 	b, err := command(action, id, v)
 	if err != nil {
 		return nil, err
@@ -44,13 +45,13 @@ func send(client Client, action, id string, v interface{}) (Response, error) {
 	if err := client.Send(string(b)); err != nil {
 		return nil, err
 	}
-	return read(client)
+	return read(ctx, client)
 }
 
-func read(client Client) (Response, error) {
+func read(ctx context.Context, client Client) (Response, error) {
 	var buffer bytes.Buffer
 	for {
-		input, err := client.Recv()
+		input, err := client.Recv(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -78,7 +79,7 @@ func parseResponse(input string) (Response, error) {
 	return resp, nil
 }
 
-func requestList(client Client, action, id, event, complete string, v ...interface{}) ([]Response, error) {
+func requestList(ctx context.Context, client Client, action, id, event, complete string, v ...interface{}) ([]Response, error) {
 	b, err := command(action, id, v)
 	if err != nil {
 		return nil, err
@@ -89,7 +90,7 @@ func requestList(client Client, action, id, event, complete string, v ...interfa
 
 	response := make([]Response, 0)
 	for {
-		rsp, err := read(client)
+		rsp, err := read(ctx, client)
 		if err != nil {
 			return nil, err
 		}

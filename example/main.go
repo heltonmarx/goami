@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 )
@@ -14,15 +15,18 @@ var (
 func main() {
 	flag.Parse()
 
-	asterisk, err := NewAsterisk(*host, *username, *secret)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	asterisk, err := NewAsterisk(ctx, *host, *username, *secret)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer asterisk.Logoff()
+	defer asterisk.Logoff(ctx)
 
 	log.Printf("connected with asterisk\n")
 
-	peers, err := asterisk.SIPPeers()
+	peers, err := asterisk.SIPPeers(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,14 +1,16 @@
 package ami
 
+import "context"
+
 // ExtensionState checks extension status.
-func ExtensionState(client Client, actionID, exten, context string) (Response, error) {
-	return send(client, "ExtensionState", actionID, map[string]string{
+func ExtensionState(ctx context.Context, client Client, actionID, exten, context string) (Response, error) {
+	return send(ctx, client, "ExtensionState", actionID, map[string]string{
 		"Exten":   exten,
 		"Context": context,
 	})
 }
 
 // ExtensionStateList list the current known extension states.
-func ExtensionStateList(client Client, actionID string) ([]Response, error) {
-	return requestList(client, "ExtensionStateList", actionID, "ExtensionStatus", "ExtensionStateListComplete")
+func ExtensionStateList(ctx context.Context, client Client, actionID string) ([]Response, error) {
+	return requestList(ctx, client, "ExtensionStateList", actionID, "ExtensionStatus", "ExtensionStateListComplete")
 }

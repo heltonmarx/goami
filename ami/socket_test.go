@@ -2,6 +2,7 @@ package ami
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"sync"
@@ -12,102 +13,74 @@ import (
 )
 
 func TestSocketSend(t *testing.T) {
-	message := "Action: Login\r\nUsername: testuser\r\nSecret: testsecret\r\n\r\n"
+	const message = "Action: Login\r\nUsername: testuser\r\nSecret: testsecret\r\n\r\n"
 
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
+
+	ln, err := net.Listen("tcp", ":")
+	ensure.Nil(t, err)
+	defer ln.Close()
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	srv, err := newServer(ctx, func(conn net.Conn) {
+	go func(ctx context.Context, ln net.Listener) {
+		defer wg.Done()
+		conn, err := ln.Accept()
+		ensure.Nil(t, err)
 		defer conn.Close()
+
 		buf, err := ioutil.ReadAll(conn)
 		ensure.Nil(t, err)
-		ensure.DeepEqual(t, message, string(buf))
-		wg.Done()
-	})
-	ensure.Nil(t, err)
-	defer srv.Close()
 
-	socket, err := NewSocket(srv.Addr())
+		msg := string(buf[:])
+		ensure.DeepEqual(t, msg, message)
+	}(ctx, ln)
+
+	socket, err := NewSocket(ctx, ln.Addr().String())
 	ensure.Nil(t, err)
 
 	err = socket.Send(message)
 	ensure.Nil(t, err)
 
-	err = socket.Close()
+	err = socket.Close(ctx)
 	ensure.Nil(t, err)
 
 	wg.Wait()
 }
 
 func TestSocketRecv(t *testing.T) {
-	response := "Asterisk Call Manager/1.0\r\n"
+	const response = "Asterisk Call Manager/1.0\r\n"
 
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	wait := make(chan struct{})
-	srv, err := newServer(ctx, func(conn net.Conn) {
-		defer conn.Close()
-		n, err := conn.Write([]byte(response))
-		ensure.Nil(t, err)
-		ensure.True(t, n == len(response))
-		<-wait
-	})
-	ensure.Nil(t, err)
-	defer srv.Close()
-
-	socket, err := NewSocket(srv.Addr())
-	ensure.Nil(t, err)
-
-	rsp, err := socket.Recv()
-	ensure.Nil(t, err)
-	ensure.DeepEqual(t, rsp, response)
-	close(wait)
-}
-
-// testServer used to server unit test connections.
-type testServer struct {
-	ln   net.Listener
-	stop chan struct{}
-}
-
-func newServer(ctx context.Context, handler func(net.Conn)) (*testServer, error) {
 	ln, err := net.Listen("tcp", ":")
 	if err != nil {
-		return nil, err
+		t.Fatal(err)
 	}
+	defer ln.Close()
 
-	ts := &testServer{
-		ln:   ln,
-		stop: make(chan struct{}),
-	}
-	go func() {
-		for {
-			select {
-			case <-ts.stop:
-				return
-			case <-ctx.Done():
-				return
-			default:
-				conn, err := ts.ln.Accept()
-				if err != nil {
-					time.Sleep(10 * time.Millisecond)
-					continue
-				}
-				go handler(conn)
-			}
-		}
-	}()
-	return ts, nil
-}
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func(ctx context.Context, ln net.Listener) {
+		defer wg.Done()
 
-func (ts *testServer) Close() error {
-	close(ts.stop)
-	return ts.ln.Close()
-}
+		conn, err := ln.Accept()
+		ensure.Nil(t, err)
+		defer conn.Close()
 
-func (ts *testServer) Addr() string {
-	return ts.ln.Addr().String()
+		n, err := fmt.Fprintf(conn, response)
+		ensure.Nil(t, err)
+		ensure.True(t, n == len(response))
+	}(ctx, ln)
+
+	socket, err := NewSocket(ctx, ln.Addr().String())
+	ensure.Nil(t, err)
+
+	rsp, err := socket.Recv(ctx)
+	ensure.Nil(t, err)
+	ensure.DeepEqual(t, rsp, response)
+
+	wg.Wait()
 }
