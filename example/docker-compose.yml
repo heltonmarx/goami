@@ -1,0 +1,10 @@
+version: '3.1'
+
+services:
+  # asterisk ============================
+  asterisk:
+    image: "lenz/asterisk-load-test-13"
+    container_name: asterisk
+    ports:
+      - "5060:5060"
+      - "5038:5038"

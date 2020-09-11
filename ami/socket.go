@@ -3,6 +3,8 @@ package ami
 import (
 	"bufio"
 	"bytes"
+	"context"
+	"fmt"
 	"io"
 	"net"
 	"strings"
@@ -19,8 +21,9 @@ type Socket struct {
 }
 
 // NewSocket provides a new socket client, connecting to a tcp server.
-func NewSocket(address string) (*Socket, error) {
-	conn, err := net.Dial("tcp", address)
+func NewSocket(ctx context.Context, address string) (*Socket, error) {
+	var dialer net.Dialer
+	conn, err := dialer.DialContext(ctx, "tcp", address)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +32,7 @@ func NewSocket(address string) (*Socket, error) {
 		incoming: make(chan string, 32),
 		shutdown: make(chan struct{}),
 	}
-	s.run(conn)
+	s.run(ctx, conn)
 	return s, nil
 }
 
@@ -40,7 +43,7 @@ func (s *Socket) Connected() bool {
 }
 
 // Close closes socket connection.
-func (s *Socket) Close() error {
+func (s *Socket) Close(ctx context.Context) error {
 	close(s.shutdown)
 
 	// wait for shutdown of run process
@@ -53,6 +56,7 @@ func (s *Socket) Close() error {
 	select {
 	case <-done:
 	case <-time.NewTimer(150 * time.Millisecond).C:
+	case <-ctx.Done():
 		return s.terminate()
 	}
 	return nil
@@ -60,12 +64,12 @@ func (s *Socket) Close() error {
 
 // Send sends data to socket using fprintf format.
 func (s *Socket) Send(message string) error {
-	_, err := s.conn.Write([]byte(message))
+	_, err := fmt.Fprintf(s.conn, message)
 	return err
 }
 
 // Recv receives a string from socket server.
-func (s *Socket) Recv() (string, error) {
+func (s *Socket) Recv(ctx context.Context) (string, error) {
 	var buffer bytes.Buffer
 	for {
 		select {
@@ -78,12 +82,13 @@ func (s *Socket) Recv() (string, error) {
 				return buffer.String(), nil
 			}
 		case <-s.shutdown:
+		case <-ctx.Done():
 			return buffer.String(), io.EOF
 		}
 	}
 }
 
-func (s *Socket) run(conn net.Conn) {
+func (s *Socket) run(ctx context.Context, conn net.Conn) {
 	s.wg.Add(1)
 	go func() {
 		defer s.wg.Done()
@@ -91,6 +96,7 @@ func (s *Socket) run(conn net.Conn) {
 		for {
 			select {
 			case <-s.shutdown:
+			case <-ctx.Done():
 				s.terminate()
 				return
 			default:

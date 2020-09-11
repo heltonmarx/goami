@@ -1,6 +1,7 @@
 package ami
 
 import (
+	"context"
 	"strings"
 	"testing"
 
@@ -18,7 +19,7 @@ func (m mockClient) Connected() bool {
 	return m.connectedFn()
 }
 
-func (m mockClient) Close() error {
+func (m mockClient) Close(ctx context.Context) error {
 	return m.closeFn()
 }
 
@@ -26,7 +27,7 @@ func (m mockClient) Send(message string) error {
 	return m.sendFn(message)
 }
 
-func (m mockClient) Recv() (string, error) {
+func (m mockClient) Recv(ctx context.Context) (string, error) {
 	return m.recvFn()
 }
 
