@@ -8,7 +8,7 @@ func ConfbridgeList(client Client, actionID string, conference string) ([]Respon
 }
 
 // ConfbridgeListRooms lists data about all active conferences.
-func CConfbridgeKickonfbridgeListRooms(client Client, actionID string) ([]Response, error) {
+func ConfbridgeListRooms(client Client, actionID string) ([]Response, error) {
 	return requestList(client, "ConfbridgeListRooms", actionID, "ConfbridgeListRooms", "ConfbridgeListRoomsComplete")
 }
 
