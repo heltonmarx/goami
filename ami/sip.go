@@ -39,11 +39,6 @@ func SIPShowPeer(ctx context.Context, client Client, actionID string, peer strin
 	})
 }
 
-// SIPPeerStatus shows all SIP peer statuses.
-func SIPPeerStatus(client Client, actionID string) ([]Response, error) {
-	return requestList(client, "SIPpeerstatus", actionID, "PeerStatus", "SIPpeerstatusComplete")
-}
-
 // SIPShowRegistry shows SIP registrations (text format).
 func SIPShowRegistry(ctx context.Context, client Client, actionID string) ([]Response, error) {
 	return requestList(ctx, client, "SIPshowregistry", actionID, "RegistrationEntry", "RegistrationsComplete")
