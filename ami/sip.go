@@ -19,11 +19,10 @@ func SIPPeers(ctx context.Context, client Client, actionID string) ([]Response, 
 // SIPPeerStatus show the status of one or all of the sip peers.
 func SIPPeerStatus(ctx context.Context, client Client, actionID string, peer string) ([]Response, error) {
 	if peer == "" {
-		return requestList(ctx, client, "SIPpeerstatus", actionID, "PeerEntry", "PeerlistComplete")
+		return requestList(ctx, client, "SIPpeerstatus", actionID, "PeerStatus", "SIPpeerstatusComplete")
 	}
-	return requestList(ctx, client, "SIPpeerstatus", actionID, "PeerEntry", "PeerlistComplete", map[string]string{
-		"Peer": peer,
-	})
+	return requestList(ctx, client, "SIPpeerstatus", actionID, "PeerStatus", "SIPpeerstatusComplete",
+		map[string]string{"Peer": peer})
 }
 
 // SIPQualifyPeer qualify SIP peers.
