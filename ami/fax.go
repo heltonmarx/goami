@@ -1,18 +1,20 @@
 package ami
 
+import "context"
+
 // FAXSession responds with a detailed description of a single FAX session.
-func FAXSession(client Client, actionID, sessionNumber string) (Response, error) {
-	return send(client, "FAXSession", actionID, map[string]string{
+func FAXSession(ctx context.Context, client Client, actionID, sessionNumber string) (Response, error) {
+	return send(ctx, client, "FAXSession", actionID, map[string]string{
 		"SessionNumber": sessionNumber,
 	})
 }
 
 // FAXSessions list active FAX sessions.
-func FAXSessions(client Client, actionID string) ([]Response, error) {
-	return requestList(client, "FAXSessions", actionID, "FAXSessionsEntry", "FAXSessionsComplete")
+func FAXSessions(ctx context.Context, client Client, actionID string) ([]Response, error) {
+	return requestList(ctx, client, "FAXSessions", actionID, "FAXSessionsEntry", "FAXSessionsComplete")
 }
 
 // FAXStats responds with fax statistics.
-func FAXStats(client Client, actionID string) (Response, error) {
-	return send(client, "FAXStats", actionID, nil)
+func FAXStats(ctx context.Context, client Client, actionID string) (Response, error) {
+	return send(ctx, client, "FAXStats", actionID, nil)
 }

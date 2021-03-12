@@ -50,23 +50,26 @@ var (
 func main() {
 	flag.Parse()
 
-	socket, err := ami.NewSocket(*host)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	socket, err := ami.NewSocket(ctx, *host)
 	if err != nil {
 		log.Fatalf("socket error: %v\n", err)
 	}
-	if _, err := ami.Connect(socket); err != nil {
+	if _, err := ami.Connect(ctx, socket); err != nil {
 		log.Fatalf("connect error: %v\n", err)
 	}
 	//Login
 	uuid, _ := ami.GetUUID()
-	if err := ami.Login(socket, *username, *secret, "Off", uuid); err != nil {
+	if err := ami.Login(ctx, socket, *username, *secret, "Off", uuid); err != nil {
 		log.Fatalf("login error: %v\n", err)
 	}
 	fmt.Printf("login ok!\n")
 
 	//Logoff
 	fmt.Printf("logoff\n")
-	if err := ami.Logoff(socket, uuid); err != nil {
+	if err := ami.Logoff(ctx, socket, uuid); err != nil {
 		log.Fatalf("logoff error: (%v)\n", err)
 	}
 	fmt.Printf("goodbye !\n")
@@ -75,13 +78,14 @@ func main() {
 
 ## Documentation
 
-This projects documentation can be found on godoc at [goami](http://godoc.org/github.com/heltonmarx/goami/ami),
-and supports [Asterisk 13 AMI Actions](https://wiki.asterisk.org/wiki/display/AST/Asterisk+13+AMI+Actions).
-
-For Asterisk 10 AMI Actions, you can use the [ami.v10](https://github.com/heltonmarx/goami/tree/ami.v10) branch.
+This projects documentation can be found on godoc at [goami](http://godoc.org/github.com/heltonmarx/goami/ami)
+and supports:
+ - *master*: [Asterisk 13 AMI Actions](https://wiki.asterisk.org/wiki/display/AST/Asterisk+13+AMI+Actions)
+ - ami.v10: [Asterisk 10 AMI Actions](https://wiki.asterisk.org/wiki/display/AST/Asterisk+10+AMI+Actions)
+ - ami.v13: [Asterisk 13 AMI Actions](https://wiki.asterisk.org/wiki/display/AST/Asterisk+13+AMI+Actions)
+ - ami.v14: [Asterisk 14 AMI Actions](https://wiki.asterisk.org/wiki/display/AST/Asterisk+14+AMI+Actions)
 
 ## License
 
 MIT-LICENSE. See [LICENSE](https://github.com/heltonmarx/goami/blob/master/LICENSE)
 or the LICENSE file provided in the repository for details.
-

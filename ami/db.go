@@ -1,26 +1,29 @@
 package ami
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 // DBDel Delete DB entry.
-func DBDel(client Client, actionID, family, key string) (Response, error) {
-	return send(client, "DBDel", actionID, dbData{
+func DBDel(ctx context.Context, client Client, actionID, family, key string) (Response, error) {
+	return send(ctx, client, "DBDel", actionID, dbData{
 		Family: family,
 		Key:    key,
 	})
 }
 
 // DBDelTree delete DB tree.
-func DBDelTree(client Client, actionID, family, key string) (Response, error) {
-	return send(client, "DBDelTree", actionID, dbData{
+func DBDelTree(ctx context.Context, client Client, actionID, family, key string) (Response, error) {
+	return send(ctx, client, "DBDelTree", actionID, dbData{
 		Family: family,
 		Key:    key,
 	})
 }
 
 // DBPut puts DB entry.
-func DBPut(client Client, actionID, family, key, val string) (Response, error) {
-	return send(client, "DBPut", actionID, dbData{
+func DBPut(ctx context.Context, client Client, actionID, family, key, val string) (Response, error) {
+	return send(ctx, client, "DBPut", actionID, dbData{
 		Family: family,
 		Key:    key,
 		Value:  val,
@@ -28,13 +31,13 @@ func DBPut(client Client, actionID, family, key, val string) (Response, error) {
 }
 
 // DBGet gets DB Entry.
-func DBGet(client Client, actionID, family, key string) (Response, error) {
+func DBGet(ctx context.Context, client Client, actionID, family, key string) (Response, error) {
 	data := dbData{
 		Family: family,
 		Key:    key,
 	}
 
-	responses, err := requestList(client, "DBGet", actionID, "DBGetResponse", "DBGetComplete", data)
+	responses, err := requestList(ctx, client, "DBGet", actionID, "DBGetResponse", "DBGetComplete", data)
 
 	switch {
 	case err != nil:

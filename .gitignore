@@ -19,4 +19,4 @@ example/example
 /go.sum
 
 *.exe
-
+.idea/
