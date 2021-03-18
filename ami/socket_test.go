@@ -1,10 +1,12 @@
 package ami
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -22,31 +24,46 @@ func TestSocketSend(t *testing.T) {
 	ensure.Nil(t, err)
 	defer ln.Close()
 
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func(ctx context.Context, ln net.Listener) {
-		defer wg.Done()
+	incoming := make(chan string)
+	done := make(chan struct{})
+
+	go func() {
 		conn, err := ln.Accept()
 		ensure.Nil(t, err)
 		defer conn.Close()
 
-		buf, err := ioutil.ReadAll(conn)
-		ensure.Nil(t, err)
+		reader := bufio.NewReader(conn)
+		for {
+			msg, err := reader.ReadString('\n')
+			ensure.Nil(t, err)
+			incoming <- msg
+		}
+	}()
 
-		msg := string(buf[:])
-		ensure.DeepEqual(t, msg, message)
-	}(ctx, ln)
-
+	go func() {
+		var buffer bytes.Buffer
+		for {
+			select {
+			case msg, ok := <-incoming:
+				ensure.True(t, ok)
+				buffer.WriteString(msg)
+				if strings.HasSuffix(buffer.String(), "\r\n\r\n") {
+					ensure.DeepEqual(t, buffer.String(), message)
+					close(done)
+				}
+			}
+		}
+	}()
 	socket, err := NewSocket(ctx, ln.Addr().String())
 	ensure.Nil(t, err)
 
 	err = socket.Send(message)
 	ensure.Nil(t, err)
 
+	<-done
+
 	err = socket.Close(ctx)
 	ensure.Nil(t, err)
-
-	wg.Wait()
 }
 
 func TestSocketRecv(t *testing.T) {
