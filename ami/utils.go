@@ -76,7 +76,6 @@ func send(ctx context.Context, client Client, action, id string, v interface{}) 
 
 func read(ctx context.Context, client Client) (Response, error) {
 	var buffer bytes.Buffer
-	// log.Debug().Str("method", "read").Msg("iniciando read")
 	for {
 		input, err := client.Recv(ctx)
 		if err != nil {
@@ -87,7 +86,6 @@ func read(ctx context.Context, client Client) (Response, error) {
 			break
 		}
 	}
-	// log.Debug().Str("method", "read").Str("buffer", buffer.String()).Msg("")
 	return parseResponse(buffer.String())
 }
 
@@ -108,6 +106,20 @@ func parseResponse(input string) (Response, error) {
 }
 
 func requestList(ctx context.Context, client Client, action, id, event, complete string, v ...interface{}) ([]Response, error) {
+
+	var messageChan chan Response
+	useEventBroker := client.Events().IsRunning()
+	if useEventBroker {
+		messageChan = client.Events().Subscribe()
+		defer func() {
+			client.Events().Unsubscribe <- messageChan
+		}()
+	}
+
+	if id == "" {
+		id, _ = GetUUID()
+	}
+
 	b, err := command(action, id, v)
 	if err != nil {
 		return nil, err
@@ -118,9 +130,19 @@ func requestList(ctx context.Context, client Client, action, id, event, complete
 
 	response := make([]Response, 0)
 	for {
-		rsp, err := read(ctx, client)
-		if err != nil {
-			return nil, err
+		var rsp Response
+		var err error
+		if useEventBroker {
+			rsp = <-messageChan
+		} else {
+			rsp, err = read(ctx, client)
+			if err != nil {
+				return nil, err
+			}
+		}
+		actionID := rsp.Get("ActionID")
+		if actionID != id {
+			continue
 		}
 		e := rsp.Get("Event")
 		r := rsp.Get("Response")
