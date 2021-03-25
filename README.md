@@ -76,6 +76,44 @@ func main() {
 }
 ```
 
+
+## Event Broker
+by default, this module executes commands in synchronous mode (ie: send Command and wait Response). 
+AMI connections are asynchronous.
+You can enable asynchronous mode adding next code just before the Login Command
+
+```Go
+	// Start Event Broker
+	socket.Events().Start(ctx, socket)
+```
+Now, you can subscribe for events:
+
+```Go
+	events := h.socket.Events().Subscribe()
+	defer func() {
+		h.socket.Events().Unsubscribe <- events
+	}()
+
+	for {
+		select {
+		//canceled
+		case <-ctx.Done():
+			return
+		// received event from asterisk
+		case response := <-events:
+			js, _ := json.Marshal(response)
+			fmt.Printf(w, "data: %s\n\n", js)
+		}
+	}
+
+```
+### Advantages of using Event Broker
+* Multiple subscribers (ie: http request por events)
+* The Action ID from response is compared width the action ID from command, so you have accurate response
+
+## Empty actionID
+If the actionID parameter is set to an empty string, a random uuid will be generated
+
 ## Documentation
 
 This projects documentation can be found on godoc at [goami](http://godoc.org/github.com/heltonmarx/goami/ami)

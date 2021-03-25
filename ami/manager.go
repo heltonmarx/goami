@@ -29,6 +29,7 @@ func Login(ctx context.Context, client Client, user, secret, events, actionID st
 	if ok := resp.Get("Response"); ok != "Success" {
 		return fmt.Errorf("login failed: %v", resp.Get("Message"))
 	}
+
 	return nil
 }
 
