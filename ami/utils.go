@@ -60,18 +60,27 @@ func send(ctx context.Context, client Client, action, id string, v interface{}) 
 		return nil, err
 	}
 
-	if useEventBroker {
-		for {
+	for {
+		var response Response
+		var err error
+		if useEventBroker {
 			select {
-			case response := <-messageChan:
-				actionID := response.Get("ActionID")
-				if actionID == id {
-					return response, nil
-				}
+			case response = <-messageChan:
+			case <-ctx.Done():
+				return nil, nil
+			}
+		} else {
+			response, err = read(ctx, client)
+			if err != nil {
+				return nil, err
 			}
 		}
+		actionID := response.Get("ActionID")
+		if actionID == id {
+			return response, nil
+		}
 	}
-	return read(ctx, client)
+	return nil, nil
 }
 
 func read(ctx context.Context, client Client) (Response, error) {
@@ -133,7 +142,11 @@ func requestList(ctx context.Context, client Client, action, id, event, complete
 		var rsp Response
 		var err error
 		if useEventBroker {
-			rsp = <-messageChan
+			select {
+			case rsp = <-messageChan:
+			case <-ctx.Done():
+				return nil, nil
+			}
 		} else {
 			rsp, err = read(ctx, client)
 			if err != nil {
