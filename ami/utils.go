@@ -38,6 +38,20 @@ func command(action string, id string, v ...interface{}) ([]byte, error) {
 }
 
 func send(ctx context.Context, client Client, action, id string, v interface{}) (Response, error) {
+	var messageChan chan Response
+
+	useEventBroker := client.Events().IsRunning()
+	if useEventBroker {
+		messageChan = client.Events().Subscribe()
+		defer func() {
+			client.Events().Unsubscribe <- messageChan
+		}()
+	}
+
+	if id == "" {
+		id, _ = GetUUID()
+	}
+
 	b, err := command(action, id, v)
 	if err != nil {
 		return nil, err
@@ -45,11 +59,24 @@ func send(ctx context.Context, client Client, action, id string, v interface{}) 
 	if err := client.Send(string(b)); err != nil {
 		return nil, err
 	}
+
+	if useEventBroker {
+		for {
+			select {
+			case response := <-messageChan:
+				actionID := response.Get("ActionID")
+				if actionID == id {
+					return response, nil
+				}
+			}
+		}
+	}
 	return read(ctx, client)
 }
 
 func read(ctx context.Context, client Client) (Response, error) {
 	var buffer bytes.Buffer
+	// log.Debug().Str("method", "read").Msg("iniciando read")
 	for {
 		input, err := client.Recv(ctx)
 		if err != nil {
@@ -60,6 +87,7 @@ func read(ctx context.Context, client Client) (Response, error) {
 			break
 		}
 	}
+	// log.Debug().Str("method", "read").Str("buffer", buffer.String()).Msg("")
 	return parseResponse(buffer.String())
 }
 

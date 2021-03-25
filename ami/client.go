@@ -15,4 +15,7 @@ type Client interface {
 
 	// Recv receives a string from server.
 	Recv(ctx context.Context) (string, error)
+
+	//NewEventChannel returns a new chan for receiving events
+	Events() *EventsBroker
 }

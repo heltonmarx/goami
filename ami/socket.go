@@ -18,6 +18,7 @@ type Socket struct {
 	incoming chan string
 	shutdown chan struct{}
 	wg       sync.WaitGroup
+	events   *EventsBroker
 }
 
 // NewSocket provides a new socket client, connecting to a tcp server.
@@ -31,8 +32,12 @@ func NewSocket(ctx context.Context, address string) (*Socket, error) {
 		conn:     conn,
 		incoming: make(chan string, 32),
 		shutdown: make(chan struct{}),
+		events:   NewBroker(),
 	}
+
+	// s.events.Start(ctx, s)
 	s.run(ctx, conn)
+	//start the event broker
 	return s, nil
 }
 
@@ -115,4 +120,9 @@ func (s *Socket) terminate() error {
 		return s.conn.Close()
 	}
 	return nil
+}
+
+//Events returns the eventBroker
+func (s *Socket) Events() *EventsBroker {
+	return s.events
 }
