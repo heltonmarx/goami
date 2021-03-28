@@ -7,7 +7,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 )
+
+var mutex sync.Mutex
 
 // GetUUID returns a new UUID based on /dev/urandom (unix).
 func GetUUID() (string, error) {
@@ -38,6 +41,8 @@ func command(action string, id string, v ...interface{}) ([]byte, error) {
 }
 
 func send(ctx context.Context, client Client, action, id string, v interface{}) (Response, error) {
+	mutex.Lock()
+	defer mutex.Unlock()
 	if id == "" {
 		id, _ = GetUUID()
 	}
@@ -94,6 +99,8 @@ func parseResponse(input string) (Response, error) {
 }
 
 func requestList(ctx context.Context, client Client, action, id, event, complete string, v ...interface{}) ([]Response, error) {
+	mutex.Lock()
+	defer mutex.Unlock()
 	if id == "" {
 		id, _ = GetUUID()
 	}
