@@ -7,10 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"sync"
 )
-
-var mutex sync.Mutex
 
 // GetUUID returns a new UUID based on /dev/urandom (unix).
 func GetUUID() (string, error) {
@@ -41,11 +38,6 @@ func command(action string, id string, v ...interface{}) ([]byte, error) {
 }
 
 func send(ctx context.Context, client Client, action, id string, v interface{}) (Response, error) {
-	mutex.Lock()
-	defer mutex.Unlock()
-	if id == "" {
-		id, _ = GetUUID()
-	}
 	b, err := command(action, id, v)
 	if err != nil {
 		return nil, err
@@ -53,18 +45,7 @@ func send(ctx context.Context, client Client, action, id string, v interface{}) 
 	if err := client.Send(string(b)); err != nil {
 		return nil, err
 	}
-	for {
-		var response Response
-		var err error
-		response, err = read(ctx, client)
-		if err != nil {
-			return nil, err
-		}
-		actionID := response.Get("ActionID")
-		if actionID == id {
-			return response, nil
-		}
-	}
+	return read(ctx, client)
 }
 
 func read(ctx context.Context, client Client) (Response, error) {
@@ -99,11 +80,6 @@ func parseResponse(input string) (Response, error) {
 }
 
 func requestList(ctx context.Context, client Client, action, id, event, complete string, v ...interface{}) ([]Response, error) {
-	mutex.Lock()
-	defer mutex.Unlock()
-	if id == "" {
-		id, _ = GetUUID()
-	}
 	b, err := command(action, id, v)
 	if err != nil {
 		return nil, err
@@ -113,17 +89,10 @@ func requestList(ctx context.Context, client Client, action, id, event, complete
 	}
 
 	response := make([]Response, 0)
-	// find the response associated to the command
 	for {
-		var rsp Response
-		var err error
-		rsp, err = read(ctx, client)
+		rsp, err := read(ctx, client)
 		if err != nil {
 			return nil, err
-		}
-		actionID := rsp.Get("ActionID")
-		if actionID != id {
-			continue
 		}
 		e := rsp.Get("Event")
 		r := rsp.Get("Response")
