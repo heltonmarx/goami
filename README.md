@@ -86,9 +86,9 @@ For concurrent (i.e. REST API) connections you may need keep a pool of AMI conne
 		log.Fatal().Err(err).Msg("Error creating pool")
 		return
 	}
-	defer pool.Close()
-	pool.LowWater = 2 	//minimun ami sessions to  keep alive
-	pool.HighWater = 20 //max allowed concurrent sessions to AMI
+	defer pool.CloseAll()
+	pool.MinConections = 2 	//minimun ami sessions to  keep alive
+	pool.MaxConections = 20 //max allowed concurrent sessions to AMI
 
 
 	//this will start two sockets to asterisk because `pool.LowWater = 2`
@@ -100,13 +100,13 @@ For concurrent (i.e. REST API) connections you may need keep a pool of AMI conne
 	s1, err := pool.GetSocket() //get a socket
 	s2, err := pool.GetSocket() //get another socket
 	s3, err := pool.GetSocket() //starts new socket to asterisk ...
-	defer pool.FreeSocket(s1, false) //don't forget to give back the connection to the pool!!! 
-	defer pool.FreeSocket(s2, false) //don't forget to give back the connection to the pool!!! 
-	defer pool.FreeSocket(s3, false) //don't forget to give back the connection to the pool!!! 
+	defer pool.Close(s1, false) //don't forget to give back the connection to the pool!!! 
+	defer pool.Close(s2, false) //don't forget to give back the connection to the pool!!! 
+	defer pool.Close(s3, false) //don't forget to give back the connection to the pool!!! 
 	
 	if err := ami.Ping(ctx, s1, ""); err != nil {
 		//something went wrong with this connection. kill it!
-		pool.FreeSocket(s1, true)
+		pool.Close(s1, true)
 	}
 	ami.Ping(ctx, s2, "");
 	ami.Ping(ctx, s3, "");
