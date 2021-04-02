@@ -17,6 +17,7 @@ type Socket struct {
 	conn     net.Conn
 	incoming chan string
 	shutdown chan struct{}
+	error    chan error
 	wg       sync.WaitGroup
 }
 
@@ -31,6 +32,7 @@ func NewSocket(ctx context.Context, address string) (*Socket, error) {
 		conn:     conn,
 		incoming: make(chan string, 32),
 		shutdown: make(chan struct{}),
+		error:    make(chan error),
 	}
 	s.run(ctx, conn)
 	return s, nil
@@ -55,7 +57,9 @@ func (s *Socket) Close(ctx context.Context) error {
 
 	select {
 	case <-done:
+		return s.terminate()
 	case <-time.NewTimer(150 * time.Millisecond).C:
+		return s.terminate()
 	case <-ctx.Done():
 		return s.terminate()
 	}
@@ -75,13 +79,16 @@ func (s *Socket) Recv(ctx context.Context) (string, error) {
 		select {
 		case msg, ok := <-s.incoming:
 			if !ok {
-				continue
+				return buffer.String(), io.EOF
 			}
 			buffer.WriteString(msg)
 			if strings.HasSuffix(buffer.String(), "\r\n") {
 				return buffer.String(), nil
 			}
+		case err := <-s.error:
+			return buffer.String(), err
 		case <-s.shutdown:
+			return buffer.String(), io.EOF
 		case <-ctx.Done():
 			return buffer.String(), io.EOF
 		}
@@ -96,12 +103,15 @@ func (s *Socket) run(ctx context.Context, conn net.Conn) {
 		for {
 			select {
 			case <-s.shutdown:
+				s.terminate()
+				return
 			case <-ctx.Done():
 				s.terminate()
 				return
 			default:
 				msg, err := reader.ReadString('\n')
 				if err != nil {
+					s.error <- err
 					return
 				}
 				s.incoming <- msg
