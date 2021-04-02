@@ -11,8 +11,8 @@ import (
 // it is useful for async requests to asterisk (i.e. api requests)
 func NewPool(ctx context.Context, address string, user, secret, events string) (*Pool, error) {
 	return &Pool{
-		LowWater:  0,
-		HighWater: 10,
+		MinConections: 0,
+		MaxConections: 10,
 
 		ctx:      ctx,
 		address:  address,
@@ -22,29 +22,31 @@ func NewPool(ctx context.Context, address string, user, secret, events string) (
 		mutex:    new(sync.Mutex),
 		active:   make(map[*Socket]bool),
 		idle:     make([]*Socket, 0),
+		closed:   true,
 	}, nil
 }
 
 //Pool is the struct that mantains all the asterisk connections open
-//TODO: implement a keepalive go rutine that checks idle connections status
 type Pool struct {
-	LowWater  int //initial ami connections
-	HighWater int //max connections allowed
-	address   string
-	username  string
-	secret    string
-	events    string
-	ctx       context.Context
-	idle      []*Socket        //list of idle asterisk connections
-	active    map[*Socket]bool //index of active(in use) connections
-	mutex     *sync.Mutex
+	MinConections int //initial ami connections
+	MaxConections int //max connections allowed
+	address       string
+	username      string
+	secret        string
+	events        string
+	ctx           context.Context
+	idle          []*Socket        //list of idle asterisk connections
+	active        map[*Socket]bool //index of active(in use) connections
+	mutex         *sync.Mutex
+	closed        bool
 }
 
 //Connect connects with every ami socket in the pool
 func (p *Pool) Connect() error {
+	p.closed = false
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
-	for i := 0; i < p.LowWater; i++ {
+	for i := 0; i < p.MinConections; i++ {
 		socket, err := p.newConnection()
 		if err != nil {
 			return err
@@ -58,8 +60,8 @@ func (p *Pool) Connect() error {
 func (p *Pool) newConnection() (*Socket, error) {
 
 	totalSessions := len(p.active) + len(p.idle)
-	if totalSessions > p.HighWater {
-		return nil, errors.New("Max allowed connections reached. Increase the max allowed connections by setting pool.HighWater to a higher value")
+	if totalSessions > p.MaxConections {
+		return nil, errors.New("Max allowed connections reached. Increase the max allowed connections by setting pool.MaxConections to a higher value")
 	}
 
 	socket, err := NewSocket(p.ctx, p.address)
@@ -75,13 +77,29 @@ func (p *Pool) newConnection() (*Socket, error) {
 	return socket, nil
 }
 
-//Close closes all AMI connections
-func (p *Pool) Close() error {
+//CloseAll closes all AMI connections and shutdown pool
+func (p *Pool) CloseAll() error {
+	p.closed = true
+
+	for _, s := range p.idle {
+		Logoff(p.ctx, s, "")
+		s.Close(p.ctx)
+	}
+
+	for s := range p.active {
+		Logoff(p.ctx, s, "")
+		s.Close(p.ctx)
+	}
+
 	return nil
 }
 
 //GetSocket return a connected AMI session
+// if no idle connection is found, this function creates a new socket
 func (p *Pool) GetSocket() (*Socket, error) {
+	if p.closed {
+		return nil, errors.New("Pool closed")
+	}
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
@@ -93,7 +111,6 @@ func (p *Pool) GetSocket() (*Socket, error) {
 			return nil, err
 		}
 	} else {
-		//TODO: verify that connection is still alive
 		s = p.idle[0]
 		p.idle = p.idle[1:]
 	}
@@ -103,16 +120,16 @@ func (p *Pool) GetSocket() (*Socket, error) {
 	return s, nil
 }
 
-//FreeSocket give back a socket to the pool
-// if the idle connections are greater than LowWater, then this connection is closed
-// the "close" param is set to true, the connection to asterisk will be closed
-func (p *Pool) FreeSocket(s *Socket, close bool) error {
+//Close give back a socket to the pool
+// if the idle connections are greater than MinConections, then this connection is closed
+// the "force" param is set to true, the connection to asterisk will be closed
+func (p *Pool) Close(s *Socket, force bool) error {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
+
 	delete(p.active, s)
 	totalSessions := len(p.active) + len(p.idle)
-	if totalSessions >= p.LowWater || close {
-		Logoff(p.ctx, s, "")
+	if totalSessions >= p.MinConections || force {
 		s.Close(p.ctx)
 		return nil
 	}
