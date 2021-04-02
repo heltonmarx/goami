@@ -111,7 +111,11 @@ For concurrent (i.e. REST API) connections you may need keep a pool of AMI conne
 	ami.Ping(ctx, s2, "");
 	ami.Ping(ctx, s3, "");
 ```
-
+### Getting Error: "Max allowed connections reached. Increase the max allowed connections by setting pool.MaxConections to a higher value"
+If you get this error with even low traffic, ensure you "gived back" the socket to the pool with 
+```Go
+defer pool.Close(<socket>, false)
+```
 
 
 
