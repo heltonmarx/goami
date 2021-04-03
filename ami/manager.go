@@ -207,3 +207,25 @@ func DeviceStateList(ctx context.Context, client Client, actionID string) ([]Res
 func LoggerRotate(ctx context.Context, client Client, actionID string) (Response, error) {
 	return send(ctx, client, "LoggerRotate", actionID, nil)
 }
+
+// UpdateConfig Updates a config file.
+// Dynamically updates an Asterisk configuration file.
+func UpdateConfig(ctx context.Context, client Client, actionID, srcFilename, dstFilename string, actions []UpdateConfigAction, reload bool) (Response, error) {
+	options := make(map[string]string)
+	options["SrcFilename"] = srcFilename
+	options["DstFilename"] = dstFilename
+	if reload {
+		options["Reload"] = "yes"
+	}
+	for i, a := range actions {
+		actionNumber := fmt.Sprintf("%06d", i)
+		options["Action-"+actionNumber] = a.Action
+		options["Cat-"+actionNumber] = a.Category
+		if a.Var != "" {
+			options["Var-"+actionNumber] = a.Var
+			options["Value-"+actionNumber] = a.Value
+
+		}
+	}
+	return send(ctx, client, "UpdateConfig", actionID, options)
+}

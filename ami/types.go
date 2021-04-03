@@ -164,3 +164,24 @@ type MessageData struct {
 	Base64Body string `ami:"Base64Body,omitempty"`
 	Variable   string `ami:"Variable"`
 }
+
+// UpdateConfigAction holds the params for an action in UpdateConfig AMI command.
+//
+// example
+// 	actions := make([]ami.UpdateConfigAction, 0)
+//	actions = append(actions, ami.UpdateConfigAction{
+// 		Action:   "EmptyCat",
+// 		Category: "test01",
+// 	})
+// 	actions = append(actions, ami.UpdateConfigAction{
+// 		Action:   "Append",
+// 		Category: "test01",
+// 		Var:      "type",
+// 		Value:    "peer",
+// 	})
+type UpdateConfigAction struct {
+	Action   string `ami:"Action"`
+	Category string `ami:"Category"`
+	Var      string `ami:"Var,omitempty"`
+	Value    string `ami:"Value,omitempty"`
+}
