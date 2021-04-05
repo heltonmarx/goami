@@ -210,7 +210,7 @@ func LoggerRotate(ctx context.Context, client Client, actionID string) (Response
 
 // UpdateConfig Updates a config file.
 // Dynamically updates an Asterisk configuration file.
-func UpdateConfig(ctx context.Context, client Client, actionID, srcFilename, dstFilename string, actions []UpdateConfigAction, reload bool) (Response, error) {
+func UpdateConfig(ctx context.Context, client Client, actionID, srcFilename, dstFilename string, reload bool, actions ...UpdateConfigAction) (Response, error) {
 	options := make(map[string]string)
 	options["SrcFilename"] = srcFilename
 	options["DstFilename"] = dstFilename
