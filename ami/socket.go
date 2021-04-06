@@ -63,7 +63,6 @@ func (s *Socket) Close(ctx context.Context) error {
 	case <-ctx.Done():
 		return s.terminate()
 	}
-	return nil
 }
 
 // Send sends data to socket using fprintf format.
