@@ -17,7 +17,7 @@ type Socket struct {
 	conn     net.Conn
 	incoming chan string
 	shutdown chan struct{}
-	error    chan error
+	errors   chan error
 	wg       sync.WaitGroup
 }
 
@@ -32,7 +32,7 @@ func NewSocket(ctx context.Context, address string) (*Socket, error) {
 		conn:     conn,
 		incoming: make(chan string, 32),
 		shutdown: make(chan struct{}),
-		error:    make(chan error),
+		errors:   make(chan error),
 	}
 	s.run(ctx, conn)
 	return s, nil
@@ -85,7 +85,7 @@ func (s *Socket) Recv(ctx context.Context) (string, error) {
 			if strings.HasSuffix(buffer.String(), "\r\n") {
 				return buffer.String(), nil
 			}
-		case err := <-s.error:
+		case err := <-s.errors:
 			return buffer.String(), err
 		case <-s.shutdown:
 			return buffer.String(), io.EOF
@@ -111,7 +111,7 @@ func (s *Socket) run(ctx context.Context, conn net.Conn) {
 			default:
 				msg, err := reader.ReadString('\n')
 				if err != nil {
-					s.error <- err
+					s.errors <- err
 					return
 				}
 				s.incoming <- msg
