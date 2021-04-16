@@ -8,8 +8,6 @@ import (
 	"io"
 	"net"
 	"strings"
-	"sync"
-	"time"
 )
 
 // Socket holds the socket client connection data.
@@ -18,7 +16,6 @@ type Socket struct {
 	incoming chan string
 	shutdown chan struct{}
 	errors   chan error
-	wg       sync.WaitGroup
 }
 
 // NewSocket provides a new socket client, connecting to a tcp server.
@@ -34,7 +31,7 @@ func NewSocket(ctx context.Context, address string) (*Socket, error) {
 		shutdown: make(chan struct{}),
 		errors:   make(chan error),
 	}
-	s.run(ctx, conn)
+	go s.run(ctx, conn)
 	return s, nil
 }
 
@@ -47,22 +44,10 @@ func (s *Socket) Connected() bool {
 // Close closes socket connection.
 func (s *Socket) Close(ctx context.Context) error {
 	close(s.shutdown)
-
-	// wait for shutdown of run process
-	done := make(chan struct{})
-	go func() {
-		s.wg.Wait()
-		close(done)
-	}()
-
-	select {
-	case <-done:
-		return s.terminate()
-	case <-time.NewTimer(150 * time.Millisecond).C:
-		return s.terminate()
-	case <-ctx.Done():
-		return s.terminate()
+	if s.conn != nil {
+		return s.conn.Close()
 	}
+	return nil
 }
 
 // Send sends data to socket using fprintf format.
@@ -95,33 +80,13 @@ func (s *Socket) Recv(ctx context.Context) (string, error) {
 }
 
 func (s *Socket) run(ctx context.Context, conn net.Conn) {
-	s.wg.Add(1)
-	go func() {
-		defer s.wg.Done()
-		reader := bufio.NewReader(conn)
-		for {
-			select {
-			case <-s.shutdown:
-				s.terminate()
-				return
-			case <-ctx.Done():
-				s.terminate()
-				return
-			default:
-				msg, err := reader.ReadString('\n')
-				if err != nil {
-					s.errors <- err
-					return
-				}
-				s.incoming <- msg
-			}
+	reader := bufio.NewReader(conn)
+	for {
+		msg, err := reader.ReadString('\n')
+		if err != nil {
+			s.errors <- err
+			return
 		}
-	}()
-}
-
-func (s *Socket) terminate() error {
-	if s.conn != nil {
-		return s.conn.Close()
+		s.incoming <- msg
 	}
-	return nil
 }
