@@ -176,8 +176,8 @@ func Reload(ctx context.Context, client Client, actionID, module string) (Respon
 
 // ShowDialPlan shows dialplan contexts and extensions
 // Be aware that showing the full dialplan may take a lot of capacity.
-func ShowDialPlan(ctx context.Context, client Client, actionID, extension, context string) (Response, error) {
-	return send(ctx, client, "ShowDialPlan", actionID, map[string]string{
+func ShowDialPlan(ctx context.Context, client Client, actionID, extension, context string) ([]Response, error) {
+	return requestList(ctx, client, "ShowDialPlan", actionID, "ListDialplan", "ShowDialPlanComplete", map[string]string{
 		"Extension": extension,
 		"Context":   context,
 	})
