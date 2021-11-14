@@ -9,6 +9,11 @@ import (
 	"strings"
 )
 
+var (
+	// ErrInvalidResponseActionID occurss when the response doesn't have the same action id
+	ErrInvalidResponseActionID = errors.New("invalid response action id")
+)
+
 // GetUUID returns a new UUID based on /dev/urandom (unix).
 func GetUUID() (string, error) {
 	f, err := os.Open("/dev/urandom")
@@ -45,22 +50,14 @@ func send(ctx context.Context, client Client, action, id string, v interface{}) 
 	if err := client.Send(string(b)); err != nil {
 		return nil, err
 	}
-	//if the action id is not provided, returns first response from ami
-	if id == "" {
-		return read(ctx, client)
+	response, err := read(ctx, client)
+	if err != nil {
+		return nil, err
 	}
-	//if action id is provided, waits until response to that action id is received
-	for {
-		var response Response
-		var err error
-		response, err = read(ctx, client)
-		if err != nil {
-			return nil, err
-		}
-		if response.Get("ActionID") == id {
-			return response, nil
-		}
+	if id == "" || id == response.Get("ActionID") {
+		return response, err
 	}
+	return nil, ErrInvalidResponseActionID
 }
 
 func read(ctx context.Context, client Client) (Response, error) {
