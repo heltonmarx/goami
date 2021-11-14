@@ -8,8 +8,6 @@ import (
 	"io"
 	"net"
 	"strings"
-	"sync"
-	"time"
 )
 
 // Socket holds the socket client connection data.
@@ -17,7 +15,7 @@ type Socket struct {
 	conn     net.Conn
 	incoming chan string
 	shutdown chan struct{}
-	wg       sync.WaitGroup
+	errors   chan error
 }
 
 // NewSocket provides a new socket client, connecting to a tcp server.
@@ -31,8 +29,9 @@ func NewSocket(ctx context.Context, address string) (*Socket, error) {
 		conn:     conn,
 		incoming: make(chan string, 32),
 		shutdown: make(chan struct{}),
+		errors:   make(chan error),
 	}
-	s.run(ctx, conn)
+	go s.run(ctx, conn)
 	return s, nil
 }
 
@@ -45,19 +44,8 @@ func (s *Socket) Connected() bool {
 // Close closes socket connection.
 func (s *Socket) Close(ctx context.Context) error {
 	close(s.shutdown)
-
-	// wait for shutdown of run process
-	done := make(chan struct{})
-	go func() {
-		s.wg.Wait()
-		close(done)
-	}()
-
-	select {
-	case <-done:
-	case <-time.NewTimer(150 * time.Millisecond).C:
-	case <-ctx.Done():
-		return s.terminate()
+	if s.conn != nil {
+		return s.conn.Close()
 	}
 	return nil
 }
@@ -75,13 +63,16 @@ func (s *Socket) Recv(ctx context.Context) (string, error) {
 		select {
 		case msg, ok := <-s.incoming:
 			if !ok {
-				continue
+				return buffer.String(), io.EOF
 			}
 			buffer.WriteString(msg)
 			if strings.HasSuffix(buffer.String(), "\r\n") {
 				return buffer.String(), nil
 			}
+		case err := <-s.errors:
+			return buffer.String(), err
 		case <-s.shutdown:
+			return buffer.String(), io.EOF
 		case <-ctx.Done():
 			return buffer.String(), io.EOF
 		}
@@ -89,30 +80,13 @@ func (s *Socket) Recv(ctx context.Context) (string, error) {
 }
 
 func (s *Socket) run(ctx context.Context, conn net.Conn) {
-	s.wg.Add(1)
-	go func() {
-		defer s.wg.Done()
-		reader := bufio.NewReader(conn)
-		for {
-			select {
-			case <-s.shutdown:
-			case <-ctx.Done():
-				s.terminate()
-				return
-			default:
-				msg, err := reader.ReadString('\n')
-				if err != nil {
-					return
-				}
-				s.incoming <- msg
-			}
+	reader := bufio.NewReader(conn)
+	for {
+		msg, err := reader.ReadString('\n')
+		if err != nil {
+			s.errors <- err
+			return
 		}
-	}()
-}
-
-func (s *Socket) terminate() error {
-	if s.conn != nil {
-		return s.conn.Close()
+		s.incoming <- msg
 	}
-	return nil
 }

@@ -176,8 +176,8 @@ func Reload(ctx context.Context, client Client, actionID, module string) (Respon
 
 // ShowDialPlan shows dialplan contexts and extensions
 // Be aware that showing the full dialplan may take a lot of capacity.
-func ShowDialPlan(ctx context.Context, client Client, actionID, extension, context string) (Response, error) {
-	return send(ctx, client, "ShowDialPlan", actionID, map[string]string{
+func ShowDialPlan(ctx context.Context, client Client, actionID, extension, context string) ([]Response, error) {
+	return requestList(ctx, client, "ShowDialPlan", actionID, "ListDialplan", "ShowDialPlanComplete", map[string]string{
 		"Extension": extension,
 		"Context":   context,
 	})
@@ -206,4 +206,26 @@ func DeviceStateList(ctx context.Context, client Client, actionID string) ([]Res
 // LoggerRotate reload and rotate the Asterisk logger.
 func LoggerRotate(ctx context.Context, client Client, actionID string) (Response, error) {
 	return send(ctx, client, "LoggerRotate", actionID, nil)
+}
+
+// UpdateConfig Updates a config file.
+// Dynamically updates an Asterisk configuration file.
+func UpdateConfig(ctx context.Context, client Client, actionID, srcFilename, dstFilename string, reload bool, actions ...UpdateConfigAction) (Response, error) {
+	options := make(map[string]string)
+	options["SrcFilename"] = srcFilename
+	options["DstFilename"] = dstFilename
+	if reload {
+		options["Reload"] = "yes"
+	}
+	for i, a := range actions {
+		actionNumber := fmt.Sprintf("%06d", i)
+		options["Action-"+actionNumber] = a.Action
+		options["Cat-"+actionNumber] = a.Category
+		if a.Var != "" {
+			options["Var-"+actionNumber] = a.Var
+			options["Value-"+actionNumber] = a.Value
+
+		}
+	}
+	return send(ctx, client, "UpdateConfig", actionID, options)
 }

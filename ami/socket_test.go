@@ -25,7 +25,6 @@ func TestSocketSend(t *testing.T) {
 	defer ln.Close()
 
 	incoming := make(chan string)
-	done := make(chan struct{})
 
 	var wg sync.WaitGroup
 
@@ -37,15 +36,15 @@ func TestSocketSend(t *testing.T) {
 		ensure.Nil(t, err)
 		defer conn.Close()
 
+		size := 0
 		reader := bufio.NewReader(conn)
 		for {
-			select {
-			case <-done:
+			msg, err := reader.ReadString('\n')
+			ensure.Nil(t, err)
+			incoming <- msg
+			size += len(msg)
+			if size == len(message) {
 				return
-			default:
-				msg, err := reader.ReadString('\n')
-				ensure.Nil(t, err)
-				incoming <- msg
 			}
 		}
 	}()
@@ -62,7 +61,6 @@ func TestSocketSend(t *testing.T) {
 				buffer.WriteString(msg)
 				if strings.HasSuffix(buffer.String(), "\r\n\r\n") {
 					ensure.DeepEqual(t, buffer.String(), message)
-					close(done)
 					return
 				}
 			}
