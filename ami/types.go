@@ -88,21 +88,21 @@ type AOCData struct {
 //		ChannelId - Channel UniqueId to be set on the channel.
 //		OtherChannelId - Channel UniqueId to be set on the second local channel.
 type OriginateData struct {
-	Channel        string `ami:"Channel"`
-	Exten          string `ami:"Exten"`
-	Context        string `ami:"Context"`
-	Priority       int    `ami:"Priority"`
-	Application    string `ami:"Application"`
-	Data           string `ami:"Data"`
-	Timeout        int    `ami:"Timeout"`
-	CallerID       string `ami:"CallerID"`
-	Variable       string `ami:"Variable"`
-	Account        string `ami:"Account"`
-	EarlyMedia     string `ami:"EarlyMedia"`
-	Async          string `ami:"Async"`
-	Codecs         string `ami:"Codecs"`
-	ChannelID      string `ami:"ChannelId"`
-	OtherChannelID string `ami:"OtherChannelId"`
+	Channel        string   `ami:"Channel,omitempty"`
+	Exten          string   `ami:"Exten,omitempty"`
+	Context        string   `ami:"Context,omitempty"`
+	Priority       int      `ami:"Priority,omitempty"`
+	Application    string   `ami:"Application,omitempty"`
+	Data           string   `ami:"Data,omitempty"`
+	Timeout        int      `ami:"Timeout,omitempty"`
+	CallerID       string   `ami:"CallerID,omitempty"`
+	Variable       []string `ami:"Variable,omitempty"`
+	Account        string   `ami:"Account,omitempty"`
+	EarlyMedia     string   `ami:"EarlyMedia,omitempty"`
+	Async          string   `ami:"Async,omitempty"`
+	Codecs         string   `ami:"Codecs,omitempty"`
+	ChannelID      string   `ami:"ChannelId,omitempty"`
+	OtherChannelID string   `ami:"OtherChannelId,omitempty"`
 }
 
 // QueueData holds to queue calls.

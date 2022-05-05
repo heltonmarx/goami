@@ -10,30 +10,39 @@ import (
 
 func marshal(v interface{}) ([]byte, error) {
 	var buf bytes.Buffer
-	if err := encode(&buf, reflect.ValueOf(v)); err != nil {
+	if err := encode(&buf, "", reflect.ValueOf(v)); err != nil {
 		return nil, err
 	}
 	buf.WriteString("\r\n")
 	return buf.Bytes(), nil
 }
 
-func encode(buf *bytes.Buffer, v reflect.Value) error {
+func writeString(buf *bytes.Buffer, tag, value string) {
+	if tag != "" {
+		buf.WriteString(tag)
+		buf.WriteString(": ")
+	}
+	buf.WriteString(value)
+	buf.WriteString("\r\n")
+}
+
+func encode(buf *bytes.Buffer, tag string, v reflect.Value) error {
 	switch v.Kind() {
 	case reflect.String:
-		buf.WriteString(v.String() + "\r\n")
+		writeString(buf, tag, v.String())
 	case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Int:
-		buf.WriteString(strconv.FormatInt(v.Int(), 10) + "\r\n")
+		writeString(buf, tag, strconv.FormatInt(v.Int(), 10))
 	case reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uint:
-		buf.WriteString(strconv.FormatUint(v.Uint(), 10) + "\r\n")
+		writeString(buf, tag, strconv.FormatUint(v.Uint(), 10))
 	case reflect.Bool:
-		buf.WriteString(strconv.FormatBool(v.Bool()) + "\r\n")
+		writeString(buf, tag, strconv.FormatBool(v.Bool()))
 	case reflect.Float32:
-		buf.WriteString(strconv.FormatFloat(v.Float(), 'E', -1, 32) + "\r\n")
+		writeString(buf, tag, strconv.FormatFloat(v.Float(), 'E', -1, 32))
 	case reflect.Float64:
-		buf.WriteString(strconv.FormatFloat(v.Float(), 'E', -1, 64) + "\r\n")
+		writeString(buf, tag, strconv.FormatFloat(v.Float(), 'E', -1, 64))
 	case reflect.Ptr, reflect.Interface:
 		if !v.IsNil() {
-			return encode(buf, v.Elem())
+			return encode(buf, tag, v.Elem())
 		}
 	case reflect.Struct:
 		return encodeStruct(buf, v)
@@ -42,8 +51,8 @@ func encode(buf *bytes.Buffer, v reflect.Value) error {
 	case reflect.Slice:
 		for i := 0; i < v.Len(); i++ {
 			elem := v.Index(i)
-			if !elem.IsNil() {
-				if err := encode(buf, elem); err != nil {
+			if !isZero(elem) {
+				if err := encode(buf, tag, elem); err != nil {
 					return err
 				}
 			}
@@ -112,10 +121,8 @@ func encodeStruct(buf *bytes.Buffer, v reflect.Value) error {
 		if omitempty && isZero(value) {
 			continue
 		}
-		if tag != "" {
-			buf.WriteString(tag + ": ")
-		}
-		if err := encode(buf, value); err != nil {
+
+		if err := encode(buf, tag, value); err != nil {
 			return err
 		}
 	}
@@ -127,10 +134,7 @@ func encodeMap(buf *bytes.Buffer, v reflect.Value) error {
 		value := v.MapIndex(key)
 		if key.Kind() == reflect.String {
 			tag := key.String()
-			if tag != "" {
-				buf.WriteString(tag + ": ")
-			}
-			if err := encode(buf, value); err != nil {
+			if err := encode(buf, tag, value); err != nil {
 				return err
 			}
 		}
