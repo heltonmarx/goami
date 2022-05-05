@@ -51,7 +51,7 @@ func encode(buf *bytes.Buffer, tag string, v reflect.Value) error {
 	case reflect.Slice:
 		for i := 0; i < v.Len(); i++ {
 			elem := v.Index(i)
-			if !elem.IsNil() {
+			if !isZero(elem) {
 				if err := encode(buf, tag, elem); err != nil {
 					return err
 				}
