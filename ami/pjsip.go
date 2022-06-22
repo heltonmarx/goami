@@ -37,9 +37,9 @@ func PJSIPUnregister(ctx context.Context, client Client, actionID, registration 
 	})
 }
 
-// PJSIPShowEndpoint detaill listing of an endpoint and its objects.
+// PJSIPShowEndpoint detail listing of an endpoint and its objects.
 func PJSIPShowEndpoint(ctx context.Context, client Client, actionID, endpoint string) ([]Response, error) {
-	return requestList(ctx, client, "PJSIPShowEndpoint", actionID, "EndpointDetail", "EndpointDetailComplete", map[string]string{
+	return requestMultiEvent(ctx, client, "PJSIPShowEndpoint", actionID, []string{"EndpointDetail", "ContactStatusDetail", "AorDetail", "AuthDetail", "TransportDetail", "IdentifyDetail"}, "EndpointDetailComplete", map[string]string{
 		"Endpoint": endpoint,
 	})
 }

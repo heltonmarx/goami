@@ -104,3 +104,39 @@ func requestList(ctx context.Context, client Client, action, id, event, complete
 	}
 	return response, nil
 }
+
+// requestMultiEvent allows for a list of events to be specified, used in cases where a command
+// returns multiple types of events.
+func requestMultiEvent(ctx context.Context, client Client, action, id string, events []string, complete string, v ...interface{}) ([]Response, error) {
+
+	set := make(map[string]struct{}, len(events))
+	for _, evt := range events {
+		set[evt] = struct{}{}
+	}
+
+	b, err := command(action, id, v)
+	if err != nil {
+		return nil, err
+	}
+	if err := client.Send(string(b)); err != nil {
+		return nil, err
+	}
+
+	response := make([]Response, 0)
+	for {
+		rsp, err := read(ctx, client)
+		if err != nil {
+			return nil, err
+		}
+		e := rsp.Get("Event")
+		r := rsp.Get("Response")
+
+		_, ok := set[e]
+		if ok {
+			response = append(response, rsp)
+		} else if e == complete || r != "" && r != "Success" {
+			break
+		}
+	}
+	return response, nil
+}
