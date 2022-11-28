@@ -15,7 +15,11 @@ func GetUUID() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("open /dev/urandom error:[%v]", err)
 	}
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Printf("Error closing file: %s\n", err)
+		}
+	}()
 	b := make([]byte, 16)
 
 	_, err = f.Read(b)

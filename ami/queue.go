@@ -54,7 +54,7 @@ func QueueStatus(ctx context.Context, client Client, actionID, queue, member str
 
 // QueueStatuses show status all members in queue.
 func QueueStatuses(ctx context.Context, client Client, actionID, queue string) ([]Response, error) {
-	return requestList(ctx, client, "QueueStatus", actionID, "QueueMember", "QueueStatusComplete", map[string]string{
+	return requestMultiEvent(ctx, client, "QueueStatus", actionID, []string{"QueueMember", "QueueEntry"}, "QueueStatusComplete", map[string]string{
 		"Queue": queue,
 	})
 }
