@@ -84,6 +84,9 @@ func (s *Socket) run(ctx context.Context, conn net.Conn) {
 	for {
 		msg, err := reader.ReadString('\n')
 		if err != nil {
+			if err == io.EOF && len(msg) == 0 {
+				return
+			}
 			s.errors <- err
 			return
 		}
