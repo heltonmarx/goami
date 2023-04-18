@@ -29,7 +29,7 @@ func NewSocket(ctx context.Context, address string) (*Socket, error) {
 		conn:     conn,
 		incoming: make(chan string, 32),
 		shutdown: make(chan struct{}),
-		errors:   make(chan error),
+		errors:   make(chan error, 2),
 	}
 	go s.run(ctx, conn)
 	return s, nil
@@ -84,9 +84,6 @@ func (s *Socket) run(ctx context.Context, conn net.Conn) {
 	for {
 		msg, err := reader.ReadString('\n')
 		if err != nil {
-			if err == io.EOF && len(msg) == 0 {
-				return
-			}
 			s.errors <- err
 			return
 		}
