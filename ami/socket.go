@@ -29,7 +29,7 @@ func NewSocket(ctx context.Context, address string) (*Socket, error) {
 		conn:     conn,
 		incoming: make(chan string, 32),
 		shutdown: make(chan struct{}),
-		errors:   make(chan error),
+		errors:   make(chan error, 2),
 	}
 	go s.run(ctx, conn)
 	return s, nil
