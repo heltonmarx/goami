@@ -50,26 +50,25 @@ var (
 func main() {
 	flag.Parse()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	
 
-	socket, err := ami.NewSocket(ctx, *host)
+	socket, err := ami.NewSocket( *host)
 	if err != nil {
 		log.Fatalf("socket error: %v\n", err)
 	}
-	if _, err := ami.Connect(ctx, socket); err != nil {
+	if _, err := ami.Connect( socket); err != nil {
 		log.Fatalf("connect error: %v\n", err)
 	}
 	//Login
 	uuid, _ := ami.GetUUID()
-	if err := ami.Login(ctx, socket, *username, *secret, "Off", uuid); err != nil {
+	if _, err := ami.Login( socket, *username, *secret, "Off", uuid); err != nil {
 		log.Fatalf("login error: %v\n", err)
 	}
 	fmt.Printf("login ok!\n")
 
 	//Logoff
 	fmt.Printf("logoff\n")
-	if err := ami.Logoff(ctx, socket, uuid); err != nil {
+	if _, err := ami.Logoff( socket, uuid); err != nil {
 		log.Fatalf("logoff error: (%v)\n", err)
 	}
 	fmt.Printf("goodbye !\n")
