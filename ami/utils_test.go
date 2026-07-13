@@ -4,15 +4,15 @@ import (
 	"context"
 	"testing"
 
-	"github.com/facebookgo/ensure"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestParseResponse(t *testing.T) {
 	response := "Asterisk Call Manager/1.0\r\nResponse: Success\r\nMessage: Authentication accepted\r\n\r\n"
 	rsp, err := parseResponse(response)
-	ensure.Nil(t, err)
-	ensure.DeepEqual(t, rsp.Get("Response"), "Success")
-	ensure.DeepEqual(t, rsp.Get("Message"), "Authentication accepted")
+	assert.NoError(t, err)
+	assert.Equal(t, rsp.Get("Response"), "Success")
+	assert.Equal(t, rsp.Get("Message"), "Authentication accepted")
 }
 
 func TestSend(t *testing.T) {
@@ -23,7 +23,7 @@ func TestSend(t *testing.T) {
 	ctx := context.Background()
 	client := newClientMock(t, login, response)
 	rsp, err := send(ctx, client, "Login", "testid", nil)
-	ensure.Nil(t, err)
-	ensure.DeepEqual(t, rsp.Get("Response"), "Success")
-	ensure.DeepEqual(t, rsp.Get("Message"), "Authentication accepted")
+	assert.NoError(t, err)
+	assert.Equal(t, rsp.Get("Response"), "Success")
+	assert.Equal(t, rsp.Get("Message"), "Authentication accepted")
 }
