@@ -17,7 +17,7 @@ func Connect(ctx context.Context, client Client) (bool, error) {
 
 // Login provides the login manager.
 func Login(ctx context.Context, client Client, user, secret, events, actionID string) error {
-	var login = struct {
+	login := struct {
 		Username string `ami:"Username"`
 		Secret   string `ami:"Secret"`
 		Events   string `ami:"Events,omitempty"`
@@ -130,7 +130,7 @@ func GetConfigJSON(ctx context.Context, client Client, actionID, filename, categ
 
 // JabberSend sends a message to a Jabber Client
 func JabberSend(ctx context.Context, client Client, actionID, jabber, jid, message string) (Response, error) {
-	return send(ctx, client, "JabberSend", actionID, map[string]interface{}{
+	return send(ctx, client, "JabberSend", actionID, map[string]any{
 		"Jabber":  jabber,
 		"JID":     jid,
 		"Message": message,

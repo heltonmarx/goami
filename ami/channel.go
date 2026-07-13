@@ -8,7 +8,7 @@ import (
 // AbsoluteTimeout set absolute timeout.
 // Hangup a channel after a certain time. Acknowledges set time with Timeout Set message.
 func AbsoluteTimeout(ctx context.Context, client Client, actionID, channel string, timeout int) (Response, error) {
-	return send(ctx, client, "AbsoluteTimeout", actionID, map[string]interface{}{
+	return send(ctx, client, "AbsoluteTimeout", actionID, map[string]any{
 		"Channel": channel,
 		"Timeout": timeout,
 	})
@@ -35,7 +35,7 @@ func Originate(ctx context.Context, client Client, actionID string, originate Or
 
 // Park parks a channel.
 func Park(ctx context.Context, client Client, actionID, channel1, channel2 string, timeout int, parkinglot string) (Response, error) {
-	return send(ctx, client, "Park", actionID, map[string]interface{}{
+	return send(ctx, client, "Park", actionID, map[string]any{
 		"Channel":    channel1,
 		"Channel2":   channel2,
 		"Timeout":    timeout,

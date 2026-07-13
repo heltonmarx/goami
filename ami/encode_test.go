@@ -128,7 +128,7 @@ func TestEncodeFloat(t *testing.T) {
 
 func TestEncodeMap(t *testing.T) {
 	var buf bytes.Buffer
-	m := map[string]interface{}{
+	m := map[string]any{
 		"Name":  "foobar",
 		"Age":   99,
 		"Valid": true,

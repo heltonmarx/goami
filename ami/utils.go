@@ -4,44 +4,28 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
-	"os"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
-// GetUUID returns a new UUID based on /dev/urandom (unix).
+// GetUUID returns a new UUID string.
 func GetUUID() (string, error) {
-	f, err := os.Open("/dev/urandom")
-	if err != nil {
-		return "", fmt.Errorf("open /dev/urandom error:[%v]", err)
-	}
-	defer func() {
-		if err := f.Close(); err != nil {
-			fmt.Printf("Error closing file: %s\n", err)
-		}
-	}()
-	b := make([]byte, 16)
-
-	_, err = f.Read(b)
-	if err != nil {
-		return "", err
-	}
-	uuid := fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
-	return uuid, nil
+	return uuid.New().String(), nil
 }
 
-func command(action string, id string, v ...interface{}) ([]byte, error) {
+func command(action string, id string, v ...any) ([]byte, error) {
 	if action == "" {
 		return nil, errors.New("invalid Action")
 	}
 	return marshal(&struct {
 		Action string `ami:"Action"`
 		ID     string `ami:"ActionID, omitempty"`
-		V      []interface{}
+		V      []any
 	}{Action: action, ID: id, V: v})
 }
 
-func send(ctx context.Context, client Client, action, id string, v interface{}) (Response, error) {
+func send(ctx context.Context, client Client, action, id string, v any) (Response, error) {
 	b, err := command(action, id, v)
 	if err != nil {
 		return nil, err
@@ -83,7 +67,7 @@ func parseResponse(input string) (Response, error) {
 	return resp, nil
 }
 
-func requestList(ctx context.Context, client Client, action, id, event, complete string, v ...interface{}) ([]Response, error) {
+func requestList(ctx context.Context, client Client, action, id, event, complete string, v ...any) ([]Response, error) {
 	b, err := command(action, id, v)
 	if err != nil {
 		return nil, err
@@ -111,8 +95,7 @@ func requestList(ctx context.Context, client Client, action, id, event, complete
 
 // requestMultiEvent allows for a list of events to be specified, used in cases where a command
 // returns multiple types of events.
-func requestMultiEvent(ctx context.Context, client Client, action, id string, events []string, complete string, v ...interface{}) ([]Response, error) {
-
+func requestMultiEvent(ctx context.Context, client Client, action, id string, events []string, complete string, v ...any) ([]Response, error) {
 	set := make(map[string]struct{}, len(events))
 	for _, evt := range events {
 		set[evt] = struct{}{}

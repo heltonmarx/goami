@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func marshal(v interface{}) ([]byte, error) {
+func marshal(v any) ([]byte, error) {
 	var buf bytes.Buffer
 	if err := encode(&buf, "", reflect.ValueOf(v)); err != nil {
 		return nil, err
