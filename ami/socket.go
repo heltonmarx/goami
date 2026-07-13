@@ -52,6 +52,10 @@ func (s *Socket) Close(ctx context.Context) error {
 
 // Send sends data to socket using fprintf format.
 func (s *Socket) Send(message string) error {
+	if s.conn == nil {
+		return io.ErrClosedPipe
+	}
+
 	_, err := fmt.Fprintf(s.conn, message)
 	return err
 }
@@ -74,7 +78,7 @@ func (s *Socket) Recv(ctx context.Context) (string, error) {
 		case <-s.shutdown:
 			return buffer.String(), io.EOF
 		case <-ctx.Done():
-			return buffer.String(), io.EOF
+			return buffer.String(), ctx.Err()
 		}
 	}
 }
@@ -82,11 +86,19 @@ func (s *Socket) Recv(ctx context.Context) (string, error) {
 func (s *Socket) run(ctx context.Context, conn net.Conn) {
 	reader := bufio.NewReader(conn)
 	for {
-		msg, err := reader.ReadString('\n')
-		if err != nil {
-			s.errors <- err
+		select {
+		case <-ctx.Done():
+			s.errors <- ctx.Err()
 			return
+		case <-s.shutdown:
+			return
+		default:
+			msg, err := reader.ReadString('\n')
+			if err != nil {
+				s.errors <- err
+				return
+			}
+			s.incoming <- msg
 		}
-		s.incoming <- msg
 	}
 }

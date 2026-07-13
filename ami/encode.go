@@ -40,7 +40,7 @@ func encode(buf *bytes.Buffer, tag string, v reflect.Value) error {
 		writeString(buf, tag, strconv.FormatFloat(v.Float(), 'E', -1, 32))
 	case reflect.Float64:
 		writeString(buf, tag, strconv.FormatFloat(v.Float(), 'E', -1, 64))
-	case reflect.Ptr, reflect.Interface:
+	case reflect.Pointer, reflect.Interface:
 		if !v.IsNil() {
 			return encode(buf, tag, v.Elem())
 		}
@@ -63,17 +63,32 @@ func encode(buf *bytes.Buffer, tag string, v reflect.Value) error {
 	return nil
 }
 
-func isOmitempty(tag string) (string, bool, error) {
+// parseAMITag parses a struct tag (e.g. `ami:"name,omitempty"`) and returns:
+//   - the field name
+//   - whether omitempty is present
+//   - error if an unsupported flag is found
+func parseAMITag(tag string) (name string, omitempty bool, err error) {
+	if tag == "" {
+		return "", false, nil
+	}
+
 	fields := strings.Split(tag, ",")
-	if len(fields) > 1 {
-		for _, flag := range fields[1:] {
-			if strings.TrimSpace(flag) == "omitempty" {
-				return fields[0], true, nil
-			}
-			return tag, false, fmt.Errorf("unsupported flag %q in tag %q", flag, tag)
+	name = strings.TrimSpace(fields[0])
+
+	for _, f := range fields[1:] {
+		flag := strings.TrimSpace(f)
+		if flag == "" {
+			continue
+		}
+		switch flag {
+		case "omitempty":
+			omitempty = true
+		default:
+			return name, false, fmt.Errorf("unsupported flag %q in tag %q", flag, tag)
 		}
 	}
-	return tag, false, nil
+
+	return name, omitempty, nil
 }
 
 func isZero(v reflect.Value) bool {
@@ -95,7 +110,7 @@ func isZero(v reflect.Value) bool {
 			}
 		}
 		return true
-	case reflect.Ptr, reflect.Interface:
+	case reflect.Pointer, reflect.Interface:
 		return v.IsNil()
 	}
 	return false
@@ -113,7 +128,7 @@ func encodeStruct(buf *bytes.Buffer, v reflect.Value) error {
 		case tag == "-":
 			continue
 		}
-		tag, omitempty, err = isOmitempty(tag)
+		tag, omitempty, err = parseAMITag(tag)
 		if err != nil {
 			return err
 		}

@@ -17,7 +17,7 @@ import (
 func TestSocketSend(t *testing.T) {
 	const message = "Action: Login\r\nUsername: testuser\r\nSecret: testsecret\r\n\r\n"
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), time.Second)
 	defer cancel()
 
 	ln, err := net.Listen("tcp", ":")
@@ -56,6 +56,8 @@ func TestSocketSend(t *testing.T) {
 		var buffer bytes.Buffer
 		for {
 			select {
+			case <-ctx.Done():
+				t.Error("test timed out waiting for message: ", ctx.Err())
 			case msg, ok := <-incoming:
 				ensure.True(t, ok)
 				buffer.WriteString(msg)
