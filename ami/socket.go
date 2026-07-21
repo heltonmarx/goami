@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"net"
 	"strings"
@@ -56,7 +55,7 @@ func (s *Socket) Send(message string) error {
 		return io.ErrClosedPipe
 	}
 
-	_, err := fmt.Fprintf(s.conn, message)
+	_, err := io.WriteString(s.conn, message)
 	return err
 }
 

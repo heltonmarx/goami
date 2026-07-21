@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/facebookgo/ensure"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLogin(t *testing.T) {
@@ -19,7 +19,7 @@ func TestLogin(t *testing.T) {
 	ctx := context.Background()
 	client := newClientMock(t, login, response)
 	err := Login(ctx, client, user, secret, events, actionID)
-	ensure.Nil(t, err)
+	assert.NoError(t, err)
 }
 
 func TestLogoff(t *testing.T) {
@@ -31,7 +31,7 @@ func TestLogoff(t *testing.T) {
 	ctx := context.Background()
 	client := newClientMock(t, logoff, response)
 	err := Logoff(ctx, client, actionID)
-	ensure.Nil(t, err)
+	assert.NoError(t, err)
 }
 
 func TestPing(t *testing.T) {
@@ -43,7 +43,7 @@ func TestPing(t *testing.T) {
 	ctx := context.Background()
 	client := newClientMock(t, ping, response)
 	err := Ping(ctx, client, actionID)
-	ensure.Nil(t, err)
+	assert.NoError(t, err)
 }
 
 func TestChallenge(t *testing.T) {
@@ -55,9 +55,9 @@ func TestChallenge(t *testing.T) {
 	ctx := context.Background()
 	client := newClientMock(t, challenge, response)
 	rsp, err := Challenge(ctx, client, actionID)
-	ensure.Nil(t, err)
-	ensure.DeepEqual(t, rsp.Get("Response"), "Success")
-	ensure.DeepEqual(t, rsp.Get("Challenge"), "840415273")
+	assert.NoError(t, err)
+	assert.Equal(t, rsp.Get("Response"), "Success")
+	assert.Equal(t, rsp.Get("Challenge"), "840415273")
 }
 
 func TestCommand(t *testing.T) {
@@ -70,8 +70,8 @@ func TestCommand(t *testing.T) {
 	ctx := context.Background()
 	client := newClientMock(t, input, response)
 	rsp, err := Command(ctx, client, actionID, cmd)
-	ensure.Nil(t, err)
-	ensure.DeepEqual(t, rsp.Get("Response"), "Follows")
+	assert.NoError(t, err)
+	assert.Equal(t, rsp.Get("Response"), "Follows")
 }
 
 func TestCoreSettings(t *testing.T) {
@@ -83,8 +83,8 @@ func TestCoreSettings(t *testing.T) {
 	ctx := context.Background()
 	client := newClientMock(t, input, response)
 	rsp, err := CoreSettings(ctx, client, actionID)
-	ensure.Nil(t, err)
-	ensure.DeepEqual(t, rsp.Get("Response"), "Success")
+	assert.NoError(t, err)
+	assert.Equal(t, rsp.Get("Response"), "Success")
 }
 
 func TestCoreStatus(t *testing.T) {
@@ -96,8 +96,8 @@ func TestCoreStatus(t *testing.T) {
 	ctx := context.Background()
 	client := newClientMock(t, input, response)
 	rsp, err := CoreStatus(ctx, client, actionID)
-	ensure.Nil(t, err)
-	ensure.DeepEqual(t, rsp.Get("Response"), "Success")
+	assert.NoError(t, err)
+	assert.Equal(t, rsp.Get("Response"), "Success")
 }
 
 func TestCreateConfig(t *testing.T) {
@@ -110,8 +110,8 @@ func TestCreateConfig(t *testing.T) {
 	ctx := context.Background()
 	client := newClientMock(t, input, response)
 	rsp, err := CreateConfig(ctx, client, actionID, filename)
-	ensure.Nil(t, err)
-	ensure.DeepEqual(t, rsp.Get("Response"), "Success")
+	assert.NoError(t, err)
+	assert.Equal(t, rsp.Get("Response"), "Success")
 }
 
 func TestDataGet(t *testing.T) {
@@ -126,8 +126,8 @@ func TestDataGet(t *testing.T) {
 	ctx := context.Background()
 	client := newClientMock(t, input, response)
 	rsp, err := DataGet(ctx, client, actionID, path, search, filter)
-	ensure.Nil(t, err)
-	ensure.DeepEqual(t, rsp.Get("Response"), "Success")
+	assert.NoError(t, err)
+	assert.Equal(t, rsp.Get("Response"), "Success")
 }
 
 func TestEventFlow(t *testing.T) {
@@ -140,8 +140,8 @@ func TestEventFlow(t *testing.T) {
 	ctx := context.Background()
 	client := newClientMock(t, input, response)
 	rsp, err := EventFlow(ctx, client, actionID, eventMask)
-	ensure.Nil(t, err)
-	ensure.DeepEqual(t, rsp.Get("Response"), "Events Off")
+	assert.NoError(t, err)
+	assert.Equal(t, rsp.Get("Response"), "Events Off")
 }
 
 func TestGetConfigJSON(t *testing.T) {
@@ -156,8 +156,8 @@ func TestGetConfigJSON(t *testing.T) {
 	ctx := context.Background()
 	client := newClientMock(t, input, response)
 	rsp, err := GetConfigJSON(ctx, client, actionID, filename, category, filter)
-	ensure.Nil(t, err)
-	ensure.DeepEqual(t, rsp.Get("Response"), "Success")
+	assert.NoError(t, err)
+	assert.Equal(t, rsp.Get("Response"), "Success")
 }
 
 func TestJabberSend(t *testing.T) {
@@ -172,8 +172,8 @@ func TestJabberSend(t *testing.T) {
 	ctx := context.Background()
 	client := newClientMock(t, input, response)
 	rsp, err := JabberSend(ctx, client, actionID, jabber, jid, message)
-	ensure.Nil(t, err)
-	ensure.DeepEqual(t, rsp.Get("Response"), "Success")
+	assert.NoError(t, err)
+	assert.Equal(t, rsp.Get("Response"), "Success")
 }
 
 func TestListCommands(t *testing.T) {
@@ -185,8 +185,8 @@ func TestListCommands(t *testing.T) {
 	ctx := context.Background()
 	client := newClientMock(t, input, response)
 	rsp, err := ListCommands(ctx, client, actionID)
-	ensure.Nil(t, err)
-	ensure.DeepEqual(t, rsp.Get("Response"), "Success")
+	assert.NoError(t, err)
+	assert.Equal(t, rsp.Get("Response"), "Success")
 }
 
 func TestListCategories(t *testing.T) {
@@ -199,6 +199,6 @@ func TestListCategories(t *testing.T) {
 	ctx := context.Background()
 	client := newClientMock(t, input, response)
 	rsp, err := ListCategories(ctx, client, actionID, filename)
-	ensure.Nil(t, err)
-	ensure.DeepEqual(t, rsp.Get("Response"), "Success")
+	assert.NoError(t, err)
+	assert.Equal(t, rsp.Get("Response"), "Success")
 }

@@ -29,7 +29,7 @@ func AGI(ctx context.Context, client Client, actionID, channel, agiCommand, agiC
 
 // ControlPlayback control the playback of a file being played to a channel.
 func ControlPlayback(ctx context.Context, client Client, actionID, channel string, control AGIControl) (Response, error) {
-	return send(ctx, client, "ControlPlayback", actionID, map[string]interface{}{
+	return send(ctx, client, "ControlPlayback", actionID, map[string]any{
 		"Channel": channel,
 		"Control": control,
 	})

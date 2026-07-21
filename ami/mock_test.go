@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/facebookgo/ensure"
+	"github.com/stretchr/testify/assert"
 )
 
 type mockClient struct {
@@ -53,7 +53,7 @@ func verifyResponse(t *testing.T, actual, expect string) {
 	as := strings.Split(actual, "\r\n")
 	es := strings.Split(expect, "\r\n")
 
-	ensure.DeepEqual(t, len(as), len(es))
+	assert.Equal(t, len(as), len(es))
 	for _, m := range as {
 		found := false
 		for _, n := range es {
@@ -61,6 +61,6 @@ func verifyResponse(t *testing.T, actual, expect string) {
 				found = true
 			}
 		}
-		ensure.True(t, found)
+		assert.True(t, found)
 	}
 }

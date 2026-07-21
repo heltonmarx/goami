@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/facebookgo/ensure"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSocketSend(t *testing.T) {
@@ -21,7 +21,7 @@ func TestSocketSend(t *testing.T) {
 	defer cancel()
 
 	ln, err := net.Listen("tcp", ":")
-	ensure.Nil(t, err)
+	assert.NoError(t, err)
 	defer ln.Close()
 
 	incoming := make(chan string)
@@ -33,14 +33,14 @@ func TestSocketSend(t *testing.T) {
 		defer wg.Done()
 
 		conn, err := ln.Accept()
-		ensure.Nil(t, err)
+		assert.NoError(t, err)
 		defer conn.Close()
 
 		size := 0
 		reader := bufio.NewReader(conn)
 		for {
 			msg, err := reader.ReadString('\n')
-			ensure.Nil(t, err)
+			assert.NoError(t, err)
 			incoming <- msg
 			size += len(msg)
 			if size == len(message) {
@@ -59,25 +59,25 @@ func TestSocketSend(t *testing.T) {
 			case <-ctx.Done():
 				t.Error("test timed out waiting for message: ", ctx.Err())
 			case msg, ok := <-incoming:
-				ensure.True(t, ok)
+				assert.True(t, ok)
 				buffer.WriteString(msg)
 				if strings.HasSuffix(buffer.String(), "\r\n\r\n") {
-					ensure.DeepEqual(t, buffer.String(), message)
+					assert.Equal(t, buffer.String(), message)
 					return
 				}
 			}
 		}
 	}()
 	socket, err := NewSocket(ctx, ln.Addr().String())
-	ensure.Nil(t, err)
+	assert.NoError(t, err)
 
 	err = socket.Send(message)
-	ensure.Nil(t, err)
+	assert.NoError(t, err)
 
 	wg.Wait()
 
 	err = socket.Close(ctx)
-	ensure.Nil(t, err)
+	assert.NoError(t, err)
 }
 
 func TestSocketRecv(t *testing.T) {
@@ -98,20 +98,20 @@ func TestSocketRecv(t *testing.T) {
 		defer wg.Done()
 
 		conn, err := ln.Accept()
-		ensure.Nil(t, err)
+		assert.NoError(t, err)
 		defer conn.Close()
 
 		n, err := fmt.Fprintf(conn, response)
-		ensure.Nil(t, err)
-		ensure.True(t, n == len(response))
+		assert.NoError(t, err)
+		assert.True(t, n == len(response))
 	}(ctx, ln)
 
 	socket, err := NewSocket(ctx, ln.Addr().String())
-	ensure.Nil(t, err)
+	assert.NoError(t, err)
 
 	rsp, err := socket.Recv(ctx)
-	ensure.Nil(t, err)
-	ensure.DeepEqual(t, rsp, response)
+	assert.NoError(t, err)
+	assert.Equal(t, rsp, response)
 
 	wg.Wait()
 }
