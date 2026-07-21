@@ -20,3 +20,6 @@ example/example
 
 *.exe
 .idea/
+.aider*
+
+AGENTS.md
