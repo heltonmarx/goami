@@ -11,8 +11,10 @@ main
 _obj
 _test
 
-#ignore example binary
-example/example
+#ignore examples binary
+example/simple/simple
+example/pool/pool
+
 *.coverprofile
 
 /.vscode/

@@ -40,15 +40,24 @@ goami/
 │   ├── socket.go          # TCP socket connection management
 │   ├── types.go           # Data structures for AMI actions
 │   └── utils.go           # Utility functions (command building, sending)
-├── example/               # Example implementation
-│   └── asterisk.go        # High-level Asterisk client wrapper
+├── example/               # Example implementations
+│   ├── simple/            # Single-server example (see example/simple/)
+│   │   ├── asterisk.go    # High-level Asterisk client wrapper
+│   │   ├── main.go        # Entry point for the simple example
+│   │   ├── Makefile       # Build/test targets
+│   │   └── docker-compose.yml  # Asterisk container for local testing
+│   └── pool/              # Multi-server connection pool (see example/pool/README.md)
+│       ├── main.go        # Entry point for the pool example
+│       ├── pool.go        # Pool implementation
+│       ├── Makefile       # Build/test targets
+│       └── README.md      # Pool-specific documentation
 ├── README.md              # This file
 └── LICENSE                # MIT License
 ```
 
 The library is organized into two main packages:
 - **`ami`**: The core library providing low-level AMI protocol implementation
-- **`example`**: A reference implementation showing how to use the library
+- **`example`**: Reference implementations showing how to use the library
 
 ## Installation and Requirements
 
@@ -120,6 +129,151 @@ func main() {
 	fmt.Printf("goodbye !\n")
 }
 ```
+
+## Examples
+
+### Simple (single-server) example
+
+The `example/simple/` directory contains a complete single-server AMI client that connects to one Asterisk instance, logs in, fetches SIP peers, and prints them.
+
+**Code** (`example/simple/main.go`):
+
+```go
+package main
+
+import (
+	"context"
+	"flag"
+	"log"
+)
+
+var (
+	username = flag.String("username", "admin", "AMI username")
+	secret   = flag.String("secret", "dials", "AMI secret")
+	host     = flag.String("host", "127.0.0.1:5038", "AMI host address")
+)
+
+func main() {
+	flag.Parse()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	asterisk, err := NewAsterisk(ctx, *host, *username, *secret)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer asterisk.Logoff(ctx)
+
+	log.Printf("connected with asterisk\n")
+
+	peers, err := asterisk.SIPPeers(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("peers: %v\n", peers)
+}
+```
+
+**Run instructions:**
+
+1. Start an Asterisk container (requires Docker):
+   ```sh
+   cd example/simple
+   docker-compose up -d
+   ```
+2. Build and run the example:
+   ```sh
+   cd example/simple
+   go build -o simple .
+   ./simple -host 127.0.0.1:5038 -username admin -secret dials
+   ```
+
+The example uses the `docker-compose.yml` file in `example/simple/` to spin up a local Asterisk instance for testing.
+
+### Pool (multi-server) example
+
+The `example/pool/` directory contains a connection pool that manages multiple concurrent AMI connections to several Asterisk servers, with automatic reconnect and round‑robin selection.
+
+**Code** (`example/pool/main.go`):
+
+```go
+// Command poolexample connects to several Asterisk servers concurrently
+// using the pool package, prints incoming events tagged by server, and
+// shows how to target a single server for an action-style call.
+package main
+
+import (
+	"context"
+	"flag"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/heltonmarx/goami/ami"
+)
+
+func main() {
+	username := flag.String("username", "admin", "AMI username (shared by all servers in this example)")
+	secret := flag.String("secret", "admin", "AMI secret (shared by all servers in this example)")
+	flag.Parse()
+
+	// In a real service these would come from config/env/service discovery,
+	// each with its own credentials if needed.
+	servers := []ServerConfig{
+		{Name: "sp-01", Host: "10.0.1.10:5038", Username: *username, Secret: *secret},
+		{Name: "sp-02", Host: "10.0.2.10:5038", Username: *username, Secret: *secret},
+		{Name: "sp-03", Host: "10.0.3.10:5038", Username: *username, Secret: *secret},
+	}
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	p := NewPool(servers)
+	p.Start(ctx)
+	defer p.Close()
+
+	// Consume events from every server on one channel.
+	go func() {
+		for evt := range p.Events() {
+			log.Printf("[%s] event=%s channel=%s",
+				evt.Server, evt.Data.Get("Event"), evt.Data.Get("Channel"))
+		}
+	}()
+
+	// Example: target one specific server for an action.
+	if socket, actionID, err := p.Get("sp-02"); err == nil {
+		if resp, err := ami.CoreStatus(ctx, socket, actionID); err == nil {
+			log.Printf("sp-02 core status: %s", resp.Get("CoreStartupDate"))
+		}
+		p.Release("sp-02")
+	}
+
+	// Example: don't care which server, just need any healthy one.
+	if name, socket, actionID, err := p.Next(); err == nil {
+		if resp, err := ami.CoreSettings(ctx, socket, actionID); err == nil {
+			log.Printf("picked %s via round-robin, AMI version %s", name, resp.Get("AMIversion"))
+		}
+		p.Release(name)
+	}
+
+	<-ctx.Done()
+	log.Println("shutting down")
+}
+```
+
+**Run instructions:**
+
+1. Ensure you have at least one Asterisk instance reachable (the example expects three servers; adjust the `servers` slice to match your environment).
+2. Build and run:
+   ```sh
+   cd example/pool
+   go build -o poolexample .
+   ./poolexample -username admin -secret admin
+   ```
+
+For full details on the pool implementation, see `example/pool/README.md`.
 
 ## Documentation
 
