@@ -1,7 +1,7 @@
-GO  			?= go
-BUILDFLAGS		:= -v -i -tags 'netgo'
-TESTFLAGS		:= -cover
-TESTPKG         := $(shell go list ./... | grep -v /vendor/)
+GO						?= go
+BUILDFLAGS		:= -v
+TESTFLAGS			:= -cover
+TESTPKG      	:= $(shell go list ./... | grep -v /vendor/)
 
 export GOOS        := $(subst Darwin,darwin,$(subst Linux,linux,$(subst FreeBSD,freebsd,$(shell uname))))
 export CGO_ENABLED := 0
